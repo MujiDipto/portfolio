@@ -70,8 +70,9 @@ An authentic, interactive terminal window. Ayu dark, plus an Ayu Light theme wit
 Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=1`.
 - Dev: `npm run dev`
 - Build: `npm run build`
-- Test: not set up yet
+- Test: `npm test` (Vitest, single run); `npm run test:watch` while working
 - Lint and typecheck: `npm run lint` and `npm run typecheck`
+- Format: `npm run format`; check with `npm run format:check`. Markdown and `content/` are excluded.
 
 ## Next.js guidance
 @AGENTS.md

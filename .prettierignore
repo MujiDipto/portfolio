@@ -1,0 +1,7 @@
+# Hand-written docs and resume content keep their own formatting
+*.md
+content/
+
+# Generated
+package-lock.json
+next-env.d.ts
