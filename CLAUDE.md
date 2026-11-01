@@ -66,11 +66,15 @@ An authentic, interactive terminal window. Ayu dark, plus an Ayu Light theme wit
 - Mobile: the window frame collapses to a simple top bar; content gets full width.
 - `content/design.md` is another developer's design guide, kept locally as optional reference for techniques (tokens, motion, accessibility). Never copy its copy, facts, layout or assets, and never commit it.
 
-## Commands (fill in after scaffolding)
-- Dev: TBD
-- Build: TBD
-- Test: TBD
-- Lint and typecheck: TBD
+## Commands
+Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=1`.
+- Dev: `npm run dev`
+- Build: `npm run build`
+- Test: not set up yet
+- Lint and typecheck: `npm run lint` and `npm run typecheck`
+
+## Next.js guidance
+@AGENTS.md
 
 ## Phases
 0 Discover and plan. 1 Tool setup. 2 Design directions and my choice. 3 Build in small steps. 4 Verify (checks, accessibility, performance, visual review). 5 Deploy to Vercel after approval. 6 Retrospective: rank the tools and recommend a minimal setup for work.

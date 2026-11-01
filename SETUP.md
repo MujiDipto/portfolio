@@ -30,6 +30,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Claude Code desktop app | | | | |
 | Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
 | mise (Node 26 pin) | Community (open source) | Pending | 2026-11-01 | Pins Node 26 per project; global setup untouched |
+| Next.js `AGENTS.md` | Official (Vercel) | Pending | 2026-11-01 | Points agents at version-matched docs in `node_modules`; imported into CLAUDE.md |
 | Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
 | typescript-lsp | | | | |
 | explanatory-output-style | | | | |
@@ -148,10 +149,32 @@ Copy this block for each tool.
 - **Remove it:** delete `mise.toml` from the repo and run `mise uninstall node@26.13.0`. To remove mise itself: remove the activate line from `~/.zshrc`, `brew uninstall mise`, and delete `~/.local/share/mise`.
 - **Cleanup still to do (not part of this step):** the 2021 Node 14 installer in `/usr/local/bin` (needs sudo to remove) and Homebrew Node 23.
 
+### Next.js `AGENTS.md` (via create-next-app)
+- **What it is and who makes it:** a short file that `create-next-app` adds by default (`--agents-md`) and `next dev` re-adds if missing. It tells coding agents to read the docs bundled with the installed Next.js in `node_modules/next/dist/docs/` before writing code, since APIs may differ from their training data. Official, Vercel.
+- **Why we tried it:** Next.js 16.4 is newer than much of any model's training data; version-matched docs should prevent outdated code.
+- **Install and configure (2026-11-01):**
+  1. Checked current versions with `npm view` (read-only): `create-next-app` and `next` 16.4.3, published 2026-10-23. Pinned `create-next-app@16.4.3` instead of `@latest`, so the release had 9 days in the wild.
+  2. Read the CLI docs (`nextjs.org/docs/app/api-reference/cli/create-next-app`). Defaults include "agent feedback" (agents prepare anonymised Next.js feedback for review); turned off with `--no-agent-feedback`.
+  3. Scaffolded into a scratch folder, not the repo, so nothing could overwrite `CLAUDE.md`:
+     `npx create-next-app@16.4.3 scaffold --ts --tailwind --eslint --app --no-src-dir --import-alias "@/*" --use-npm --disable-git --skip-install --no-react-compiler --no-agent-feedback`. It generated 17 files and no `CLAUDE.md`.
+  4. Read every file, then copied `AGENTS.md`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `app/layout.tsx` and `app/globals.css`. Dropped the demo page, README, favicon and five SVGs.
+  5. Claude Code reads `CLAUDE.md`, not `AGENTS.md`, so `CLAUDE.md` imports it with an `@AGENTS.md` line.
+  6. Verified the docs exist: `node_modules/next/dist/docs/` holds 474 markdown files (4.4 MB).
+- **How we used it here:** not yet; first real use will be building the site in phase 3.
+- **Verdict:** Pending.
+- **Evidence:** to record whether Claude reads the bundled docs and whether that avoids outdated APIs.
+- **Risks and permissions:** text only. Reading the bundled docs costs context tokens. `next dev` rewrites the file if it is removed.
+- **Remove it:** delete `AGENTS.md`, remove the `@AGENTS.md` line from `CLAUDE.md`, and pass `--no-agents-md` on future scaffolds. `next dev` may re-create it; check `node_modules/next/dist/server/lib/generate-agent-files.js`.
+
+### Next.js telemetry (setting)
+- Next.js collects anonymous usage data by default. Disabled for this project only by adding `NEXT_TELEMETRY_DISABLED = "1"` under `[env]` in `mise.toml` (re-ran `mise trust` after the edit; `mise exec -- printenv NEXT_TELEMETRY_DISABLED` prints `1`). For work, set it in CI and on build machines too.
+
 ## Dead ends and failed attempts
 Record what did not work and why. Negative results are valuable.
 
 - 2026-11-01, Claude Code CLI native installer: the installer script (260 lines, SHA256 `3a68d340…a944`) downloaded and verified the binary, then `claude install` failed with `EACCES: permission denied, mkdir '/Users/ares/.cache/claude'`. Cause: `~/.cache` is owned by `root` (created by an old `sudo` run of matplotlib or yt-dlp), not by the installer. Shell profiles were unchanged; it left empty `~/.local/share/claude/versions` and `~/.local/state/claude/locks`. Lesson: check `ls -ld ~/.cache ~/.local` before installing CLI tools that use XDG directories. Resolved the same day: Muji ran `sudo chown -R ares:staff ~/.cache` and the second install succeeded.
+
+- 2026-11-01, `npm audit` after scaffolding: 16 moderate findings, all one advisory (GHSA-g3hv-75wg-m249, minimatch below 11.0.1, denial of service via glob patterns, CVSS 0) in the ESLint 9 toolchain. npm's suggested fix (`npm audit fix --force`) would downgrade to ESLint 4 and `eslint-config-next` 0.2.4, which is wrong. ESLint 10 would not clear it, because the lint plugins use minimatch 3.x, which has no fixed release. Accepted for now: dev-only, never shipped, and the only glob patterns come from our own config. `npm audit --audit-level=high` exits 0. Also, `npm install` warns that ESLint 9.39.5 is no longer supported; the scaffold still ships `eslint ^9`. Revisit when Next.js moves to ESLint 10.
 
 ## Work-safety notes
 What is safe to use at work, what needs approval first, and what must stay on personal projects.
