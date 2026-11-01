@@ -1,11 +1,19 @@
+import type { ReactNode } from "react";
+
 /**
  * A shell prompt line. The `muji@brisbane ~ $` prefix is decoration hidden from
  * screen readers; the command itself is read out.
  */
-export function Prompt({ command }: { command?: string }) {
+export function Prompt({
+  command,
+  children,
+}: {
+  command?: string;
+  children?: ReactNode;
+}) {
   return (
     <p className="text-base">
-      <PromptPrefix /> {command}
+      <PromptPrefix /> {children ?? command}
     </p>
   );
 }

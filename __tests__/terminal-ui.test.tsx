@@ -1,24 +1,30 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { Terminal } from "@/components/terminal/Terminal";
 import { contact, projects } from "@/lib/content";
+
+// Reduced motion skips the opening animation; __tests__/boot.test.tsx covers it.
+beforeEach(() => {
+  window.matchMedia = (query: string) =>
+    ({ matches: query.includes("reduce") }) as MediaQueryList;
+});
 
 afterEach(() => {
   delete document.documentElement.dataset.theme;
 });
 
-function setup() {
+async function setup() {
   const user = userEvent.setup();
   render(<Terminal />);
-  const input = screen.getByRole("textbox", { name: "Command" });
+  const input = await screen.findByRole("textbox", { name: "Command" });
   const log = screen.getByRole("log");
   return { user, input, log };
 }
 
 describe("Terminal", () => {
-  test("opens with whoami and about, and nothing else", () => {
-    const { log } = setup();
+  test("opens with whoami and about, and nothing else", async () => {
+    const { log } = await setup();
     expect(
       screen.getByRole("heading", { level: 1, name: "Muji Dipto" }),
     ).toBeDefined();
@@ -27,20 +33,20 @@ describe("Terminal", () => {
   });
 
   test("typing a command and pressing Enter appends its output", async () => {
-    const { user, input, log } = setup();
+    const { user, input, log } = await setup();
     await user.type(input, "git log{Enter}");
     expect(log.textContent).toContain("Security Analyst");
     expect((input as HTMLInputElement).value).toBe("");
   });
 
   test("unknown commands explain what to do", async () => {
-    const { user, input, log } = setup();
+    const { user, input, log } = await setup();
     await user.type(input, "xyz{Enter}");
     expect(log.textContent).toContain("command not found: xyz. Try help");
   });
 
   test("suggested commands can be clicked instead of typed", async () => {
-    const { user, log } = setup();
+    const { user, log } = await setup();
     await user.click(screen.getByRole("button", { name: "cat contact" }));
     expect(
       within(log)
@@ -50,7 +56,7 @@ describe("Terminal", () => {
   });
 
   test("project names in ls output open the project", async () => {
-    const { user, input, log } = setup();
+    const { user, input, log } = await setup();
     await user.type(input, "ls projects/{Enter}");
     await user.click(
       within(log).getByRole("button", { name: "vuln-curation/" }),
@@ -62,13 +68,13 @@ describe("Terminal", () => {
   });
 
   test("clear empties the screen", async () => {
-    const { user, input, log } = setup();
+    const { user, input, log } = await setup();
     await user.type(input, "clear{Enter}");
     expect(log.textContent).toBe("");
   });
 
   test("up arrow recalls the previous command", async () => {
-    const { user, input } = setup();
+    const { user, input } = await setup();
     await user.type(input, "git log{Enter}");
     await user.type(input, "{ArrowUp}");
     expect((input as HTMLInputElement).value).toBe("git log");
@@ -77,7 +83,7 @@ describe("Terminal", () => {
   });
 
   test("Tab completes a unique command", async () => {
-    const { user, input } = setup();
+    const { user, input } = await setup();
     await user.type(input, "gi");
     await user.keyboard("{Tab}");
     expect((input as HTMLInputElement).value).toBe("git log");
@@ -85,21 +91,21 @@ describe("Terminal", () => {
   });
 
   test("Tab on an ambiguous start lists the options", async () => {
-    const { user, input } = setup();
+    const { user, input } = await setup();
     await user.type(input, "cat ");
     await user.keyboard("{Tab}");
     expect(screen.getByText("cat education.md")).toBeDefined();
   });
 
   test("Tab on an empty prompt moves focus on, so there is no keyboard trap", async () => {
-    const { user, input } = setup();
+    const { user, input } = await setup();
     input.focus();
     await user.keyboard("{Tab}");
     expect(document.activeElement).not.toBe(input);
   });
 
   test("theme dark switches the page theme", async () => {
-    const { user, input, log } = setup();
+    const { user, input, log } = await setup();
     await user.type(input, "theme dark{Enter}");
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(log.textContent).toContain("theme: dark");

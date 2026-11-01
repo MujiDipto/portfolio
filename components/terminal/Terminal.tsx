@@ -9,6 +9,8 @@ import {
 } from "react";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
+import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
+import { profile } from "@/lib/content";
 import {
   complete,
   historyStep,
@@ -20,12 +22,31 @@ import { setTheme } from "@/lib/theme";
 
 type Entry = { id: number; command: string; output?: Output };
 
+const bootEntryId = 1;
+
 const opening: Entry[] = [
   { id: 0, command: "whoami", output: { type: "whoami" } },
-  { id: 1, command: "cat about.md", output: { type: "about" } },
+  { id: bootEntryId, command: bootCommand, output: { type: "about" } },
 ];
 
 const noop = () => () => {};
+
+/** The command while the opening animation types it. */
+function BootCommand({ boot }: { boot: Boot }) {
+  if (boot.phase === "pending") {
+    // Hidden by CSS once JavaScript runs, still read by screen readers.
+    return <span className="boot-hidden">{bootCommand}</span>;
+  }
+  return (
+    <>
+      <span aria-hidden="true" data-boot-typed>
+        {bootCommand.slice(0, boot.typed)}
+        <span className="boot-cursor" />
+      </span>
+      <span className="sr-only">{bootCommand}</span>
+    </>
+  );
+}
 
 export function Terminal() {
   // The prompt only renders once JavaScript runs; without it, the static
@@ -44,14 +65,16 @@ export function Terminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
   const shouldScroll = useRef(false);
+  const boot = useBoot(profile.summary.length);
+  const ready = interactive && boot.phase === "done";
 
   useEffect(() => {
-    // Focus the prompt on load for mouse and trackpad users only, so phones
-    // do not open the keyboard uninvited.
-    if (window.matchMedia?.("(pointer: fine)").matches) {
+    // Focus the prompt once it appears, for mouse and trackpad users only, so
+    // phones do not open the keyboard uninvited.
+    if (ready && window.matchMedia?.("(pointer: fine)").matches) {
       inputRef.current?.focus({ preventScroll: true });
     }
-  }, [interactive]);
+  }, [ready]);
 
   useEffect(() => {
     if (!shouldScroll.current) return;
@@ -109,27 +132,37 @@ export function Terminal() {
   return (
     <div className="space-y-6">
       <div role="log" aria-label="Terminal output" className="space-y-6">
-        {entries.map((entry, i) => (
-          <div
-            key={entry.id}
-            ref={i === entries.length - 1 ? latestRef : undefined}
-            className="scroll-mt-4"
-          >
-            <Prompt command={entry.command} />
-            {entry.output && (
-              <div className="mt-3">
-                <OutputView
-                  output={entry.output}
-                  main={entry.id === 0}
-                  onRun={runCommand}
-                />
-              </div>
-            )}
-          </div>
-        ))}
+        {entries.map((entry, i) => {
+          const booting = entry.id === bootEntryId && boot.phase !== "done";
+          return (
+            <div
+              key={entry.id}
+              ref={i === entries.length - 1 ? latestRef : undefined}
+              className="scroll-mt-4"
+            >
+              {booting ? (
+                <Prompt>
+                  <BootCommand boot={boot} />
+                </Prompt>
+              ) : (
+                <Prompt command={entry.command} />
+              )}
+              {entry.output && (
+                <div className="mt-3">
+                  <OutputView
+                    output={entry.output}
+                    main={entry.id === 0}
+                    onRun={runCommand}
+                    revealed={booting ? boot.lines : undefined}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {interactive && (
+      {ready && (
         <div>
           <form
             onSubmit={(event) => {

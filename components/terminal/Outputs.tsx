@@ -71,12 +71,22 @@ function Whoami({ main }: { main: boolean }) {
   );
 }
 
-function About() {
+/**
+ * `revealed` is how many lines the opening animation has printed; hidden lines
+ * stay in the DOM so screen readers and search engines get them at once.
+ */
+function About({ revealed }: { revealed?: number }) {
   return (
     <div className="max-w-[80ch] space-y-2 leading-relaxed">
       <Title>About</Title>
-      {profile.summary.map((line) => (
-        <p key={line}>
+      {profile.summary.map((line, i) => (
+        <p
+          key={line}
+          data-boot-line
+          className={
+            revealed !== undefined && i >= revealed ? "boot-hidden" : undefined
+          }
+        >
           <Numbers text={line} />
         </p>
       ))}
@@ -263,16 +273,18 @@ export function OutputView({
   output,
   main = false,
   onRun,
+  revealed,
 }: {
   output: Output;
   main?: boolean;
   onRun?: RunCommand;
+  revealed?: number;
 }) {
   switch (output.type) {
     case "whoami":
       return <Whoami main={main} />;
     case "about":
-      return <About />;
+      return <About revealed={revealed} />;
     case "experience":
       return <Experience />;
     case "projects":

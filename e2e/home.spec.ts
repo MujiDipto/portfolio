@@ -48,6 +48,8 @@ for (const theme of ["light", "dark"] as const) {
       await page.getByRole("button", { name: "Dark theme" }).click();
       await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     }
+    // Check the finished opening, not a frame of the animation.
+    await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
     const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
     expect(results.violations).toEqual([]);
   });

@@ -83,6 +83,48 @@ body {
   outline-offset: 2px;
 }
 
+/* Opening animation (components/terminal/useBoot.ts). Content waiting to be
+   typed or printed is hidden only once JavaScript runs (data-js), so visitors
+   without it see everything. Opacity, not display or visibility, keeps the
+   text available to screen readers. */
+html[data-js] .boot-hidden {
+  opacity: 0;
+}
+
+[data-boot-line] {
+  transition: opacity 150ms ease-out;
+}
+
+.boot-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-js] .boot-hidden {
+    opacity: 1;
+  }
+
+  [data-boot-line] {
+    transition: none;
+  }
+
+  .boot-cursor {
+    animation: none;
+  }
+}
+
 /* The command prompt shows focus with its accent underline instead (see
    Terminal.tsx). The build emits these rules unlayered, so a utility class
    cannot override the outline; this selector's specificity does. */
