@@ -1,7 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-
-const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+import { axe } from "./axe";
 
 test("home page has language, title and the name as main heading", async ({
   page,
@@ -50,7 +48,23 @@ for (const theme of ["light", "dark"] as const) {
     }
     // Check the finished opening, not a frame of the animation.
     await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
-    const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
+    const results = await axe(page).analyze();
     expect(results.violations).toEqual([]);
+  });
+}
+
+// Wrapped controls sit closer together on a phone, where touch target size
+// (WCAG 2.5.8) matters most.
+// 412px is the width Lighthouse emulates.
+for (const width of [375, 412]) {
+  test.describe(`on a ${width}px phone`, () => {
+    test.use({ viewport: { width, height: 823 }, hasTouch: true });
+
+    test("home page has no WCAG 2.2 AA violations", async ({ page }) => {
+      await page.goto("/");
+      await page.getByRole("button", { name: "cat contact" }).waitFor();
+      const results = await axe(page).analyze();
+      expect(results.violations).toEqual([]);
+    });
   });
 }

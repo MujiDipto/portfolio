@@ -14,6 +14,9 @@ test("the opening finishes and the prompt is ready within two seconds", async ({
 
 test("pressing a key skips the opening at once", async ({ page }) => {
   await page.goto("/");
+  // Typing has started, so the page is hydrated and listening for keys. A key
+  // pressed before that is ignored and the opening simply plays out.
+  await page.locator("[data-boot-typed]").waitFor();
   await page.keyboard.press("Space");
   await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible({
     timeout: 300,

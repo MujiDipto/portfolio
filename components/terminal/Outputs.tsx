@@ -33,7 +33,7 @@ export function CommandButton({
     <button
       type="button"
       onClick={() => onRun(command)}
-      className={`${className} cursor-pointer underline-offset-4 hover:underline`}
+      className={`${className} inline-flex min-h-6 cursor-pointer items-center underline-offset-4 hover:underline`}
     >
       {label}
     </button>

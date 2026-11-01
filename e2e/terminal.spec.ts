@@ -1,8 +1,6 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { axe } from "./axe";
 import { contact, projects } from "../lib/content";
-
-const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 test("typing a command shows its output and keeps the prompt ready", async ({
   page,
@@ -64,7 +62,7 @@ for (const theme of ["light", "dark"] as const) {
       await input.fill(command);
       await input.press("Enter");
     }
-    const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
+    const results = await axe(page).analyze();
     expect(results.violations).toEqual([]);
   });
 }
