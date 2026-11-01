@@ -3,5 +3,8 @@
   "permissions": {
     "deny": ["Read(.env*)", "Read(/content/*.pdf)"],
     "ask": ["Bash(git push *)", "Bash(vercel *)", "Bash(npx vercel *)"]
+  },
+  "enabledPlugins": {
+    "frontend-design@anthropic-plugin-directory": true
   }
 }

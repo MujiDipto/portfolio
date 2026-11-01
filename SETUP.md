@@ -31,6 +31,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
 | mise (Node 26 pin) | Community (open source) | Pending | 2026-11-01 | Pins Node 26 per project; global setup untouched |
 | Next.js `AGENTS.md` | Official (Vercel) | Pending | 2026-11-01 | Points agents at version-matched docs in `node_modules`; imported into CLAUDE.md |
+| frontend-design skill | Official (Anthropic) | Pending | 2026-11-01 | Text-only design guidance; installed at project scope, loaded on the next turn |
 | GitHub CLI | Official (GitHub) | Useful | 2026-11-01 | Pinned actions to SHAs and checked repos before creating one; broad token scope |
 | Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
 | typescript-lsp | | | | |
@@ -172,6 +173,21 @@ Copy this block for each tool.
 - Playwright MCP, still to evaluate, is different: a tool that lets Claude open and inspect pages while working.
 - Browsers: `npx playwright install chromium` downloaded Chrome for Testing 156 from `cdn.playwright.dev` into `~/Library/Caches/ms-playwright`. That cache already held older Playwright browsers (`chromium-1187`, `firefox-1490`, `webkit-2203`) from earlier use, 1.5 GB in total; `npx playwright uninstall` removes browsers no current install uses.
 - npm 11 warned that `fsevents` (optional macOS file watcher) has an install script not covered by `allowScripts`. Left unapproved; nothing failed without it.
+
+### frontend-design skill (plugin)
+- **What it is and who makes it:** a Claude Code plugin containing one skill, `SKILL.md` (about 9 KB, roughly 2,300 tokens when loaded), with design guidance: ground the design in the subject, deliberate type scale, one bold element, restrained motion, self-critique with screenshots, plain copy. Official, Anthropic, version 1.1.1, Apache 2.0. Source: `github.com/anthropics/claude-plugins-official`, `plugins/frontend-design`.
+- **Why we tried it:** Muji wanted it for building the terminal design (phase 3, layer 2).
+- **Install and configure (2026-11-01):**
+  1. Found it in the built-in Anthropic plugin directory, which records a reviewed commit, `a7ba5b93`.
+  2. Read every file at that commit with `gh api` before installing: manifest, README, licence, `SKILL.md`. No scripts, hooks, commands or MCP servers.
+  3. `claude plugin install frontend-design@anthropic-plugin-directory --scope project`. This adds `"enabledPlugins": { "frontend-design@anthropic-plugin-directory": true }` to `.claude/settings.json` (committed, so the plugin is enabled for anyone working in this repo) and caches the files in `~/.claude/plugins/cache/anthropic-plugin-directory/frontend-design/1.1.1-a7ba5b93db0c/`.
+  4. Verified: `diff -r` between the cached files and the reviewed commit shows no differences apart from an installer marker file, `.in_use`.
+  5. The desktop session that installed it did not list the skill in the same turn, but listed it as `frontend-design:frontend-design` from the next turn on, with no restart.
+- **How we used it here:** not yet.
+- **Verdict:** Pending.
+- **Evidence:** to record during layer 2. Watch for one tension: it lists "near-black background with one bright accent" and "monospace for small labels" as generic tells, and our chosen terminal direction is close to both. The skill says the brief always wins, so it should guide only what the brief leaves open.
+- **Risks and permissions:** text only; it cannot run code, read files or send data. Context cost only when loaded. Low risk for work.
+- **Remove it:** `claude plugin uninstall frontend-design@anthropic-plugin-directory --scope project`, which removes the `enabledPlugins` entry.
 
 ### GitHub CLI (`gh`)
 - **What it is and who makes it:** GitHub's official command-line tool. Already installed via Homebrew and signed in as MujiDipto before this project.

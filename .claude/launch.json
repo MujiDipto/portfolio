@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "/opt/homebrew/bin/mise",
+      "runtimeArgs": [
+        "exec",
+        "--",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3000"
+      ],
+      "port": 3000
+    }
+  ]
+}
