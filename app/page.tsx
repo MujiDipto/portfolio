@@ -1,9 +1,20 @@
 import { Numbers } from "@/components/Numbers";
 import { Prompt } from "@/components/Prompt";
+import { Section } from "@/components/Section";
 import { TerminalWindow, type Tab } from "@/components/TerminalWindow";
+import { Contact } from "@/components/sections/Contact";
+import { Education } from "@/components/sections/Education";
+import { Experience } from "@/components/sections/Experience";
+import { Projects } from "@/components/sections/Projects";
+import { Skills } from "@/components/sections/Skills";
 import { profile } from "@/lib/content";
 
-const tabs: Tab[] = [{ id: "about", label: "about" }];
+const tabs: Tab[] = [
+  { id: "about", label: "about" },
+  { id: "experience", label: "experience" },
+  { id: "projects", label: "projects" },
+  { id: "contact", label: "contact" },
+];
 
 export default function Home() {
   return (
@@ -36,23 +47,20 @@ export default function Home() {
             </p>
           </section>
 
-          <section
-            id="about"
-            aria-labelledby="about-heading"
-            className="mt-14 max-w-[72ch] scroll-mt-16"
-          >
-            <Prompt command="cat about.md" />
-            <h2 id="about-heading" className="sr-only">
-              About
-            </h2>
-            <div className="mt-4 space-y-3 leading-relaxed">
+          <Section id="about" title="About" command="cat about.md">
+            <div className="max-w-[72ch] space-y-3 leading-relaxed">
               {profile.summary.map((line) => (
                 <p key={line}>
                   <Numbers text={line} />
                 </p>
               ))}
             </div>
-          </section>
+          </Section>
+          <Experience />
+          <Projects />
+          <Skills />
+          <Education />
+          <Contact />
         </main>
       </TerminalWindow>
     </>

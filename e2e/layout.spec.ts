@@ -11,12 +11,33 @@ test("skip link is the first stop and moves focus to the content", async ({
   await expect(page.locator("#content")).toBeFocused();
 });
 
-test("section tabs are links that reach their sections", async ({ page }) => {
+for (const [tab, heading] of [
+  ["about", "About"],
+  ["experience", "Experience"],
+  ["projects", "Projects"],
+  ["contact", "Contact"],
+]) {
+  test(`the ${tab} tab reaches its section`, async ({ page }) => {
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Sections" });
+    await nav.getByRole("link", { name: tab, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`#${tab}$`));
+    // Section headings are visually hidden, so check the section is in view.
+    const section = page.locator(`section#${tab}`);
+    await expect(section).toBeInViewport();
+    await expect(
+      section.getByRole("heading", { level: 2, name: heading }),
+    ).toHaveCount(1);
+  });
+}
+
+test("project list links reach each project", async ({ page }) => {
   await page.goto("/");
-  const nav = page.getByRole("navigation", { name: "Sections" });
-  await nav.getByRole("link", { name: "about" }).click();
-  await expect(page).toHaveURL(/#about$/);
-  await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
+  await page.getByRole("link", { name: "vuln-curation/" }).click();
+  await expect(page).toHaveURL(/#project-vuln-curation$/);
+  await expect(
+    page.getByRole("heading", { name: "CocoaPods vulnerability curation" }),
+  ).toBeInViewport();
 });
 
 test("terminal decoration is hidden from assistive technology", async ({
