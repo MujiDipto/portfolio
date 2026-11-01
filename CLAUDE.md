@@ -71,6 +71,7 @@ Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=
 - Dev: `npm run dev`
 - Build: `npm run build`
 - Test: `npm test` (Vitest, single run); `npm run test:watch` while working
+- End-to-end and accessibility: `npm run test:e2e` (Playwright on Chromium with axe, against a production build on port 3100). Unit tests live in `__tests__/`, Playwright tests in `e2e/`.
 - Lint and typecheck: `npm run lint` and `npm run typecheck`
 - Format: `npm run format`; check with `npm run format:check`. Markdown and `content/` are excluded.
 

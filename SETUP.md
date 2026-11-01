@@ -166,6 +166,12 @@ Copy this block for each tool.
 - **Risks and permissions:** text only. Reading the bundled docs costs context tokens. `next dev` rewrites the file if it is removed.
 - **Remove it:** delete `AGENTS.md`, remove the `@AGENTS.md` line from `CLAUDE.md`, and pass `--no-agents-md` on future scaffolds. `next dev` may re-create it; check `node_modules/next/dist/server/lib/generate-agent-files.js`.
 
+### Playwright test suite vs Playwright MCP (note)
+- The project's own end-to-end suite uses `@playwright/test` 1.64.1 and `@axe-core/playwright` 4.14.0 (Deque), set up 2026-11-01. It is a project dependency that runs in CI, not a Claude Code tool, so it is not scored here.
+- Playwright MCP, still to evaluate, is different: a tool that lets Claude open and inspect pages while working.
+- Browsers: `npx playwright install chromium` downloaded Chrome for Testing 156 from `cdn.playwright.dev` into `~/Library/Caches/ms-playwright`. That cache already held older Playwright browsers (`chromium-1187`, `firefox-1490`, `webkit-2203`) from earlier use, 1.5 GB in total; `npx playwright uninstall` removes browsers no current install uses.
+- npm 11 warned that `fsevents` (optional macOS file watcher) has an install script not covered by `allowScripts`. Left unapproved; nothing failed without it.
+
 ### Next.js telemetry (setting)
 - Next.js collects anonymous usage data by default. Disabled for this project only by adding `NEXT_TELEMETRY_DISABLED = "1"` under `[env]` in `mise.toml` (re-ran `mise trust` after the edit; `mise exec -- printenv NEXT_TELEMETRY_DISABLED` prints `1`). For work, set it in CI and on build machines too.
 
