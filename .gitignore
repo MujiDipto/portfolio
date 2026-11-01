@@ -7,6 +7,9 @@
 # Source resume contains a phone number; only the redacted resume.md is committed
 content/*.pdf
 
+# Another developer's design guide, kept locally as reference only
+content/design.md
+
 # Dependencies and deploy state
 node_modules/
 .vercel/

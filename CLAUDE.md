@@ -18,8 +18,10 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 ## Site rules
 - The resume (`content/resume.md`) is the only source of facts. Do not invent or inflate experience, employers, metrics or skills. If unclear, ask. The original `content/muji-resume.pdf` is gitignored because it contains my phone number.
 - Privacy: publish only my email and LinkedIn. Never my phone number or home address. No confidential employer details.
-- Sections: hero, about, experience timeline, projects, skills, education, contact. I choose which projects to feature.
-- Design: before building, propose three distinct visual directions with rationale and a rough layout. I choose. Typography and a clear point of view matter. Keep motion restrained.
+- Sections: hero, about, experience timeline, projects, skills, education, contact.
+- Featured projects: SCA risk-scoring platform, CocoaPods vulnerability curation system, World Cup Newsletter Platform, SAST findings dashboard. Other resume items stay in the timeline; the honours thesis stays under Education.
+- Confirmed by me beyond the resume wording: the 77% data-refresh cut (2 hours to 28 minutes) was on the pipelines for the SCA scoring service.
+- Design: see Design below. Typography and a clear point of view matter.
 - Quality bar: responsive, accessible (keyboard, contrast, semantic HTML), fast (aim for 90+ Lighthouse), good metadata and link previews, light and dark themes.
 - Stack: approved, see Stack below. Ask before adding to it.
 - Deploy: Vercel, only after my approval. Tell me which accounts or permissions you need and why.
@@ -52,6 +54,17 @@ Core, chosen to match the stack I will use at work:
 Stretch, not started until the site is deployed, and only if it adds value:
 - Contact form: TypeScript API (route handlers or Hono) with Postgres (Neon or Vercel Postgres) via Drizzle or Prisma. Needs spam protection, rate limiting, a retention policy and a `mailto` fallback.
 - Lab exercises kept out of the site, in a separate folder or repo: a tiny GraphQL endpoint, one small AWS service (Lambda behind API Gateway with SST or CDK), and an Expo app sharing types and tokens (not DOM components).
+
+## Design (chosen 2026-11-01)
+An authentic, interactive terminal window. Ayu dark, plus an Ayu Light theme with colours darkened to pass WCAG AA.
+- The page is a terminal window: title bar tabs are the section navigation; sections render as command output.
+- Interactive shell: visitors can type commands (`help`, `ls`, `cat`, `open` and similar) that show the same content.
+- Progressive enhancement: all content is real semantic HTML, readable and navigable without typing and without JavaScript. The shell is an extra layer, never the only way in. No keyboard traps.
+- Typography: JetBrains Mono for prompts, file names and metadata; IBM Plex Sans for anything longer than a line.
+- Motion brings it to life but stays short and skippable: no waiting for content. Honour `prefers-reduced-motion` everywhere.
+- An 8-bit cat walks along the top of the terminal and can show help messages. Our own pixel art, no third-party sprites. Decorative to screen readers, never covers content, and can be paused (WCAG 2.2.2); its tips are also available through `help`.
+- Mobile: the window frame collapses to a simple top bar; content gets full width.
+- `content/design.md` is another developer's design guide, kept locally as optional reference for techniques (tokens, motion, accessibility). Never copy its copy, facts, layout or assets, and never commit it.
 
 ## Commands (fill in after scaffolding)
 - Dev: TBD
