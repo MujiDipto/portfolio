@@ -28,6 +28,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Ghostty | Community (open source) | Pending | 2026-11-01 | Configured and validated; not used for project work yet |
 | Claude Code desktop app | | | | |
 | Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
+| Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
 | typescript-lsp | | | | |
 | explanatory-output-style | | | | |
 | Playwright MCP | | | | |
@@ -63,6 +64,39 @@ Copy this block for each tool.
 - **Evidence:** to be recorded once used alongside the desktop app.
 - **Risks and permissions:** reads and writes files in the folder it runs in, and runs shell commands subject to your permission mode. Sends prompts, file contents and command output to Anthropic under the signed-in account. Keeps transcripts in `~/.claude/projects`, which contain whatever code it read. Updates itself in the background. For work code with regulated data: use only an employer-approved account with the right data agreement, never a personal account, and consider a pinned version or the `stable` channel.
 - **Remove it:** `rm -f ~/.local/bin/claude && rm -rf ~/.local/share/claude ~/.local/state/claude`, then remove the PATH line from `~/.zshrc`. Settings and history in `~/.claude` are shared with the desktop app; leave them unless removing both.
+
+### Project permission rules (`.claude/settings.json`)
+- **What it is and who makes it:** Claude Code's built-in permission rules, written in a settings file committed with the repo. Official, Anthropic. Nothing to install. Applies to every Claude Code session in this folder, desktop app and CLI.
+- **Why we tried it:** to enforce parts of the working agreement (no secrets read, no push or deploy without approval) instead of relying on instructions alone. The pattern carries straight over to work repos.
+- **Install and configure (2026-11-01):**
+  1. Checked the rule syntax in the official permissions docs (`code.claude.com/docs/en/permissions`). Key points: deny and ask rules from any settings file beat allow rules; a `Read` deny also blocks Edit and Write on that path and Bash commands that name the file (`cat`, `head`, redirects); ask rules still prompt in auto mode; `deny` and `ask` rules need no workspace trust.
+  2. Wrote:
+     ```json
+     {
+       "permissions": {
+         "deny": ["Read(.env*)", "Read(/content/*.pdf)"],
+         "ask": ["Bash(git push *)", "Bash(vercel *)", "Bash(npx vercel *)"]
+       }
+     }
+     ```
+     `.env*` is a bare pattern, so it matches at any depth. `/content/*.pdf` is anchored at the project root. Push and deploy are `ask`, not `deny`, because the agreement is "not without my approval", not "never".
+  3. The rules took effect in the running desktop session without a restart.
+- **How we used it here, with test results:** using a dummy `.env.guardtest` file (gitignored, no real secret, deleted afterwards):
+
+  | Rule | Test | Result |
+  | --- | --- | --- |
+  | `Read(.env*)` | Read tool on `.env.guardtest` | Blocked |
+  | `Read(.env*)` | `cat .env.guardtest` | Blocked |
+  | `Read(/content/*.pdf)` | Read tool on the resume PDF | Blocked |
+  | (no over-match) | `head content/resume.md` | Still readable |
+  | `Bash(git push *)` | `git push` while Muji watched | Prompt appeared; Muji declined |
+  | `Bash(vercel *)` | `vercel --version` | Not cleanly tested: it ran, and it is unclear whether it prompted and was approved. Retest in phase 5 once the Vercel CLI is installed. |
+
+  The first two `git push` and `vercel` runs also went through; Muji was not sure whether prompts appeared and were approved. Lesson: when testing ask rules, tell the person to watch and decline before running the command.
+- **Verdict:** Useful.
+- **Evidence:** three deny tests blocked as expected, one over-match check passed, one ask rule paused for approval. Costs no context or tokens.
+- **Risks and permissions:** only restricts; it cannot grant anything. Limits, from the docs: rules match the command text Claude writes, so they are not a security boundary. `git -C . push` or `/usr/bin/curl` forms are not matched, and deny rules do not cover commands that read files without naming them (`grep -r`, a Python or Node script). Probing the `grep -r` gap was itself blocked by the auto mode classifier, so it was not tested here. For regulated-data work: use these rules plus Claude Code's sandbox, which enforces file and network limits at the OS level, and prefer managed settings so individuals cannot loosen them.
+- **Remove it:** delete `.claude/settings.json`, or remove individual rules from it.
 
 ### Ghostty
 - **What it is and who makes it:** a native, GPU-accelerated terminal for macOS and Linux. Community open-source project led by Mitchell Hashimoto. Not made by Anthropic.
@@ -104,7 +138,7 @@ Record what did not work and why. Negative results are valuable.
 ## Work-safety notes
 What is safe to use at work, what needs approval first, and what must stay on personal projects.
 
-- Safe at work:
+- Safe at work: project permission rules in `.claude/settings.json` (deny secret reads, ask before push and deploy), paired with the sandbox for OS-level enforcement.
 - Needs approval first:
 - Personal projects only:
 
