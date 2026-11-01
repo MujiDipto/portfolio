@@ -163,7 +163,7 @@ Copy this block for each tool.
   6. Verified the docs exist: `node_modules/next/dist/docs/` holds 474 markdown files (4.4 MB).
 - **How we used it here:** to set up Vitest, Claude read the bundled guide `node_modules/next/dist/docs/01-app/02-guides/testing/vitest.md` instead of relying on memory or the web. The guide recommended `vite-tsconfig-paths`; checking the installed Vite 8.3.5 types showed a built-in `resolve.tsconfigPaths` option, so that package was skipped.
 - **Verdict:** Pending, early signs positive.
-- **Evidence so far:** one setup done from version-matched docs (2026-11-01). Still to record whether it avoids outdated APIs while building pages.
+- **Evidence so far:** one setup done from version-matched docs (2026-11-01). The first CI run then failed typecheck with `Cannot find name 'LayoutProps'`: the type is generated into `.next/types` by `next dev` or `next build`, which existed locally but not on a clean CI checkout. The bundled CLI docs (`03-api-reference/06-cli/next.md`) gave the fix, `next typegen && tsc --noEmit`. Reproduced locally by deleting `.next` and `next-env.d.ts` (plain `tsc` exit 2, same error), then confirmed the fix (exit 0). Still to record whether it avoids outdated APIs while building pages.
 - **Risks and permissions:** text only. Reading the bundled docs costs context tokens. `next dev` rewrites the file if it is removed.
 - **Remove it:** delete `AGENTS.md`, remove the `@AGENTS.md` line from `CLAUDE.md`, and pass `--no-agents-md` on future scaffolds. `next dev` may re-create it; check `node_modules/next/dist/server/lib/generate-agent-files.js`.
 
