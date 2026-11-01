@@ -14,6 +14,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 1. Check `ls -ld ~/.cache ~/.local` shows your user as owner; if not, `sudo chown -R "$USER":staff ~/.cache`.
 2. Ghostty: install from `https://ghostty.org`, then add the settings from the Ghostty entry below to `~/Library/Application Support/com.mitchellh.ghostty/config.ghostty` and run `ghostty +validate-config`.
 3. Claude Code CLI: download `https://claude.ai/install.sh`, read it, run it with `bash`, then add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`. Check with `claude --version` and `claude doctor`.
+4. mise: `brew install mise`, add `eval "$(mise activate zsh)"` to `~/.zshrc`, then in the repo run `mise trust` and `mise install` (reads `mise.toml`).
 
 ## Verdict key
 - **Useful:** saved time or caught real problems, and I would use it again.
@@ -28,6 +29,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Ghostty | Community (open source) | Pending | 2026-11-01 | Configured and validated; not used for project work yet |
 | Claude Code desktop app | | | | |
 | Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
+| mise (Node 26 pin) | Community (open source) | Pending | 2026-11-01 | Pins Node 26 per project; global setup untouched |
 | Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
 | typescript-lsp | | | | |
 | explanatory-output-style | | | | |
@@ -129,6 +131,22 @@ Copy this block for each tool.
 - **Evidence:** to be recorded once used with the CLI.
 - **Risks and permissions:** runs your shell as your user, like any terminal. Good defaults to keep: `clipboard-read = ask` (programs must ask before reading the clipboard) and `clipboard-paste-protection = true` (warns before pasting text that could run commands). `clipboard-write = allow` lets programs set the clipboard. The only network traffic the config adds is the update check. Notifications need Ghostty to be allowed in System Settings > Notifications. Low risk for work use; check whether your employer requires an approved terminal.
 - **Remove it:** delete the settings block from the config file (or the file), then drag Ghostty.app to the Bin if removing the app.
+
+### mise (Node version pin)
+- **What it is and who makes it:** a version manager for languages and tools (Node, Ruby, Python and more), configured per project with `mise.toml`. Community open source, made by jdx (Jeff Dickey). Node itself comes from nodejs.org.
+- **Why we tried it:** the Mac had Homebrew Node 23.11.0 (out of support) on PATH and an old Intel Node 14.17.0 in `/usr/local/bin`. The project needs one pinned, supported version that matches Vercel.
+- **Install and configure (2026-11-01):**
+  1. Already installed: mise 2026.9.14 via Homebrew, activated in `~/.zshrc` with `eval "$(mise activate zsh)"`, managing Ruby 3.2.4 globally. `mise doctor` reported it activated with shims on PATH. A newer release, 2026.10.25, exists; update with `brew upgrade mise`.
+  2. Checked Vercel's docs (`vercel.com/docs/functions/runtimes/node-js/node-js-versions`): available versions are 26.x (default), 24.x and 22.x; `engines.node` in `package.json` overrides the project setting. Chose Node 26 (Muji's choice) over 24 (Claude's recommendation for ecosystem maturity).
+  3. Added `mise.toml` to the repo with `node = "26"`, pinning the major version to match how Vercel selects versions.
+  4. Ran `mise trust mise.toml` (mise ignores a repo's config until trusted), then `mise install`. It downloaded `node-v26.13.0-darwin-arm64.tar.gz` in 4.5 seconds. `mise settings get node.verify` returned `true`.
+  5. Verified: in the project, `node --version` prints `v26.13.0` (via `~/.local/share/mise/shims/node`) and `npm --version` prints `11.20.0`. In the home directory, `node --version` still prints `v23.11.0`. The global `~/.config/mise/config.toml` is unchanged.
+- **How we used it here:** pins the Node used for scaffolding, builds and tests. When we scaffold, `package.json` gets `"engines": { "node": "26.x" }` so Vercel uses the same major version.
+- **Verdict:** Pending.
+- **Evidence:** to be recorded once builds run on it.
+- **Risks and permissions:** downloads runtimes into `~/.local/share/mise` with no sudo. A trusted `mise.toml` can also set environment variables and run tasks, so read a repo's `mise.toml` before running `mise trust`. Two Node installs can confuse; `which node` shows which one runs. For work: a pinned `mise.toml` per repo is a good habit; check whether your employer standardises on another manager such as nvm or volta.
+- **Remove it:** delete `mise.toml` from the repo and run `mise uninstall node@26.13.0`. To remove mise itself: remove the activate line from `~/.zshrc`, `brew uninstall mise`, and delete `~/.local/share/mise`.
+- **Cleanup still to do (not part of this step):** the 2021 Node 14 installer in `/usr/local/bin` (needs sudo to remove) and Homebrew Node 23.
 
 ## Dead ends and failed attempts
 Record what did not work and why. Negative results are valuable.

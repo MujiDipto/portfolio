@@ -42,6 +42,7 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 ## Stack (approved 2026-11-01)
 Core, chosen to match the stack I will use at work:
 - Next.js (App Router), React and TypeScript, hosted on Vercel.
+- Node 26, pinned in `mise.toml`; match it with `"engines": { "node": "26.x" }` in `package.json`.
 - Tailwind CSS with a small design system of my own (tokens plus reusable components).
 - Vitest and React Testing Library for components with real behaviour; no tests written just for coverage.
 - Playwright (`@playwright/test`) for end-to-end and accessibility checks. This is separate from the Playwright MCP tool evaluation.
