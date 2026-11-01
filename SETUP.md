@@ -57,7 +57,7 @@ Copy this block for each tool.
   3. First run failed (see Dead ends); fixed `~/.cache` ownership, re-downloaded the script (identical hash) and ran `bash install.sh`.
   4. Result: `~/.local/bin/claude` symlinked to `~/.local/share/claude/versions/2.1.316`. The installer did not edit any shell profile; it prints the PATH line to add to `~/.zshrc` yourself.
   5. Verified: `claude --version` prints `2.1.316 (Claude Code)`. `codesign --verify` reports valid; `spctl` reports "Notarized Developer ID, Anthropic PBC (Q6L2SF6YDW)". `claude doctor` reports one warning, `~/.local/bin` not on PATH.
-  6. `claude doctor` run from the desktop app's shell shows auto-updates disabled, because the app sets `DISABLE_AUTOUPDATER=1` in its own environment. In a normal terminal they should be on; check with `claude doctor` there.
+  6. `claude doctor` run from the desktop app's shell shows auto-updates disabled, because the app sets `DISABLE_AUTOUPDATER=1` in its own environment. After adding the PATH line to `~/.zshrc`, Muji ran `claude doctor` in Ghostty: "Auto-updates: enabled", "Auto-update channel: latest", "No installation issues found". Not yet signed in to claude.ai.
 - **How we used it here:** not used for project work yet.
 - **Verdict:** Pending.
 - **Evidence:** to be recorded once used alongside the desktop app.
