@@ -82,3 +82,10 @@ body {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+
+/* The command prompt shows focus with its accent underline instead (see
+   Terminal.tsx). The build emits these rules unlayered, so a utility class
+   cannot override the outline; this selector's specificity does. */
+#command:focus-visible {
+  outline: none;
+}

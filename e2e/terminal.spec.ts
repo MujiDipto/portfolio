@@ -1,0 +1,70 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+import { contact, projects } from "../lib/content";
+
+const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+
+test("typing a command shows its output and keeps the prompt ready", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("git log");
+  await input.press("Enter");
+  await expect(page.getByText("Security Analyst")).toBeVisible();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue("");
+});
+
+test("a visitor can reach contact details without typing", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "cat contact" }).click();
+  await expect(
+    page.getByRole("link", { name: contact.email.label }),
+  ).toHaveAttribute("href", contact.email.href);
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the whole session is printed", async ({ page }) => {
+    await page.goto("/");
+    // Playwright's text and role finders skip <noscript>, so read the
+    // rendered text instead; innerText only includes text that is displayed.
+    const shown = await page.locator("main").innerText();
+    for (const text of [
+      "Security Analyst",
+      ...projects.map((p) => p.name),
+      contact.email.label,
+    ]) {
+      expect(shown).toContain(text);
+    }
+    await expect(page.getByRole("textbox", { name: "Command" })).toHaveCount(0);
+  });
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`every command's output passes axe in ${theme} mode`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const input = page.getByRole("textbox", { name: "Command" });
+    const commands = [
+      "help",
+      "git log",
+      "ls projects/",
+      ...projects.map((p) => `open ${p.slug}`),
+      "cat skills.txt",
+      "cat education.md",
+      "cat contact",
+      "xyz",
+      `theme ${theme}`,
+    ];
+    for (const command of commands) {
+      await input.fill(command);
+      await input.press("Enter");
+    }
+    const results = await new AxeBuilder({ page }).withTags(wcagTags).analyze();
+    expect(results.violations).toEqual([]);
+  });
+}

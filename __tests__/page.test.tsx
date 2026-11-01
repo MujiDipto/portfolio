@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { expect, test } from "vitest";
-import Home from "@/app/page";
+import { StaticSession } from "@/components/terminal/StaticSession";
+import { Terminal } from "@/components/terminal/Terminal";
 import {
   contact,
   education,
@@ -10,17 +11,18 @@ import {
   skills,
 } from "@/lib/content";
 
-test("home page renders the name as the main heading", () => {
-  render(<Home />);
-  expect(
-    screen.getByRole("heading", { level: 1, name: "Muji Dipto" }),
-  ).toBeDefined();
-});
-
-test("every piece of resume content appears on the page", () => {
-  const { container } = render(<Home />);
+// Without JavaScript the opening plus the static session are printed, so
+// search engines and no-JS visitors get every piece of content.
+test("the opening and static session contain every piece of resume content", () => {
+  const { container } = render(
+    <>
+      <Terminal />
+      <StaticSession />
+    </>,
+  );
   const pageText = container.textContent ?? "";
   const expected = [
+    profile.name,
     ...profile.summary,
     ...experience.flatMap((org) => [
       org.name,
@@ -36,19 +38,9 @@ test("every piece of resume content appears on the page", () => {
     education.degree,
     education.institution,
     ...education.notes,
+    contact.email.label,
+    contact.linkedin.label,
+    contact.github.label,
   ];
   expect(expected.filter((text) => !pageText.includes(text))).toEqual([]);
-});
-
-test("contact and project links point where the content says", () => {
-  render(<Home />);
-  for (const link of [contact.email, contact.linkedin, contact.github]) {
-    expect(
-      screen.getByRole("link", { name: link.label }).getAttribute("href"),
-    ).toBe(link.href);
-  }
-  const repo = projects.find((p) => p.link)!.link!;
-  expect(
-    screen.getByRole("link", { name: repo.label }).getAttribute("href"),
-  ).toBe(repo.href);
 });
