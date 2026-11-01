@@ -169,7 +169,7 @@ export function Terminal() {
               event.preventDefault();
               runCommand(input);
             }}
-            className="focus-within:border-accent flex items-baseline gap-2 border-b border-transparent pb-1"
+            className="flex items-baseline gap-2"
           >
             <label htmlFor="command" className="text-base">
               <PromptPrefix />

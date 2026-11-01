@@ -46,7 +46,7 @@ function Title({ children }: { children: ReactNode }) {
 
 function Highlights({ items }: { items: string[] }) {
   return (
-    <ul className="marker:text-muted mt-2 max-w-[80ch] list-disc space-y-1.5 pl-5 leading-relaxed">
+    <ul className="marker:text-muted mt-2 list-disc space-y-1.5 pl-5 leading-relaxed">
       {items.map((item) => (
         <li key={item}>
           <Numbers text={item} />
@@ -77,7 +77,7 @@ function Whoami({ main }: { main: boolean }) {
  */
 function About({ revealed }: { revealed?: number }) {
   return (
-    <div className="max-w-[80ch] space-y-2 leading-relaxed">
+    <div className="space-y-2 leading-relaxed">
       <Title>About</Title>
       {profile.summary.map((line, i) => (
         <p
@@ -166,7 +166,7 @@ function Skills() {
   return (
     <div>
       <Title>Skills</Title>
-      <dl className="grid max-w-[80ch] gap-x-6 gap-y-1 sm:grid-cols-[11rem_1fr]">
+      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-[11rem_1fr]">
         {skills.map((skill) => (
           <div key={skill.group} className="contents">
             <dt className="text-fg-strong font-semibold">{skill.group}</dt>
@@ -180,7 +180,7 @@ function Skills() {
 
 function Education() {
   return (
-    <div className="max-w-[80ch]">
+    <div>
       <Title>Education</Title>
       <h3 className="text-fg-strong font-semibold">{education.degree}</h3>
       <p className="text-muted text-sm">

@@ -48,8 +48,8 @@ const textOn: Record<string, string[]> = {
 const uiOn: Record<string, string[]> = { window: ["focus"], page: ["focus"] };
 
 const themes = {
-  light: variablesAfter(":root {"),
-  dark: variablesAfter(':root[data-theme="dark"] {'),
+  dark: variablesAfter(":root {"),
+  light: variablesAfter(':root[data-theme="light"] {'),
 };
 
 describe.each(Object.entries(themes))("%s theme", (_, vars) => {

@@ -104,10 +104,17 @@ describe("Terminal", () => {
     expect(document.activeElement).not.toBe(input);
   });
 
-  test("theme dark switches the page theme", async () => {
+  test("theme light and theme dark switch the page theme", async () => {
     const { user, input, log } = await setup();
+    await user.type(input, "theme light{Enter}");
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(log.textContent).toContain("theme: light");
     await user.type(input, "theme dark{Enter}");
-    expect(document.documentElement.dataset.theme).toBe("dark");
-    expect(log.textContent).toContain("theme: dark");
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+  });
+
+  test("the prompt has no underline; the caret shows where you type", async () => {
+    const { input } = await setup();
+    expect(input.closest("form")?.className).not.toMatch(/border/);
   });
 });

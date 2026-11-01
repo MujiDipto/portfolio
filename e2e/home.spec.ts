@@ -12,29 +12,40 @@ test("home page has language, title and the name as main heading", async ({
   );
 });
 
-test("starts in light mode even when the system prefers dark", async ({
+test("starts in Ayu dark even when the system prefers light", async ({
   page,
 }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
+  await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
-  // #f7f4ef, the light page colour.
+  // #06080b, the Ayu dark page colour.
   await expect(page.locator("body")).toHaveCSS(
     "background-color",
-    "rgb(247, 244, 239)",
+    "rgb(6, 8, 11)",
   );
 });
 
-test("theme button switches to dark and the choice survives a reload", async ({
+test("there is no theme button; the theme command is the way to switch", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Dark theme" }).click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(
-    page.getByRole("button", { name: "Dark theme" }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /theme/i })).toHaveCount(0);
+});
+
+test("theme light switches to Ayu Light and the choice survives a reload", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("theme light");
+  await input.press("Enter");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  // #e7e9eb, the Ayu Light page colour.
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(231, 233, 235)",
+  );
 });
 
 for (const theme of ["light", "dark"] as const) {
@@ -42,12 +53,13 @@ for (const theme of ["light", "dark"] as const) {
     page,
   }) => {
     await page.goto("/");
-    if (theme === "dark") {
-      await page.getByRole("button", { name: "Dark theme" }).click();
-      await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    const input = page.getByRole("textbox", { name: "Command" });
+    if (theme === "light") {
+      await input.fill("theme light");
+      await input.press("Enter");
     }
     // Check the finished opening, not a frame of the animation.
-    await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
+    await expect(input).toBeVisible();
     const results = await axe(page).analyze();
     expect(results.violations).toEqual([]);
   });

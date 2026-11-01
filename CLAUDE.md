@@ -57,16 +57,16 @@ Stretch, not started until the site is deployed, and only if it adds value:
 
 ## Design (revised 2026-11-02)
 A real terminal session in one fixed-size window, not a long page.
-- Window: fixed height (about 80% of the viewport on desktop, full screen on phones). Output scrolls inside the window, never the page.
+- Window: fixed height (about 80% of the viewport on desktop, full screen on phones), up to 73.6rem wide. Output scrolls inside the window, never the page. The prompt shows focus with its caret, not an underline or box.
 - Opening: `whoami` and its output appear at once; `cat about.md` types itself letter by letter (under a second), then its output prints. Any key or click finishes the animation; with `prefers-reduced-motion` everything appears at once.
 - An 8-bit cat walks along the top edge and suggests `git log`, `ls projects/`, `cat skills.txt` and `cat contact` in a speech bubble. Suggestions are clickable and run the command. Our own pixel art, no third-party sprites. Decorative to screen readers, never covers content, can be paused (WCAG 2.2.2); its tips are also in `help`.
 - Interactive: typed commands append output like a real terminal. `help`, `clear`, `theme light` / `theme dark`, `cat education.md`, `open <project>`, history with up and down arrows, Tab completion, and `command not found: x. Try help` for unknown input.
 - Commands live in `lib/terminal.ts` (pure functions, tested in `__tests__/terminal.test.ts`). Approved microcopy: the help list, `command not found: x. Try help`, `cat: x: No such file or directory`, `open: no such project: x. Try ls projects/`, and the cat's bubble "meow! try one of these:". One hidden easter egg, `sudo hire muji`, prints contact details; it is not in `help` or Tab completion.
 - Progressive enhancement: without JavaScript the whole session is printed as HTML, so search engines, screen readers and no-JS visitors get all content. New output is announced to screen readers. No keyboard traps.
 - Typography: monospace throughout, Geist Mono (from `content/design.md`).
-- Colour: `content/design.md`'s palette, light by default, dark as an option (button plus `theme` command, remembered per visitor). Its dark theme and the number-literal colour are derived by us and marked as such. Colours with meaning: prompt user green, path and links blue, metrics as number literals in purple. Tokens live in `app/globals.css`; `__tests__/theme-contrast.test.ts` must keep passing.
+- Colour: Ayu dark by default, Ayu Light with `theme light` (no button; remembered per visitor). Ayu Light colours are darkened where needed to pass WCAG AA and marked as adjusted. Colours with meaning: prompt user green, path blue, links and the cursor Ayu yellow, metrics as number literals in purple. Tokens live in `app/globals.css`; `__tests__/theme-contrast.test.ts` must keep passing.
 - Domain: none yet; I want `muji.dev` eventually. Use the Vercel URL until then, from a single setting.
-- `content/design.md` is another developer's design guide, kept locally. Its colour tokens and font are used by my choice; never copy its copy, facts, layout or assets, and never commit it.
+- `content/design.md` is another developer's design guide, kept locally. Its font (Geist Mono) is used by my choice; never copy its copy, facts, layout or assets, and never commit it.
 
 ## Commands
 Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=1`.

@@ -1,46 +1,47 @@
 @import "tailwindcss";
 
 /*
- * Light theme: colour tokens from content/design.md (marked "adjusted" where
- * lightness was changed to pass WCAG AA). Dark theme and --number: derived by
- * us. __tests__/theme-contrast.test.ts checks every text colour against the
- * surfaces it sits on.
+ * Ayu palettes. Colours keep Ayu's hues; lightness was adjusted only where a
+ * colour missed WCAG AA (marked "adjusted"). __tests__/theme-contrast.test.ts
+ * checks every text colour against the surfaces it sits on.
  */
+
+/* Ayu dark, the default. */
 :root {
-  --page: #f7f4ef;
-  --window: #fffdf8;
-  --titlebar: #ede8df;
-  --border: #ded7cc;
-  --fg: #171512;
-  --fg-strong: #171512;
-  --muted: #6b665d; /* adjusted from #6f6a61 */
-  --accent: #1d5fd6;
-  --prompt-user: #13763f; /* adjusted from #168a4a */
-  --prompt-path: #1d5fd6;
-  --number: #7c3aed; /* derived */
-  --focus: #1d5fd6;
-  --dot-close: #ff5f57;
-  --dot-minimise: #febc2e;
-  --dot-zoom: #28c840;
+  --page: #06080b;
+  --window: #0b0e14;
+  --titlebar: #11151c;
+  --border: #1f2430;
+  --fg: #bfbdb6;
+  --fg-strong: #e6e1cf;
+  --muted: #77818b; /* adjusted from #626a73 */
+  --accent: #e6b450;
+  --prompt-user: #aad94c;
+  --prompt-path: #59c2ff;
+  --number: #d2a6ff;
+  --focus: #e6b450;
+  --dot-close: #f07178;
+  --dot-minimise: #ffb454;
+  --dot-zoom: #aad94c;
 }
 
-/* Derived dark theme, chosen with the theme button or `theme dark`. */
-:root[data-theme="dark"] {
-  --page: #12110f;
-  --window: #1a1815;
-  --titlebar: #23201c;
-  --border: #34302a;
-  --fg: #ede8df;
-  --fg-strong: #fffdf8;
-  --muted: #a39d92;
-  --accent: #7aa7ff;
-  --prompt-user: #4cc283;
-  --prompt-path: #7aa7ff;
-  --number: #c39bff;
-  --focus: #7aa7ff;
-  --dot-close: #ff5f57;
-  --dot-minimise: #febc2e;
-  --dot-zoom: #28c840;
+/* Ayu Light, chosen with `theme light`. */
+:root[data-theme="light"] {
+  --page: #e7e9eb;
+  --window: #fcfcfc;
+  --titlebar: #f0f1f2;
+  --border: #dcdfe3;
+  --fg: #5c6166;
+  --fg-strong: #2b2f33;
+  --muted: #66676b; /* adjusted from #adaeb1 */
+  --accent: #965800; /* adjusted from #ffaa33 */
+  --prompt-user: #5e7d00; /* adjusted from #86b300 */
+  --prompt-path: #1877bb; /* adjusted from #399ee6 */
+  --number: #8d5bc0; /* adjusted from #a37acc */
+  --focus: #bf7000; /* adjusted from #ffaa33 */
+  --dot-close: #f07171;
+  --dot-minimise: #f2ae49;
+  --dot-zoom: #86b300;
 }
 
 @theme inline {
@@ -125,9 +126,10 @@ html[data-js] .boot-hidden {
   }
 }
 
-/* The command prompt shows focus with its accent underline instead (see
-   Terminal.tsx). The build emits these rules unlayered, so a utility class
-   cannot override the outline; this selector's specificity does. */
+/* The command prompt shows focus the way a terminal does, with its blinking
+   accent caret, not an outline box (WCAG accepts the text caret as a text
+   field's focus indicator). A selector, not a utility class, so it wins over
+   the global rule above. */
 #command:focus-visible {
   outline: none;
 }
