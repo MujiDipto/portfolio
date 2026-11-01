@@ -16,8 +16,8 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 7. No destructive git operations, no pushes and no deploys without my approval. Do not use bypassPermissions.
 
 ## Site rules
-- The resume (`content/muji-resume.pdf`) is the only source of facts. Do not invent or inflate experience, employers, metrics or skills. If unclear, ask.
-- Privacy: ask which contact details to publish. No phone number or home address by default. No confidential employer details. The resume PDF contains my phone number, so it must not be committed or published as is.
+- The resume (`content/resume.md`) is the only source of facts. Do not invent or inflate experience, employers, metrics or skills. If unclear, ask. The original `content/muji-resume.pdf` is gitignored because it contains my phone number.
+- Privacy: publish only my email and LinkedIn. Never my phone number or home address. No confidential employer details.
 - Sections: hero, about, experience timeline, projects, skills, education, contact. I choose which projects to feature.
 - Design: before building, propose three distinct visual directions with rationale and a rough layout. I choose. Typography and a clear point of view matter. Keep motion restrained.
 - Quality bar: responsive, accessible (keyboard, contrast, semantic HTML), fast (aim for 90+ Lighthouse), good metadata and link previews, light and dark themes.
