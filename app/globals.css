@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
+/*
+ * Ayu palettes. Colours keep Ayu's hues; lightness was adjusted only where a
+ * colour missed WCAG AA (marked "adjusted"). __tests__/theme-contrast.test.ts
+ * checks every text colour against the surfaces it sits on.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --page: #e7e9eb;
+  --window: #fcfcfc;
+  --titlebar: #f0f1f2;
+  --border: #dcdfe3;
+  --fg: #5c6166;
+  --fg-strong: #2b2f33;
+  --muted: #66676b; /* adjusted from #adaeb1 */
+  --accent: #965800; /* adjusted from #ffaa33 */
+  --prompt-user: #5e7d00; /* adjusted from #86b300 */
+  --prompt-path: #1877bb; /* adjusted from #399ee6 */
+  --number: #8d5bc0; /* adjusted from #a37acc */
+  --focus: #bf7000; /* adjusted from #ffaa33 */
+  --dot-close: #f07171;
+  --dot-minimise: #f2ae49;
+  --dot-zoom: #86b300;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --page: #06080b;
+    --window: #0b0e14;
+    --titlebar: #11151c;
+    --border: #1f2430;
+    --fg: #bfbdb6;
+    --fg-strong: #e6e1cf;
+    --muted: #77818b; /* adjusted from #626a73 */
+    --accent: #e6b450;
+    --prompt-user: #aad94c;
+    --prompt-path: #59c2ff;
+    --number: #d2a6ff;
+    --focus: #e6b450;
+    --dot-close: #f07178;
+    --dot-minimise: #ffb454;
+    --dot-zoom: #aad94c;
   }
 }
 
+@theme inline {
+  --color-page: var(--page);
+  --color-window: var(--window);
+  --color-titlebar: var(--titlebar);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-prompt-user: var(--prompt-user);
+  --color-prompt-path: var(--prompt-path);
+  --color-number: var(--number);
+  --color-focus: var(--focus);
+  --color-dot-close: var(--dot-close);
+  --color-dot-minimise: var(--dot-minimise);
+  --color-dot-zoom: var(--dot-zoom);
+
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-jetbrains-mono);
+
+  /* Modular scale, ratio 1.25 on a 16px base. */
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }

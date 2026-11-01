@@ -183,9 +183,9 @@ Copy this block for each tool.
   3. `claude plugin install frontend-design@anthropic-plugin-directory --scope project`. This adds `"enabledPlugins": { "frontend-design@anthropic-plugin-directory": true }` to `.claude/settings.json` (committed, so the plugin is enabled for anyone working in this repo) and caches the files in `~/.claude/plugins/cache/anthropic-plugin-directory/frontend-design/1.1.1-a7ba5b93db0c/`.
   4. Verified: `diff -r` between the cached files and the reviewed commit shows no differences apart from an installer marker file, `.in_use`.
   5. The desktop session that installed it did not list the skill in the same turn, but listed it as `frontend-design:frontend-design` from the next turn on, with no restart.
-- **How we used it here:** not yet.
+- **How we used it here:** loaded for layer 2 step 1 (design tokens). Following its process, Claude wrote a short token plan and reviewed it against the brief before coding. That review changed one decision: Ayu dark is close to the skill's "near-black with one bright accent" cliché, so colour was given fixed meanings drawn from Ayu's syntax palette (user, path, links, number literals) instead of a single accent.
 - **Verdict:** Pending.
-- **Evidence:** to record during layer 2. Watch for one tension: it lists "near-black background with one bright accent" and "monospace for small labels" as generic tells, and our chosen terminal direction is close to both. The skill says the brief always wins, so it should guide only what the brief leaves open.
+- **Evidence:** so far, one concrete design change prompted by its calibration list. Cost: about 2,300 tokens when loaded. Watch for one tension: it lists "near-black background with one bright accent" and "monospace for small labels" as generic tells, and our chosen terminal direction is close to both. The skill says the brief always wins, so it should guide only what the brief leaves open.
 - **Risks and permissions:** text only; it cannot run code, read files or send data. Context cost only when loaded. Low risk for work.
 - **Remove it:** `claude plugin uninstall frontend-design@anthropic-plugin-directory --scope project`, which removes the `enabledPlugins` entry.
 

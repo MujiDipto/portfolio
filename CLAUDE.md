@@ -17,7 +17,7 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 
 ## Site rules
 - The resume (`content/resume.md`) is the only source of facts. Do not invent or inflate experience, employers, metrics or skills. If unclear, ask. The original `content/muji-resume.pdf` is gitignored because it contains my phone number.
-- Privacy: publish only my email and LinkedIn. Never my phone number or home address. No confidential employer details.
+- Privacy: publish only my email, LinkedIn and GitHub profile (`github.com/MujiDipto`). Never my phone number or home address. No confidential employer details.
 - Sections: hero, about, experience timeline, projects, skills, education, contact.
 - Featured projects: SCA risk-scoring platform, CocoaPods vulnerability curation system, World Cup Newsletter Platform, SAST findings dashboard. Other resume items stay in the timeline; the honours thesis stays under Education.
 - Confirmed by me beyond the resume wording: the 77% data-refresh cut (2 hours to 28 minutes) was on the pipelines for the SCA scoring service. The World Cup Newsletter Platform card may link to the public repo `github.com/MujiDipto/fifa-wc-newsletter`.
@@ -57,6 +57,9 @@ Stretch, not started until the site is deployed, and only if it adds value:
 
 ## Design (chosen 2026-11-01)
 An authentic, interactive terminal window. Ayu dark, plus an Ayu Light theme with colours darkened to pass WCAG AA.
+- Colour carries meaning like syntax highlighting: prompt user green, path blue, links and active tab Ayu yellow, metrics as number literals in Ayu purple. Tokens live in `app/globals.css`; `__tests__/theme-contrast.test.ts` must keep passing.
+- Theme follows the system setting. Layer 3 adds a `theme light` / `theme dark` command plus a toggle button.
+- Domain: none yet; I want `muji.dev` eventually. Use the Vercel URL until then, from a single setting.
 - The page is a terminal window: title bar tabs are the section navigation; sections render as command output.
 - Interactive shell: visitors can type commands (`help`, `ls`, `cat`, `open` and similar) that show the same content.
 - Progressive enhancement: all content is real semantic HTML, readable and navigable without typing and without JavaScript. The shell is an extra layer, never the only way in. No keyboard traps.
