@@ -17,7 +17,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="mt-16 scroll-mt-16"
+      className="mt-10 scroll-mt-4"
     >
       <Prompt command={command} />
       <h2 id={`${id}-heading`} className="sr-only">

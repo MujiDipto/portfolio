@@ -11,23 +11,24 @@ test("skip link is the first stop and moves focus to the content", async ({
   await expect(page.locator("#content")).toBeFocused();
 });
 
-for (const [tab, heading] of [
-  ["about", "About"],
-  ["experience", "Experience"],
-  ["projects", "Projects"],
-  ["contact", "Contact"],
+for (const viewport of [
+  { width: 375, height: 812 },
+  { width: 1280, height: 800 },
 ]) {
-  test(`the ${tab} tab reaches its section`, async ({ page }) => {
+  test(`at ${viewport.width}px the page fits the screen and only the terminal scrolls`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
     await page.goto("/");
-    const nav = page.getByRole("navigation", { name: "Sections" });
-    await nav.getByRole("link", { name: tab, exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`#${tab}$`));
-    // Section headings are visually hidden, so check the section is in view.
-    const section = page.locator(`section#${tab}`);
-    await expect(section).toBeInViewport();
-    await expect(
-      section.getByRole("heading", { level: 2, name: heading }),
-    ).toHaveCount(1);
+    const page_overflow = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight,
+    );
+    expect(page_overflow).toBeLessThanOrEqual(0);
+    const terminal = page.locator("#content");
+    const scrolls = await terminal.evaluate(
+      (el) => el.scrollHeight > el.clientHeight,
+    );
+    expect(scrolls).toBe(true);
   });
 }
 

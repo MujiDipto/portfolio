@@ -49,7 +49,7 @@ const uiOn: Record<string, string[]> = { window: ["focus"], page: ["focus"] };
 
 const themes = {
   light: variablesAfter(":root {"),
-  dark: variablesAfter("@media (prefers-color-scheme: dark)"),
+  dark: variablesAfter(':root[data-theme="dark"] {'),
 };
 
 describe.each(Object.entries(themes))("%s theme", (_, vars) => {

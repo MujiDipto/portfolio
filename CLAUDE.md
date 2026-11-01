@@ -55,19 +55,17 @@ Stretch, not started until the site is deployed, and only if it adds value:
 - Contact form: TypeScript API (route handlers or Hono) with Postgres (Neon or Vercel Postgres) via Drizzle or Prisma. Needs spam protection, rate limiting, a retention policy and a `mailto` fallback.
 - Lab exercises kept out of the site, in a separate folder or repo: a tiny GraphQL endpoint, one small AWS service (Lambda behind API Gateway with SST or CDK), and an Expo app sharing types and tokens (not DOM components).
 
-## Design (chosen 2026-11-01)
-An authentic, interactive terminal window. Ayu dark, plus an Ayu Light theme with colours darkened to pass WCAG AA.
-- Colour carries meaning like syntax highlighting: prompt user green, path blue, links and active tab Ayu yellow, metrics as number literals in Ayu purple. Tokens live in `app/globals.css`; `__tests__/theme-contrast.test.ts` must keep passing.
-- Theme follows the system setting. Layer 3 adds a `theme light` / `theme dark` command plus a toggle button.
+## Design (revised 2026-11-02)
+A real terminal session in one fixed-size window, not a long page.
+- Window: fixed height (about 80% of the viewport on desktop, full screen on phones). Output scrolls inside the window, never the page.
+- Opening: `whoami` and its output appear at once; `cat about.md` types itself letter by letter (under a second), then its output prints. Any key or click finishes the animation; with `prefers-reduced-motion` everything appears at once.
+- An 8-bit cat walks along the top edge and suggests `git log`, `ls projects/`, `cat skills.txt` and `cat contact` in a speech bubble. Suggestions are clickable and run the command. Our own pixel art, no third-party sprites. Decorative to screen readers, never covers content, can be paused (WCAG 2.2.2); its tips are also in `help`.
+- Interactive: typed commands append output like a real terminal. `help`, `clear`, `theme light` / `theme dark`, `cat education.md`, `open <project>`, history with up and down arrows, Tab completion, and `command not found: x. Try help` for unknown input.
+- Progressive enhancement: without JavaScript the whole session is printed as HTML, so search engines, screen readers and no-JS visitors get all content. New output is announced to screen readers. No keyboard traps.
+- Typography: monospace throughout, Geist Mono (from `content/design.md`).
+- Colour: `content/design.md`'s palette, light by default, dark as an option (button plus `theme` command, remembered per visitor). Its dark theme and the number-literal colour are derived by us and marked as such. Colours with meaning: prompt user green, path and links blue, metrics as number literals in purple. Tokens live in `app/globals.css`; `__tests__/theme-contrast.test.ts` must keep passing.
 - Domain: none yet; I want `muji.dev` eventually. Use the Vercel URL until then, from a single setting.
-- The page is a terminal window: title bar tabs are the section navigation; sections render as command output.
-- Interactive shell: visitors can type commands (`help`, `ls`, `cat`, `open` and similar) that show the same content.
-- Progressive enhancement: all content is real semantic HTML, readable and navigable without typing and without JavaScript. The shell is an extra layer, never the only way in. No keyboard traps.
-- Typography: JetBrains Mono for prompts, file names and metadata; IBM Plex Sans for anything longer than a line.
-- Motion brings it to life but stays short and skippable: no waiting for content. Honour `prefers-reduced-motion` everywhere.
-- An 8-bit cat walks along the top of the terminal and can show help messages. Our own pixel art, no third-party sprites. Decorative to screen readers, never covers content, and can be paused (WCAG 2.2.2); its tips are also available through `help`.
-- Mobile: the window frame collapses to a simple top bar; content gets full width.
-- `content/design.md` is another developer's design guide, kept locally as optional reference for techniques (tokens, motion, accessibility). Never copy its copy, facts, layout or assets, and never commit it.
+- `content/design.md` is another developer's design guide, kept locally. Its colour tokens and font are used by my choice; never copy its copy, facts, layout or assets, and never commit it.
 
 ## Commands
 Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=1`.

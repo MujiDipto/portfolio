@@ -24,7 +24,7 @@ export function Projects() {
             key={project.slug}
             id={`project-${project.slug}`}
             aria-labelledby={`project-${project.slug}-heading`}
-            className="border-border scroll-mt-16 border-t pt-8"
+            className="border-border scroll-mt-4 border-t pt-8"
           >
             <h3
               id={`project-${project.slug}-heading`}

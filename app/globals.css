@@ -1,46 +1,46 @@
 @import "tailwindcss";
 
 /*
- * Ayu palettes. Colours keep Ayu's hues; lightness was adjusted only where a
- * colour missed WCAG AA (marked "adjusted"). __tests__/theme-contrast.test.ts
- * checks every text colour against the surfaces it sits on.
+ * Light theme: colour tokens from content/design.md (marked "adjusted" where
+ * lightness was changed to pass WCAG AA). Dark theme and --number: derived by
+ * us. __tests__/theme-contrast.test.ts checks every text colour against the
+ * surfaces it sits on.
  */
 :root {
-  --page: #e7e9eb;
-  --window: #fcfcfc;
-  --titlebar: #f0f1f2;
-  --border: #dcdfe3;
-  --fg: #5c6166;
-  --fg-strong: #2b2f33;
-  --muted: #66676b; /* adjusted from #adaeb1 */
-  --accent: #965800; /* adjusted from #ffaa33 */
-  --prompt-user: #5e7d00; /* adjusted from #86b300 */
-  --prompt-path: #1877bb; /* adjusted from #399ee6 */
-  --number: #8d5bc0; /* adjusted from #a37acc */
-  --focus: #bf7000; /* adjusted from #ffaa33 */
-  --dot-close: #f07171;
-  --dot-minimise: #f2ae49;
-  --dot-zoom: #86b300;
+  --page: #f7f4ef;
+  --window: #fffdf8;
+  --titlebar: #ede8df;
+  --border: #ded7cc;
+  --fg: #171512;
+  --fg-strong: #171512;
+  --muted: #6b665d; /* adjusted from #6f6a61 */
+  --accent: #1d5fd6;
+  --prompt-user: #13763f; /* adjusted from #168a4a */
+  --prompt-path: #1d5fd6;
+  --number: #7c3aed; /* derived */
+  --focus: #1d5fd6;
+  --dot-close: #ff5f57;
+  --dot-minimise: #febc2e;
+  --dot-zoom: #28c840;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page: #06080b;
-    --window: #0b0e14;
-    --titlebar: #11151c;
-    --border: #1f2430;
-    --fg: #bfbdb6;
-    --fg-strong: #e6e1cf;
-    --muted: #77818b; /* adjusted from #626a73 */
-    --accent: #e6b450;
-    --prompt-user: #aad94c;
-    --prompt-path: #59c2ff;
-    --number: #d2a6ff;
-    --focus: #e6b450;
-    --dot-close: #f07178;
-    --dot-minimise: #ffb454;
-    --dot-zoom: #aad94c;
-  }
+/* Derived dark theme, chosen with the theme button or `theme dark`. */
+:root[data-theme="dark"] {
+  --page: #12110f;
+  --window: #1a1815;
+  --titlebar: #23201c;
+  --border: #34302a;
+  --fg: #ede8df;
+  --fg-strong: #fffdf8;
+  --muted: #a39d92;
+  --accent: #7aa7ff;
+  --prompt-user: #4cc283;
+  --prompt-path: #7aa7ff;
+  --number: #c39bff;
+  --focus: #7aa7ff;
+  --dot-close: #ff5f57;
+  --dot-minimise: #febc2e;
+  --dot-zoom: #28c840;
 }
 
 @theme inline {
@@ -60,16 +60,17 @@
   --color-dot-minimise: var(--dot-minimise);
   --color-dot-zoom: var(--dot-zoom);
 
-  --font-sans: var(--font-plex-sans);
-  --font-mono: var(--font-jetbrains-mono);
+  /* Monospace throughout, so font-sans is Geist Mono too. */
+  --font-sans: var(--font-geist-mono);
+  --font-mono: var(--font-geist-mono);
 
-  /* Modular scale, ratio 1.25 on a 16px base. */
-  --text-sm: 0.8rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5625rem;
-  --text-2xl: 1.953rem;
-  --text-3xl: 2.441rem;
+  /* Modular scale, ratio 1.25 on a 15px terminal base. */
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.125rem;
 }
 
 body {

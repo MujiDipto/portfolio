@@ -1,20 +1,13 @@
 import { Numbers } from "@/components/Numbers";
 import { Prompt } from "@/components/Prompt";
 import { Section } from "@/components/Section";
-import { TerminalWindow, type Tab } from "@/components/TerminalWindow";
+import { TerminalWindow } from "@/components/TerminalWindow";
 import { Contact } from "@/components/sections/Contact";
 import { Education } from "@/components/sections/Education";
 import { Experience } from "@/components/sections/Experience";
 import { Projects } from "@/components/sections/Projects";
 import { Skills } from "@/components/sections/Skills";
 import { profile } from "@/lib/content";
-
-const tabs: Tab[] = [
-  { id: "about", label: "about" },
-  { id: "experience", label: "experience" },
-  { id: "projects", label: "projects" },
-  { id: "contact", label: "contact" },
-];
 
 export default function Home() {
   return (
@@ -25,11 +18,12 @@ export default function Home() {
       >
         Skip to content
       </a>
-      <TerminalWindow tabs={tabs}>
+      <TerminalWindow>
         <main
           id="content"
           tabIndex={-1}
-          className="px-5 py-10 focus:outline-none sm:px-10 sm:py-14"
+          // relative: keeps sr-only headings inside the scroll area, or they stretch the page.
+          className="relative min-h-0 flex-1 overflow-y-auto px-5 py-8 focus:outline-none sm:px-8"
         >
           <section aria-labelledby="name" className="max-w-[72ch]">
             <Prompt command="whoami" />
