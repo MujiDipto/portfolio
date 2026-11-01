@@ -21,7 +21,7 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 - Sections: hero, about, experience timeline, projects, skills, education, contact. I choose which projects to feature.
 - Design: before building, propose three distinct visual directions with rationale and a rough layout. I choose. Typography and a clear point of view matter. Keep motion restrained.
 - Quality bar: responsive, accessible (keyboard, contrast, semantic HTML), fast (aim for 90+ Lighthouse), good metadata and link previews, light and dark themes.
-- Stack: propose one that suits Vercel hosting and justify it briefly. Wait for my approval.
+- Stack: approved, see Stack below. Ask before adding to it.
 - Deploy: Vercel, only after my approval. Tell me which accounts or permissions you need and why.
 
 ## Engineering rules
@@ -39,7 +39,20 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 - Record failed attempts and dead ends honestly.
 - I handle sensitive, regulated data at work, so be strict about what is safe to use on work code.
 
-## Commands (fill in after the stack is chosen)
+## Stack (approved 2026-11-01)
+Core, chosen to match the stack I will use at work:
+- Next.js (App Router), React and TypeScript, hosted on Vercel.
+- Tailwind CSS with a small design system of my own (tokens plus reusable components).
+- Vitest and React Testing Library for components with real behaviour; no tests written just for coverage.
+- Playwright (`@playwright/test`) for end-to-end and accessibility checks. This is separate from the Playwright MCP tool evaluation.
+- Quality gate: ESLint, Prettier, `tsc --noEmit`.
+- GitHub Actions CI: lint, typecheck, tests and Lighthouse. Fail below 90 on accessibility and best practices; warn only on performance.
+
+Stretch, not started until the site is deployed, and only if it adds value:
+- Contact form: TypeScript API (route handlers or Hono) with Postgres (Neon or Vercel Postgres) via Drizzle or Prisma. Needs spam protection, rate limiting, a retention policy and a `mailto` fallback.
+- Lab exercises kept out of the site, in a separate folder or repo: a tiny GraphQL endpoint, one small AWS service (Lambda behind API Gateway with SST or CDK), and an Expo app sharing types and tokens (not DOM components).
+
+## Commands (fill in after scaffolding)
 - Dev: TBD
 - Build: TBD
 - Test: TBD
