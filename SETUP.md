@@ -2,17 +2,17 @@
 
 A running record of every tool we try while building the portfolio site: what it is, how to install it, how we used it, and whether it was worth it.
 
-Last updated: (date)
+Last updated: 2026-11-01
 Machine: MacBook Air (M1, MacBookAir10,1), macOS 26.1
-Claude Code version: (output of `claude --version`)
+Claude Code version: 2.1.316 (Claude Code), native install
 
 Baseline on 2026-11-01, before any tool work: Claude desktop app 4.4212.0 and Ghostty 1.4.0 already installed; `claude` CLI not on PATH; no `~/.claude/settings.json`, no plugins, no Ghostty config. Node v23.11.0, npm, git, gh and Homebrew present; Vercel CLI not installed.
 
 ## Quick start: rebuild this setup on a new Mac
 Keep this list short and in order. Update it whenever a tool earns a permanent place.
 
-1. (tool, one-line install command)
-2. ...
+1. Check `ls -ld ~/.cache ~/.local` shows your user as owner; if not, `sudo chown -R "$USER":staff ~/.cache`.
+2. Claude Code CLI: download `https://claude.ai/install.sh`, read it, run it with `bash`, then add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`. Check with `claude --version` and `claude doctor`.
 
 ## Verdict key
 - **Useful:** saved time or caught real problems, and I would use it again.
@@ -26,7 +26,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | --- | --- | --- | --- | --- |
 | Ghostty | | | | |
 | Claude Code desktop app | | | | |
-| Claude Code terminal | | | | |
+| Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
 | typescript-lsp | | | | |
 | explanatory-output-style | | | | |
 | Playwright MCP | | | | |
@@ -47,10 +47,26 @@ Copy this block for each tool.
 - **Risks and permissions:** (what it can read, run or send; what to check before using it on work code)
 - **Remove it:** (exact steps)
 
+### Claude Code terminal (CLI)
+- **What it is and who makes it:** the `claude` command-line agent. Official, made by Anthropic. Same agent as the desktop app's Code tab, run in a terminal.
+- **Why we tried it:** to compare it with the desktop app and decide when each is the better choice, and because the brief pairs it with Ghostty.
+- **Install and configure (2026-11-01):**
+  1. Confirmed the method in the official docs (`code.claude.com/docs/en/setup`): native installer recommended; Homebrew cask `claude-code` is the alternative without auto-updates.
+  2. Downloaded `https://claude.ai/install.sh` (260 lines, SHA256 `3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944`) and read it before running. It refuses sudo, writes only under `$HOME`, downloads the binary from `downloads.claude.ai` and checks its SHA256 against the release manifest, then runs `claude install`. It does not verify the manifest's GPG signature itself.
+  3. First run failed (see Dead ends); fixed `~/.cache` ownership, re-downloaded the script (identical hash) and ran `bash install.sh`.
+  4. Result: `~/.local/bin/claude` symlinked to `~/.local/share/claude/versions/2.1.316`. The installer did not edit any shell profile; it prints the PATH line to add to `~/.zshrc` yourself.
+  5. Verified: `claude --version` prints `2.1.316 (Claude Code)`. `codesign --verify` reports valid; `spctl` reports "Notarized Developer ID, Anthropic PBC (Q6L2SF6YDW)". `claude doctor` reports one warning, `~/.local/bin` not on PATH.
+  6. `claude doctor` run from the desktop app's shell shows auto-updates disabled, because the app sets `DISABLE_AUTOUPDATER=1` in its own environment. In a normal terminal they should be on; check with `claude doctor` there.
+- **How we used it here:** not used for project work yet.
+- **Verdict:** Pending.
+- **Evidence:** to be recorded once used alongside the desktop app.
+- **Risks and permissions:** reads and writes files in the folder it runs in, and runs shell commands subject to your permission mode. Sends prompts, file contents and command output to Anthropic under the signed-in account. Keeps transcripts in `~/.claude/projects`, which contain whatever code it read. Updates itself in the background. For work code with regulated data: use only an employer-approved account with the right data agreement, never a personal account, and consider a pinned version or the `stable` channel.
+- **Remove it:** `rm -f ~/.local/bin/claude && rm -rf ~/.local/share/claude ~/.local/state/claude`, then remove the PATH line from `~/.zshrc`. Settings and history in `~/.claude` are shared with the desktop app; leave them unless removing both.
+
 ## Dead ends and failed attempts
 Record what did not work and why. Negative results are valuable.
 
-- (date, tool, what happened, what we learned)
+- 2026-11-01, Claude Code CLI native installer: the installer script (260 lines, SHA256 `3a68d340…a944`) downloaded and verified the binary, then `claude install` failed with `EACCES: permission denied, mkdir '/Users/ares/.cache/claude'`. Cause: `~/.cache` is owned by `root` (created by an old `sudo` run of matplotlib or yt-dlp), not by the installer. Shell profiles were unchanged; it left empty `~/.local/share/claude/versions` and `~/.local/state/claude/locks`. Lesson: check `ls -ld ~/.cache ~/.local` before installing CLI tools that use XDG directories. Resolved the same day: Muji ran `sudo chown -R ares:staff ~/.cache` and the second install succeeded.
 
 ## Work-safety notes
 What is safe to use at work, what needs approval first, and what must stay on personal projects.
