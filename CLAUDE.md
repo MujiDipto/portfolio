@@ -20,7 +20,7 @@ I am Muji, a software engineer in Brisbane. You are my pair engineer. Push back 
 - Privacy: publish only my email and LinkedIn. Never my phone number or home address. No confidential employer details.
 - Sections: hero, about, experience timeline, projects, skills, education, contact.
 - Featured projects: SCA risk-scoring platform, CocoaPods vulnerability curation system, World Cup Newsletter Platform, SAST findings dashboard. Other resume items stay in the timeline; the honours thesis stays under Education.
-- Confirmed by me beyond the resume wording: the 77% data-refresh cut (2 hours to 28 minutes) was on the pipelines for the SCA scoring service.
+- Confirmed by me beyond the resume wording: the 77% data-refresh cut (2 hours to 28 minutes) was on the pipelines for the SCA scoring service. The World Cup Newsletter Platform card may link to the public repo `github.com/MujiDipto/fifa-wc-newsletter`.
 - Design: see Design below. Typography and a clear point of view matter.
 - Quality bar: responsive, accessible (keyboard, contrast, semantic HTML), fast (aim for 90+ Lighthouse), good metadata and link previews, light and dark themes.
 - Stack: approved, see Stack below. Ask before adding to it.
@@ -74,6 +74,8 @@ Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=
 - End-to-end and accessibility: `npm run test:e2e` (Playwright on Chromium with axe, against a production build on port 3100). Unit tests live in `__tests__/`, Playwright tests in `e2e/`.
 - Lint and typecheck: `npm run lint` and `npm run typecheck`
 - Format: `npm run format`; check with `npm run format:check`. Markdown and `content/` are excluded.
+- Lighthouse: `npm run build` then `npm run lighthouse` (3 runs, medians; fails below 0.9 on accessibility or best practices, warns on performance and SEO; reports in `.lighthouse/`, never uploaded).
+- CI: `.github/workflows/ci.yml` runs all of the above on pushes and pull requests to `main`. Actions are pinned to commit SHAs; keep it that way. Repo: `MujiDipto/portfolio` (private).
 
 ## Next.js guidance
 @AGENTS.md

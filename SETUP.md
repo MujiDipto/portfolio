@@ -31,6 +31,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
 | mise (Node 26 pin) | Community (open source) | Pending | 2026-11-01 | Pins Node 26 per project; global setup untouched |
 | Next.js `AGENTS.md` | Official (Vercel) | Pending | 2026-11-01 | Points agents at version-matched docs in `node_modules`; imported into CLAUDE.md |
+| GitHub CLI | Official (GitHub) | Useful | 2026-11-01 | Pinned actions to SHAs and checked repos before creating one; broad token scope |
 | Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
 | typescript-lsp | | | | |
 | explanatory-output-style | | | | |
@@ -172,6 +173,16 @@ Copy this block for each tool.
 - Browsers: `npx playwright install chromium` downloaded Chrome for Testing 156 from `cdn.playwright.dev` into `~/Library/Caches/ms-playwright`. That cache already held older Playwright browsers (`chromium-1187`, `firefox-1490`, `webkit-2203`) from earlier use, 1.5 GB in total; `npx playwright uninstall` removes browsers no current install uses.
 - npm 11 warned that `fsevents` (optional macOS file watcher) has an install script not covered by `allowScripts`. Left unapproved; nothing failed without it.
 
+### GitHub CLI (`gh`)
+- **What it is and who makes it:** GitHub's official command-line tool. Already installed via Homebrew and signed in as MujiDipto before this project.
+- **Why we used it:** to read package and action metadata, resolve action tags to commit SHAs for pinning, create the private repo, and watch CI runs without leaving the session.
+- **Install and configure:** `brew install gh`, then `gh auth login`. On 2026-11-01 `gh auth status` showed token scopes `gist`, `read:org`, `repo`, `workflow`.
+- **How we used it here:** `gh api repos/actions/checkout/git/ref/tags/v7.0.1` to get the commit SHA to pin; `gh repo list` to check for name clashes before creating `MujiDipto/portfolio`.
+- **Verdict:** Useful.
+- **Evidence:** pinned both actions to exact commits in two commands; spotted the existing `terminal-portfolio` repo and the public `fifa-wc-newsletter` repo before creating anything.
+- **Risks and permissions:** the `repo` scope gives full read and write to every repo on the account, private ones included, and Claude can use it whenever it runs `gh`. For work: use a fine-grained token limited to one repository and read-only where possible, and keep pushes behind an `ask` rule as here.
+- **Remove it:** `gh auth logout`, then `brew uninstall gh`.
+
 ### Next.js telemetry (setting)
 - Next.js collects anonymous usage data by default. Disabled for this project only by adding `NEXT_TELEMETRY_DISABLED = "1"` under `[env]` in `mise.toml` (re-ran `mise trust` after the edit; `mise exec -- printenv NEXT_TELEMETRY_DISABLED` prints `1`). For work, set it in CI and on build machines too.
 
@@ -181,6 +192,8 @@ Record what did not work and why. Negative results are valuable.
 - 2026-11-01, Claude Code CLI native installer: the installer script (260 lines, SHA256 `3a68d340…a944`) downloaded and verified the binary, then `claude install` failed with `EACCES: permission denied, mkdir '/Users/ares/.cache/claude'`. Cause: `~/.cache` is owned by `root` (created by an old `sudo` run of matplotlib or yt-dlp), not by the installer. Shell profiles were unchanged; it left empty `~/.local/share/claude/versions` and `~/.local/state/claude/locks`. Lesson: check `ls -ld ~/.cache ~/.local` before installing CLI tools that use XDG directories. Resolved the same day: Muji ran `sudo chown -R ares:staff ~/.cache` and the second install succeeded.
 
 - 2026-11-01, `npm audit` after scaffolding: 16 moderate findings, all one advisory (GHSA-g3hv-75wg-m249, minimatch below 11.0.1, denial of service via glob patterns, CVSS 0) in the ESLint 9 toolchain. npm's suggested fix (`npm audit fix --force`) would downgrade to ESLint 4 and `eslint-config-next` 0.2.4, which is wrong. ESLint 10 would not clear it, because the lint plugins use minimatch 3.x, which has no fixed release. Accepted for now: dev-only, never shipped, and the only glob patterns come from our own config. `npm audit --audit-level=high` exits 0. Also, `npm install` warns that ESLint 9.39.5 is no longer supported; the scaffold still ships `eslint ^9`. Revisit when Next.js moves to ESLint 10. After adding Prettier and Vitest the count became 17: the extra entry is `eslint-config-prettier`, flagged only because it depends on ESLint; same single advisory.
+
+- 2026-11-01, Lighthouse CI (`@lhci/cli` 0.15.1, Google): installing it raised `npm audit` from 17 to 36 findings, 13 high (path traversal and arbitrary file writes in `extract-zip` and `tmp`, denial of service in `basic-ftp` and `zod`), all through its bundled Lighthouse 12 and Puppeteer chain. Its last release was June 2025. Uninstalled it the same minute. Replaced with `lighthouse` 13.6.0 (released 2026-10-27; 0 high findings) plus our own `scripts/lighthouse.mjs` (3 runs, medians, thresholds in `scripts/lighthouse-thresholds.mjs` with 9 unit tests). Lesson: audit right after each install, and check the release date of wrapper tools, not just the tool they wrap.
 
 ## Work-safety notes
 What is safe to use at work, what needs approval first, and what must stay on personal projects.
