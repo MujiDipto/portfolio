@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Secrets
+.env*
+
+# Source resume contains a phone number; only the redacted resume.md is committed
+content/*.pdf
+
+# Dependencies and deploy state
+node_modules/
+.vercel/
