@@ -2,6 +2,7 @@
 // no React. Each line may end in a command the visitor can click.
 // Sudo speaks about Muji, never for him, and adds no facts beyond
 // lib/content.ts.
+import { siteUrl } from "@/lib/site";
 import { run } from "@/lib/terminal";
 
 export type Line = { text: string; command?: string; after?: string };
@@ -110,4 +111,5 @@ export const tips: Line[] = [
   { text: "Tip: ↑ and ↓ bring back earlier commands." },
   { text: "Tip: Esc clears the line." },
   { text: "Tip: prefer light? Try", command: "theme light" },
+  { text: `Tip: in your own terminal, try curl ${siteUrl.host}` },
 ];
