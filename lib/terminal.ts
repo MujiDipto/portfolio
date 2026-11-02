@@ -14,6 +14,7 @@ export type Output =
   | { type: "skills" }
   | { type: "education" }
   | { type: "contact"; note?: string }
+  | { type: "recommendations" }
   | { type: "files"; hidden?: boolean }
   | { type: "neofetch" }
   | { type: "audit" }
@@ -38,6 +39,10 @@ export const helpEntries = [
   },
   { command: "cat skills.txt", description: "skills" },
   { command: "cat education.md", description: "education" },
+  {
+    command: "cat recommendations.md",
+    description: "what colleagues say",
+  },
   { command: "cat contact", description: "how to reach me" },
   { command: "neofetch", description: "system info, Sudo included" },
   { command: "npm audit", description: "scan this site's dependencies" },
@@ -64,6 +69,8 @@ const files: Record<string, Output> = {
   "education.md": { type: "education" },
   education: { type: "education" },
   contact: { type: "contact" },
+  "recommendations.md": { type: "recommendations" },
+  recommendations: { type: "recommendations" },
   // Hidden: only `ls -a` lists it. It leads to the easter egg.
   ".sudo-secrets": { type: "secrets" },
 };
@@ -243,6 +250,7 @@ const completions = [
   "cat highlights.md",
   "cat skills.txt",
   "cat education.md",
+  "cat recommendations.md",
   "cat contact",
   "git log",
   "git log --graph",
@@ -298,6 +306,7 @@ export const deepLinks: Record<string, string> = {
   ...Object.fromEntries(projects.map((p) => [p.slug, `open ${p.slug}`])),
   skills: "cat skills.txt",
   education: "cat education.md",
+  recommendations: "cat recommendations.md",
   contact: "cat contact",
 };
 

@@ -62,6 +62,9 @@ export default function Cv() {
             <OutputView output={{ type: "education" }} />
           </section>
           <section>
+            <OutputView output={{ type: "recommendations" }} />
+          </section>
+          <section>
             <OutputView output={{ type: "contact" }} />
           </section>
         </main>

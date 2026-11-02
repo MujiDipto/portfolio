@@ -11,6 +11,7 @@ import {
   contactPitch,
   experience,
   profile,
+  recommendations,
   resume,
   projects,
   skills,
@@ -49,6 +50,7 @@ function missingFrom(pageText: string): string[] {
     education.degree,
     education.institution,
     ...education.notes,
+    ...recommendations.flatMap((r) => [r.name, r.title, ...r.paragraphs]),
     contact.email.label,
     contact.linkedin.label,
     contact.github.label,
@@ -81,6 +83,7 @@ test("/cv contains every piece of resume content as plain HTML", () => {
     "Projects",
     "Skills",
     "Education",
+    "Recommendations",
     "Contact",
   ]);
 });

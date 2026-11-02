@@ -389,6 +389,29 @@ export function usedIn(skill: string): string[] {
     .filter((slug) => slugs.includes(slug) || shownBy[skill]?.includes(slug));
 }
 
+/**
+ * What colleagues wrote, word for word apart from a typo fix ("Whether") and
+ * a closing full stop. Published with both authors' permission (2026-11-03).
+ */
+export const recommendations = [
+  {
+    name: "Arpit Gupta",
+    title: "Principal Software Engineer",
+    paragraphs: [
+      "I worked with Mujibul at Oracle on security and software supply chain related projects and one thing that consistently stood out was how quickly he could understand complex problem spaces and take ownership when needed. He has strong backend engineering skills, particularly around security systems, vulnerability intelligence and large-scale data processing, but also brings a product mindset that is surprisingly rare in backend-focused engineers.",
+      "Mujibul has a very good eye for design and usability, which made him especially effective in projects that required collaboration across engineering, security and product teams. He was someone people naturally went to for help, whether it was debugging difficult issues, thinking through architecture decisions, or refining a feature experience.",
+      "Beyond the technical side, he’s approachable, easy to work with and genuinely invested in helping the team succeed. I’d confidently recommend him to any team looking for a strong engineer who can operate across both deep technical work and product-oriented thinking.",
+    ],
+  },
+  {
+    name: "James Yant",
+    title: "Senior Software Engineer",
+    paragraphs: [
+      "I worked directly with Muji on multiple projects. What stood out for me was his adaptability to anything that came his way. Whether it be a new technology or framework, or a completely new problem space, Muji was always able to quickly immerse himself in whatever came down the pipeline and arrive at a solution. His flexibility is an incredible asset to any team.",
+    ],
+  },
+];
+
 export const education = {
   institution: "The University of Queensland",
   location: "Brisbane, QLD",

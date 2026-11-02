@@ -115,6 +115,7 @@ describe("matches", () => {
       "cat highlights.md",
       "cat skills.txt",
       "cat education.md",
+      "cat recommendations.md",
       "cat contact",
     ]);
   });
@@ -129,6 +130,7 @@ describe("matches", () => {
       "cat contact",
       "cat highlights.md",
       "cat education.md",
+      "cat recommendations.md",
     ]);
   });
 

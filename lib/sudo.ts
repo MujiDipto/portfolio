@@ -29,6 +29,10 @@ const replies: Record<string, Line> = {
   skills: { text: "Where it started:", command: "cat education.md" },
   education: { text: "Want to talk to Muji?", command: "cat contact" },
   contact: { text: "Email is fastest. I'll keep watch here." },
+  recommendations: {
+    text: "Kind words. Want to talk to Muji?",
+    command: "cat contact",
+  },
   help: { text: "Tip: Tab or → accepts the grey hint." },
   neofetch: { text: "That's me on the left. Handsome, right?" },
   audit: {

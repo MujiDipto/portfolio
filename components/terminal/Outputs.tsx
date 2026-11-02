@@ -15,6 +15,7 @@ import {
   skills,
   type Organisation,
   type Project,
+  recommendations,
   usedIn,
 } from "@/lib/content";
 import { helpEntries, linkFor, type Output } from "@/lib/terminal";
@@ -694,6 +695,32 @@ function Education() {
   );
 }
 
+/** What colleagues wrote, as quotes with their names and roles. */
+function Recommendations() {
+  return (
+    <div>
+      <Title>Recommendations</Title>
+      <div className="space-y-6">
+        {recommendations.map((r) => (
+          <figure
+            key={r.name}
+            className="border-border max-w-[80ch] border-l-2 pl-4"
+          >
+            <blockquote className="text-fg-strong space-y-2 leading-relaxed">
+              {r.paragraphs.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
+            </blockquote>
+            <figcaption className="text-muted mt-2 text-sm">
+              <span className="text-prompt-path">{r.name}</span>, {r.title}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Contact({ note }: { note?: string }) {
   const rows = [
     { label: "email", link: contact.email },
@@ -740,6 +767,7 @@ function Files({ onRun, hidden }: { onRun?: RunCommand; hidden?: boolean }) {
     { label: "education.md", command: "cat education.md" },
     { label: "highlights.md", command: "cat highlights.md" },
     { label: "projects/", command: "ls projects/" },
+    { label: "recommendations.md", command: "cat recommendations.md" },
     { label: "skills.txt", command: "cat skills.txt" },
   ];
   return (
@@ -772,6 +800,11 @@ function Tree({ onRun }: { onRun?: RunCommand }) {
       label: `${p.slug}/`,
       command: `open ${p.slug}`,
     })),
+    {
+      lead: "├── ",
+      label: "recommendations.md",
+      command: "cat recommendations.md",
+    },
     { lead: "└── ", label: "skills.txt", command: "cat skills.txt" },
   ];
   return (
@@ -795,7 +828,7 @@ function Tree({ onRun }: { onRun?: RunCommand }) {
         ))}
       </ul>
       <p className="text-muted mt-1 text-sm">
-        {projects.length + 1} directories, 4 files
+        {projects.length + 1} directories, 5 files
       </p>
     </div>
   );
@@ -965,6 +998,8 @@ export function OutputView({
       return <Education />;
     case "contact":
       return <Contact note={output.note} />;
+    case "recommendations":
+      return <Recommendations />;
     case "files":
       return <Files onRun={onRun} hidden={output.hidden} />;
     case "neofetch":

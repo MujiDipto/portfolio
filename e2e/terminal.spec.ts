@@ -193,6 +193,7 @@ for (const theme of ["light", "dark"] as const) {
       "git log --graph",
       "npm audit",
       "tree",
+      "cat recommendations.md",
       "git status",
       "history",
       "mkdir x",

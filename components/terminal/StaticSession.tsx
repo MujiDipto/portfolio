@@ -13,6 +13,7 @@ const commands = [
   ...projects.map((p) => `open ${p.slug}`),
   "cat skills.txt",
   "cat education.md",
+  "cat recommendations.md",
   "cat contact",
 ];
 

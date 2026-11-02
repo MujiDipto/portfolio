@@ -32,9 +32,10 @@ test("tree lists every file and project, each one clickable", () => {
     "highlights.md",
     "projects/",
     ...projects.map((p) => `${p.slug}/`),
+    "recommendations.md",
     "skills.txt",
   ]);
   expect(container.textContent).toContain(
-    `${projects.length + 1} directories, 4 files`,
+    `${projects.length + 1} directories, 5 files`,
   );
 });
