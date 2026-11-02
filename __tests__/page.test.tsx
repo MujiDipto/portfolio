@@ -40,6 +40,7 @@ test("the opening and static session contain every piece of resume content", () 
     ...projects.flatMap((p) => [
       p.name,
       p.context,
+      p.outcome,
       ...p.highlights,
       ...p.stack,
     ]),

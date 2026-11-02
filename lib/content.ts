@@ -20,6 +20,8 @@ export type Project = {
   slug: string;
   name: string;
   context: string;
+  /** One line, outcome first, from the facts in `highlights` (approved by Muji, 2026-11-02). */
+  outcome: string;
   highlights: string[];
   stack: string[];
   link?: { label: string; href: string };
@@ -162,6 +164,8 @@ export const projects: Project[] = [
     slug: "sca-scoring",
     name: "SCA risk-scoring platform",
     context: "Oracle, Aug 2022 to Oct 2026",
+    outcome:
+      "15,000 packages risk-scored daily; data refresh cut by 77%, 2 hours to 28 minutes",
     highlights: [
       "Led end-to-end delivery of a risk-scoring service assessing 15,000 software packages daily.",
       "Led the design and Java/Micronaut development of the SCA Scoring service.",
@@ -176,6 +180,7 @@ export const projects: Project[] = [
     slug: "vuln-curation",
     name: "CocoaPods vulnerability curation",
     context: "Oracle, Senior Software Engineer",
+    outcome: "960+ analyst-hours saved; a 4,500-report backlog cut by 73%",
     highlights: [
       "Built a rule-based CocoaPods vulnerability-report curation system from scratch in Python, reducing a 4,500-report backlog by 73% and saving 960+ analyst-hours.",
     ],
@@ -185,6 +190,8 @@ export const projects: Project[] = [
     slug: "world-cup-newsletter",
     name: "World Cup Newsletter Platform",
     context: "Personal project, deployed",
+    outcome:
+      "Deployed: personalised newsletters from live APIs and the Gemini LLM API",
     highlights: [
       "Built and deployed a Java and Python platform that ingests data from multiple live APIs and uses the Gemini LLM API to generate personalised newsletters.",
       "Implemented bounded worker pools, prioritised scheduling, fan-out and retry handling to coordinate concurrent requests across rate-limited APIs and the LLM provider.",
@@ -199,6 +206,8 @@ export const projects: Project[] = [
     slug: "sast-dashboard",
     name: "SAST findings dashboard",
     context: "Oracle, Software Engineer",
+    outcome:
+      "Designed and prototyped a SAST findings dashboard to WCAG and Oracle standards",
     highlights: [
       "Led development of a SAST findings dashboard; created Figma designs and React/Oracle JET prototypes following WCAG and Oracle design standards.",
     ],

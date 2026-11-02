@@ -381,15 +381,21 @@ function ProjectList({ onRun }: { onRun?: RunCommand }) {
   return (
     <div>
       <Title>Projects</Title>
-      <ul className="flex flex-wrap gap-x-6 gap-y-1">
+      <ul className="space-y-2">
         {projects.map((p) => (
-          <li key={p.slug}>
-            <CommandButton
-              command={`open ${p.slug}`}
-              label={`${p.slug}/`}
-              onRun={onRun}
-              className="text-prompt-path"
-            />
+          <li key={p.slug} className="grid gap-x-4 sm:grid-cols-[22ch_1fr]">
+            <span>
+              <CommandButton
+                command={`open ${p.slug}`}
+                label={`${p.slug}/`}
+                onRun={onRun}
+                className="text-prompt-path"
+              />
+            </span>
+            {/* Outcome first, so a skimmer sees what each one achieved. */}
+            <span className="sm:self-center">
+              <Numbers text={p.outcome} />
+            </span>
           </li>
         ))}
       </ul>
@@ -407,6 +413,9 @@ function Project({ slug }: { slug: string }) {
     <article>
       <h3 className="text-fg-strong text-lg font-semibold">{project.name}</h3>
       <p className="text-muted text-sm">{project.context}</p>
+      <p className="text-fg-strong mt-2 text-lg">
+        <Numbers text={project.outcome} />
+      </p>
       <Highlights items={project.highlights} />
       <p className="mt-3 text-sm">
         <span className="text-muted">stack:</span> {project.stack.join(", ")}
