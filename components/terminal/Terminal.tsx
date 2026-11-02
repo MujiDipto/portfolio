@@ -14,7 +14,9 @@ import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
 import { highlightLines } from "@/lib/content";
 import {
+  commandForHash,
   historyStep,
+  linkFor,
   matches,
   run,
   suggestions,
@@ -104,8 +106,41 @@ export function Terminal() {
     latestRef.current?.scrollIntoView?.({ block: "start" });
   }, [entries]);
 
+  // Deep links: /#career runs `git log` once the prompt is ready, and so does
+  // changing the hash later. The ref keeps the listener on the latest
+  // runCommand, which reads the current history.
+  const runLatest = useRef(runCommand);
+  useEffect(() => {
+    runLatest.current = runCommand;
+  });
+  useEffect(() => {
+    if (!ready) return;
+    const follow = () => {
+      const command = commandForHash(window.location.hash);
+      if (command) runLatest.current(command);
+    };
+    // A tick later, so Sudo has arrived and replies to it.
+    const timer = window.setTimeout(follow, 0);
+    window.addEventListener("hashchange", follow);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("hashchange", follow);
+    };
+  }, [ready]);
+
   function runCommand(command: string) {
     const result = run(command);
+    // Keep the address shareable: it links to what is on screen. Replacing,
+    // not pushing, so Back still leaves the site.
+    const link = linkFor(command);
+    if (link || result.effect?.type === "clear") {
+      const { pathname, search } = window.location;
+      window.history.replaceState(
+        null,
+        "",
+        link ? `#${link}` : pathname + search,
+      );
+    }
     if (command.trim()) {
       window.dispatchEvent(new CustomEvent(commandEvent, { detail: command }));
     }
@@ -165,6 +200,12 @@ export function Terminal() {
             <div
               key={entry.id}
               ref={i === entries.length - 1 ? latestRef : undefined}
+              // The no-JS target for /#highlights; with JavaScript the link runs the command.
+              id={
+                !interactive && entry.id === bootEntryId
+                  ? linkFor(entry.command)
+                  : undefined
+              }
               className="scroll-mt-4"
             >
               {booting ? (

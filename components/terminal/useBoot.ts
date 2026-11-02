@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { commandForHash } from "@/lib/terminal";
 
 export const bootCommand = "cat highlights.md";
 
@@ -38,7 +39,8 @@ const done: Boot = {
 
 /**
  * Types `cat highlights.md`, then reveals its output line by line. Any key press,
- * click or tap finishes at once; with reduced motion it finishes immediately.
+ * click or tap finishes at once; with reduced motion, or when the visitor
+ * arrives by a deep link, it finishes immediately.
  */
 export function useBoot(lineCount: number): Boot {
   const [boot, setBoot] = useState<Boot>(pending);
@@ -56,7 +58,8 @@ export function useBoot(lineCount: number): Boot {
 
     const reduce =
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    if (reduce) {
+    // A shared link (/#career) wants its content, not the intro.
+    if (reduce || commandForHash(window.location.hash)) {
       at(0, () => done);
     } else {
       for (let i = 0; i <= bootCommand.length; i++) {

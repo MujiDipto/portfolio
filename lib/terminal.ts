@@ -185,3 +185,41 @@ export function historyStep(
     ? Math.max(0, index - 1)
     : Math.min(history.length, index + 1);
 }
+
+/**
+ * Shareable links: `/#sca-scoring` opens the site with that command run. A
+ * fixed list, so a link can never run anything else. Words people read, not
+ * commands, so `#career` rather than `#git-log`.
+ */
+export const deepLinks: Record<string, string> = {
+  highlights: "cat highlights.md",
+  career: "git log",
+  graph: "git log --graph",
+  projects: "ls projects/",
+  ...Object.fromEntries(projects.map((p) => [p.slug, `open ${p.slug}`])),
+  skills: "cat skills.txt",
+  education: "cat education.md",
+  contact: "cat contact",
+};
+
+/** The command a URL hash (`#career`) links to, if any. */
+export function commandForHash(hash: string): string | undefined {
+  let name: string;
+  try {
+    name = decodeURIComponent(hash.replace(/^#/, "")).toLowerCase();
+  } catch {
+    return undefined; // a malformed escape such as `#%E0`
+  }
+  return Object.hasOwn(deepLinks, name) ? deepLinks[name] : undefined;
+}
+
+/**
+ * The link name for what a command shows, so aliases such as `cat about.md`
+ * share their command's link. Undefined for commands with no link.
+ */
+export function linkFor(command: string): string | undefined {
+  const shown = JSON.stringify(run(command).output);
+  return Object.keys(deepLinks).find(
+    (name) => JSON.stringify(run(deepLinks[name]).output) === shown,
+  );
+}

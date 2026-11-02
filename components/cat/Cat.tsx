@@ -6,6 +6,7 @@ import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
 import { highlightLines } from "@/lib/content";
 import { greeting, isMistake, jumps, reply, tips, type Line } from "@/lib/sudo";
+import { commandForHash } from "@/lib/terminal";
 
 /** Dispatched on window each time the terminal runs a command; detail is the command. */
 export const commandEvent = "terminal:command";
@@ -94,7 +95,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       );
       setX(Math.round(cornerInset + (high - cornerInset) * restAt));
       placed = true;
-      if (reduce) {
+      if (reduce || commandForHash(window.location.hash)) {
         arrive();
         return;
       }

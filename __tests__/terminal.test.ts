@@ -3,6 +3,9 @@ import {
   matches,
   helpEntries,
   historyStep,
+  commandForHash,
+  deepLinks,
+  linkFor,
   run,
   suggestions,
 } from "@/lib/terminal";
@@ -182,4 +185,51 @@ test("each highlight links to a project that opens", () => {
   for (const { project } of profile.outcomes) {
     expect(run(`open ${project}`).output?.type).toBe("project");
   }
+});
+
+describe("deep links", () => {
+  test("every link runs a real command, and leads back to itself", () => {
+    for (const [name, command] of Object.entries(deepLinks)) {
+      const { output } = run(command);
+      expect(output, name).toBeDefined();
+      expect(output?.type, name).not.toBe("error");
+      expect(linkFor(command)).toBe(name);
+    }
+  });
+
+  test("every project has a link", () => {
+    for (const p of projects) {
+      expect(commandForHash(`#${p.slug}`)).toBe(`open ${p.slug}`);
+    }
+  });
+
+  test.each([
+    ["#career", "git log"],
+    ["#CAREER", "git log"],
+    ["career", "git log"],
+    ["#graph", "git log --graph"],
+    ["#contact", "cat contact"],
+  ])("%s runs %s", (hash, command) => {
+    expect(commandForHash(hash)).toBe(command);
+  });
+
+  test.each([
+    "",
+    "#",
+    "#content",
+    "#rm",
+    "#sudo hire muji",
+    "#toString",
+    "#%E0",
+  ])("%j runs nothing", (hash) => {
+    expect(commandForHash(hash)).toBeUndefined();
+  });
+
+  test("aliases share their command's link; other commands have none", () => {
+    expect(linkFor("cat about.md")).toBe("highlights");
+    expect(linkFor("  GIT LOG ")).toBe("career");
+    expect(linkFor("help")).toBeUndefined();
+    expect(linkFor("theme light")).toBeUndefined();
+    expect(linkFor("nope")).toBeUndefined();
+  });
 });
