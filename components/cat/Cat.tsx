@@ -10,8 +10,8 @@ import { suggestions } from "@/lib/terminal";
 /** Dispatched on window each time the terminal runs a command. */
 export const commandEvent = "terminal:command";
 
-/** What the cat says in its bubble (draft, awaiting Muji's approval). */
-export const catLine = "meow, i'm sudo, keeper of this terminal. try:";
+/** What the cat says in its bubble (approved by Muji). */
+export const catLine = "Hi!, i’m sudo, keeper of this terminal. try:";
 
 // public/sudo.webp is drawn at twice this size, so it stays sharp on
 // high-density screens.
@@ -194,15 +194,15 @@ export function Cat({
         <div
           role="group"
           aria-label="Suggested commands"
-          className="cat-bubble pointer-events-auto absolute px-3 py-2"
+          className="cat-bubble pointer-events-auto absolute px-2 py-1"
           style={{
             bottom: "calc(100% + 8px)",
-            right: `calc(100% - ${x - 14}px)`,
+            right: `calc(100% - ${x - 10}px)`,
             maxWidth: Math.max(180, x - 24),
           }}
         >
-          <p className="text-fg-strong text-xs">{catLine}</p>
-          <div className="mt-1 flex flex-wrap gap-x-3 text-sm">
+          <p className="text-fg-strong text-[0.6875rem]">{catLine}</p>
+          <div className="flex flex-wrap gap-x-3 text-xs">
             {suggestions.map((command) => (
               <CommandButton key={command} command={command} onRun={onRun} />
             ))}

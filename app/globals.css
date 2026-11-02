@@ -133,15 +133,15 @@ html[data-js] .boot-hidden {
 .cat-bubble {
   background: var(--window);
   border: 2px solid var(--fg-strong);
-  box-shadow: 4px 4px 0 var(--accent);
+  box-shadow: 3px 3px 0 var(--accent);
 }
 
 .cat-bubble-tail {
   position: absolute;
-  right: -8px;
-  bottom: 12px;
-  width: 14px;
-  height: 14px;
+  right: -6px;
+  bottom: 9px;
+  width: 10px;
+  height: 10px;
   background: var(--window);
   border-top: 2px solid var(--fg-strong);
   border-right: 2px solid var(--fg-strong);
