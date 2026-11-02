@@ -6,7 +6,7 @@ import {
   run,
   suggestions,
 } from "@/lib/terminal";
-import { projects } from "@/lib/content";
+import { profile, projects } from "@/lib/content";
 
 describe("run", () => {
   test.each([
@@ -175,5 +175,11 @@ test("every command in help runs without error", () => {
   for (const entry of helpEntries) {
     const command = entry.command.replace("dark|light", "dark");
     expect(run(command).output?.type, command).not.toBe("error");
+  }
+});
+
+test("each highlight links to a project that opens", () => {
+  for (const { project } of profile.outcomes) {
+    expect(run(`open ${project}`).output?.type).toBe("project");
   }
 });

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Terminal } from "@/components/terminal/Terminal";
-import { highlightLines } from "@/lib/content";
+import { highlightLines, profile } from "@/lib/content";
 
 function mockMotion(reduce: boolean) {
   window.matchMedia = (query: string) =>
@@ -19,9 +19,9 @@ function visibleCommand() {
 }
 
 function revealedLines() {
-  return highlightLines.filter((line) => {
-    const el = [...document.querySelectorAll("[data-boot-line]")].find(
-      (node) => node.textContent === line,
+  return profile.outcomes.filter(({ text }) => {
+    const el = [...document.querySelectorAll("[data-boot-line]")].find((node) =>
+      node.textContent?.includes(text),
     );
     return el && !el.classList.contains("boot-hidden");
   }).length;

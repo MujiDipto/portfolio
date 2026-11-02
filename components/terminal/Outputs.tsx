@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CatImage } from "@/components/cat/CatImage";
+import { CountUp } from "@/components/terminal/CountUp";
 import { Numbers } from "@/components/Numbers";
 import {
   contact,
@@ -185,25 +186,42 @@ function Whoami({ main }: { main: boolean }) {
  * `revealed` is how many lines the opening animation has printed; hidden lines
  * stay in the DOM so screen readers and search engines get them at once.
  */
-function Outcomes({ revealed }: { revealed?: number }) {
+function Outcomes({
+  revealed,
+  onRun,
+}: {
+  revealed?: number;
+  onRun?: RunCommand;
+}) {
   return (
-    <div className="leading-relaxed">
+    <div>
       <Title>Highlights</Title>
-      <ul className="space-y-1">
-        {profile.outcomes.map((outcome, i) => (
-          <li
-            key={outcome.value}
-            data-boot-line
-            className={`flex gap-4 ${
-              revealed !== undefined && i >= revealed ? "boot-hidden" : ""
-            }`}
-          >
-            <span className="text-number w-[6ch] flex-none text-right font-semibold">
-              {outcome.value}
-            </span>{" "}
-            <span>{outcome.text}</span>
-          </li>
-        ))}
+      <ul className="space-y-3">
+        {profile.outcomes.map((outcome, i) => {
+          const waiting = revealed !== undefined && i >= revealed;
+          return (
+            <li
+              key={outcome.value}
+              data-boot-line
+              className={`flex flex-col gap-x-4 sm:flex-row sm:items-baseline ${waiting ? "boot-hidden" : ""}`}
+            >
+              <span className="text-number flex-none text-2xl leading-tight font-bold tabular-nums sm:w-[6ch] sm:text-right sm:leading-none">
+                <CountUp value={outcome.value} waiting={waiting} />
+              </span>{" "}
+              <span className="min-w-0 leading-relaxed">
+                <span className="text-fg-strong">{outcome.text}</span>{" "}
+                {/* A shell comment pointing to the proof; wraps as one piece. */}
+                <span className="text-muted ml-2 text-sm whitespace-nowrap">
+                  <span aria-hidden="true"># </span>
+                  <CommandButton
+                    command={`open ${outcome.project}`}
+                    onRun={onRun}
+                  />
+                </span>
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -639,7 +657,7 @@ export function OutputView({
     case "whoami":
       return <Whoami main={main} />;
     case "highlights":
-      return <Outcomes revealed={revealed} />;
+      return <Outcomes revealed={revealed} onRun={onRun} />;
     case "experience":
       return <Experience />;
     case "graph":

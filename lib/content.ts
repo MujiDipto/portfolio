@@ -33,19 +33,23 @@ export const profile = {
   location: "Brisbane, QLD",
   // Approved by Muji, 2026-11-02.
   status: "Not looking, happy to connect",
-  // Number first, so a skimmer reads the scale before the sentence.
+  // Number first, so a skimmer reads the scale before the sentence. Each
+  // names the project (a slug in `projects`) where the number comes from.
   outcomes: [
     {
       value: "15,000",
       text: "software packages risk-scored daily, on a platform I own end to end",
+      project: "sca-scoring",
     },
     {
       value: "77%",
-      text: "faster data refresh, from 2 hours to 28 minutes",
+      text: "cut in security data refresh pipeline runtime, from 2 hours to 28 minutes",
+      project: "sca-scoring",
     },
     {
       value: "960+",
       text: "analyst-hours saved by a curation system I built from scratch",
+      project: "vuln-curation",
     },
   ],
 };
