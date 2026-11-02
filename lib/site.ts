@@ -1,6 +1,6 @@
-// The site's public address: the one setting to change for muji.dev (set
-// SITE_URL). On Vercel it falls back to the project's production URL, which
-// Vercel provides at build time; locally, to the dev server.
+// The site's public address, used for metadata, the sitemap and canonical
+// URLs. SITE_URL overrides it; on Vercel it is the project's production URL
+// (www.dipto.dev), provided at build time; locally, the dev server.
 const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
 export const siteUrl = new URL(

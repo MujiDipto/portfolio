@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { TerminalWindow } from "@/components/TerminalWindow";
 import { StaticSession } from "@/components/terminal/StaticSession";
 import { Terminal } from "@/components/terminal/Terminal";
+
+// One address for search engines, whichever domain served the page (the
+// Vercel URL serves the site too). Resolved against lib/site.ts.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   return (
