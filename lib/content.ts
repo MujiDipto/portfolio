@@ -267,17 +267,6 @@ export const projects: Project[] = [
       href: "https://github.com/MujiDipto/fifa-wc-newsletter",
     },
   },
-  {
-    slug: "sast-dashboard",
-    name: "SAST findings dashboard",
-    context: "Oracle, Software Engineer",
-    outcome:
-      "Designed and prototyped a SAST findings dashboard to WCAG and Oracle standards",
-    highlights: [
-      "Led development of a SAST findings dashboard; created Figma designs and React/Oracle JET prototypes following WCAG and Oracle design standards.",
-    ],
-    stack: ["Figma", "React", "Oracle JET"],
-  },
   // This site, as evidence for "AI Native Product Engineering". Its facts are
   // the project's own record: CLAUDE.md, SETUP.md, the tests and CI (wording
   // approved by Muji, 2026-11-03).
