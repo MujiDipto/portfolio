@@ -591,7 +591,7 @@ export function Project({ slug }: { slug: string }) {
 function Story({ story }: { story: NonNullable<Project["story"]> }) {
   const rows: [string, ReactNode][] = [
     ["problem", story.problem],
-    ["hard", <List key="hard" items={story.constraints} />],
+    ["challenge", <List key="challenge" items={story.constraints} />],
     ["approach", <List key="approach" items={story.approach} />],
     ...(story.result
       ? ([["result", <Numbers key="result" text={story.result} />]] as [
