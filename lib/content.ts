@@ -48,7 +48,7 @@ export const profile = {
   outcomes: [
     {
       value: "15,000",
-      text: "software packages risk-scored daily, on a platform I own end to end",
+      text: "software packages risk-scored daily, on a platform I owned end to end",
       project: "sca-scoring",
     },
     {
@@ -97,6 +97,8 @@ export const contact = {
   },
 };
 
+// Transcribed from the résumé, with Oracle's lines in the past tense since
+// Muji left in Oct 2026 (approved 2026-11-03).
 export const experience: Organisation[] = [
   {
     name: "OnEarly",
@@ -118,7 +120,7 @@ export const experience: Organisation[] = [
         start: "Oct 2025",
         end: "Oct 2026",
         highlights: [
-          "Own the software composition analysis (SCA) service and the risk-scoring platform covering 15,000 software packages, leading backend development, OCI deployment and production operations.",
+          "Owned the software composition analysis (SCA) service and the risk-scoring platform covering 15,000 software packages, leading backend development, OCI deployment and production operations.",
           "Built a rule-based CocoaPods vulnerability-report curation system from scratch in Python, reducing a 4,500-report backlog by 73% and saving 960+ analyst-hours.",
           "Improved Java/Maven scan reliability in an enterprise scanning platform on OCI and Kubernetes (OKE), with queue-based orchestration and event-driven result processing.",
           "Designed, built and deployed an Oracle APEX document approvals application within one week using AI-assisted development.",
@@ -202,7 +204,7 @@ export const projects: Project[] = [
   {
     slug: "vuln-curation",
     name: "CocoaPods vulnerability curation",
-    context: "Oracle, Senior Software Engineer",
+    context: "Oracle, Oct 2025 to Oct 2026",
     outcome: "960+ analyst-hours saved; a 4,500-report backlog cut by 73%",
     // From Muji's account; wording approved by Muji, 2026-11-03, then kept
     // general on purpose: no exact curation signals, no per-report time and
@@ -228,7 +230,7 @@ export const projects: Project[] = [
   {
     slug: "world-cup-newsletter",
     name: "World Cup Newsletter Platform",
-    context: "Personal project, deployed",
+    context: "Personal project, 2026",
     outcome:
       "A daily newsletter per subscriber, from live football APIs, written by an LLM",
     // From the public repo, read 2026-11-03; wording approved by Muji the
@@ -273,7 +275,7 @@ export const projects: Project[] = [
   {
     slug: "this-site",
     name: "dipto.dev, this terminal",
-    context: "Personal project, built with Claude Code",
+    context: "Personal project, 2026",
     outcome:
       "Shipped with an AI coding agent under a gated agreement: plan, approve, test, commit",
     // Facts from this project's own record; wording approved by Muji, 2026-11-03.
