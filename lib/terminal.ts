@@ -229,3 +229,27 @@ export function linkFor(command: string): string | undefined {
     (name) => JSON.stringify(run(deepLinks[name]).output) === shown,
   );
 }
+
+export type PaletteEntry = { command: string; description: string };
+
+/** Every command the ⌘K palette offers: the help list, with each project. */
+export const paletteEntries: PaletteEntry[] = [
+  ...helpEntries.flatMap((entry) =>
+    entry.command === "theme dark|light"
+      ? [
+          { command: "theme light", description: "switch to light colours" },
+          { command: "theme dark", description: "switch to dark colours" },
+        ]
+      : [entry],
+  ),
+  ...projects.map((p) => ({ command: `open ${p.slug}`, description: p.name })),
+];
+
+/** Entries whose command or description contains every word typed. */
+export function filterPalette(query: string): PaletteEntry[] {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  return paletteEntries.filter((entry) => {
+    const text = `${entry.command} ${entry.description}`.toLowerCase();
+    return words.every((word) => text.includes(word));
+  });
+}

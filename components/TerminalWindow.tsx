@@ -27,13 +27,14 @@ export function TerminalWindow({ children }: { children: ReactNode }) {
             <p aria-hidden="true" className="text-muted col-start-2 text-sm">
               muji@brisbane: ~
             </p>
-            {/* On phones there is no room above the window, so it sits still here. */}
-            <span
-              data-cat-static
-              className="col-start-3 justify-self-end sm:hidden"
-            >
-              <CatImage width={26} height={28} />
-            </span>
+            <div className="col-start-3 flex items-center gap-3 justify-self-end">
+              {/* The terminal puts its command palette button here. */}
+              <span id="palette-slot" className="contents" />
+              {/* On phones there is no room above the window, so it sits still here. */}
+              <span data-cat-static className="sm:hidden">
+                <CatImage width={26} height={28} />
+              </span>
+            </div>
           </header>
           {children}
         </div>

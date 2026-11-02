@@ -12,6 +12,7 @@ import { Cat, commandEvent, typingEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { AuditContext } from "@/components/terminal/AuditOutput";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
+import { Palette } from "@/components/terminal/Palette";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
 import type { Audit } from "@/lib/audit";
 import { highlightLines } from "@/lib/content";
@@ -294,6 +295,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
           </div>
         )}
         {interactive && <CatPortal onRun={runCommand} />}
+        {interactive && <Palette onRun={runCommand} />}
       </div>
     </AuditContext>
   );

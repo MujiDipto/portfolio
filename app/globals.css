@@ -293,10 +293,11 @@ html[data-js] .boot-hidden {
   }
 }
 
-/* The command prompt shows focus the way a terminal does, with its blinking
+/* The command prompt and the palette's search show focus the way a terminal does, with its blinking
    accent caret, not an outline box (WCAG accepts the text caret as a text
    field's focus indicator). A selector, not a utility class, so it wins over
    the global rule above. */
-#command:focus-visible {
+#command:focus-visible,
+#palette-search:focus-visible {
   outline: none;
 }

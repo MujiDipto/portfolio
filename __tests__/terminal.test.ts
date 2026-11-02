@@ -5,6 +5,8 @@ import {
   historyStep,
   commandForHash,
   deepLinks,
+  filterPalette,
+  paletteEntries,
   linkFor,
   run,
   suggestions,
@@ -231,5 +233,33 @@ describe("deep links", () => {
     expect(linkFor("help")).toBeUndefined();
     expect(linkFor("theme light")).toBeUndefined();
     expect(linkFor("nope")).toBeUndefined();
+  });
+});
+
+describe("command palette", () => {
+  test("offers every help command, both themes and each project, all runnable", () => {
+    const commands = paletteEntries.map((e) => e.command);
+    expect(commands).toContain("git log --graph");
+    expect(commands).toContain("theme light");
+    expect(commands).toContain("theme dark");
+    for (const p of projects) expect(commands).toContain(`open ${p.slug}`);
+    for (const command of commands) {
+      expect(run(command).output?.type, command).not.toBe("error");
+    }
+  });
+
+  test("matches every typed word against command and description", () => {
+    expect(filterPalette("").length).toBe(paletteEntries.length);
+    expect(filterPalette("graph").map((e) => e.command)).toEqual([
+      "git log --graph",
+    ]);
+    // "SCA" is in the project's name, not its command.
+    expect(filterPalette("sca").map((e) => e.command)).toContain(
+      "open sca-scoring",
+    );
+    expect(filterPalette("THEME light").map((e) => e.command)).toEqual([
+      "theme light",
+    ]);
+    expect(filterPalette("nothing like this")).toEqual([]);
   });
 });
