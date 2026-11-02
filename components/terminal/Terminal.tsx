@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { createPortal } from "react-dom";
-import { Cat, commandEvent } from "@/components/cat/Cat";
+import { Cat, commandEvent, typingEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
@@ -82,6 +82,23 @@ export function Terminal() {
   }, [ready]);
 
   useEffect(() => {
+    // Like a real terminal, clicking anywhere in the window puts the caret in
+    // the prompt. Mouse and trackpad only: on phones every tap while reading
+    // would open the keyboard. Links, buttons and text selection still work.
+    const area = inputRef.current?.closest("[data-terminal-window]");
+    if (!ready || !area) return;
+    const onClick = (event: Event) => {
+      const target = event.target as Element;
+      if (!window.matchMedia?.("(pointer: fine)").matches) return;
+      if (target.closest("a, button, input, label")) return;
+      if (!window.getSelection()?.isCollapsed) return;
+      inputRef.current?.focus({ preventScroll: true });
+    };
+    area.addEventListener("click", onClick);
+    return () => area.removeEventListener("click", onClick);
+  }, [ready]);
+
+  useEffect(() => {
     if (!shouldScroll.current) return;
     shouldScroll.current = false;
     latestRef.current?.scrollIntoView?.({ block: "start" });
@@ -89,7 +106,9 @@ export function Terminal() {
 
   function runCommand(command: string) {
     const result = run(command);
-    if (command.trim()) window.dispatchEvent(new Event(commandEvent));
+    if (command.trim()) {
+      window.dispatchEvent(new CustomEvent(commandEvent, { detail: command }));
+    }
     if (result.effect?.type === "clear") {
       setEntries([]);
     } else {
@@ -198,7 +217,12 @@ export function Terminal() {
                 ref={inputRef}
                 id="command"
                 value={input}
-                onChange={(event) => setInput(event.target.value)}
+                onChange={(event) => {
+                  setInput(event.target.value);
+                  if (event.target.value) {
+                    window.dispatchEvent(new Event(typingEvent));
+                  }
+                }}
                 onKeyDown={onKeyDown}
                 autoComplete="off"
                 autoCapitalize="none"

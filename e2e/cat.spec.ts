@@ -85,6 +85,58 @@ test("it stays put until a command runs, then pops up somewhere new", async ({
   await expect(cat(page)).toHaveAttribute("data-state", "up");
   expect(await cat(page).getAttribute("data-x")).not.toBe(arrived);
   expect(await animation(page)).toBe("cat-bob");
+  // It arrives with a next step, as a button.
+  await expect(bubble(page)).toContainText("Want the numbers?");
+  await bubble(page).getByRole("button", { name: "cat about.md" }).click();
+  await expect(page.getByText(/analyst-hours saved/).last()).toBeVisible();
+});
+
+test("its bubble is on its right, the way it faces", async ({ page }) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  const catBox = (await cat(page).boundingBox())!;
+  const bubbleBox = (await bubble(page).boundingBox())!;
+  expect(bubbleBox.x).toBeGreaterThan(catBox.x + catBox.width);
+  await expect(cat(page)).toHaveAttribute("data-facing", "right");
+});
+
+test("when there is no room on its right, the bubble and the cat turn left", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 700, height: 720 });
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  // Walk it until it pops up too close to the right edge for the bubble.
+  for (let i = 0; i < 12; i++) {
+    if ((await bubble(page).getAttribute("data-side")) === "left") break;
+    await run(page, "help");
+    await expect(cat(page)).toHaveAttribute("data-state", "up");
+    await expect(bubble(page)).toBeVisible();
+  }
+  await expect(bubble(page)).toHaveAttribute("data-side", "left");
+  await expect(cat(page)).toHaveAttribute("data-facing", "left");
+  const catBox = (await cat(page).boundingBox())!;
+  const bubbleBox = (await bubble(page).boundingBox())!;
+  expect(bubbleBox.x + bubbleBox.width).toBeLessThan(catBox.x);
+});
+
+test("an unknown command makes it shake and point to help", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  const before = await cat(page).getAttribute("data-x");
+  await run(page, "xyz");
+  await expect(cat(page)).toHaveAttribute("data-mood", "angry");
+  await expect(bubble(page)).toContainText("not a command");
+  await expect(cat(page)).toHaveAttribute("data-x", before!);
+});
+
+test("clicking the cat shows a tip", async ({ page }) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  await cat(page).click();
+  await expect(bubble(page)).toContainText("Tip:");
 });
 
 test("hovering makes it angry", async ({ page }) => {

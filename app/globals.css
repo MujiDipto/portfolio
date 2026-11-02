@@ -148,6 +148,13 @@ html[data-js] .boot-hidden {
   transform: rotate(45deg);
 }
 
+/* On the cat's right, the tail sits on the bubble's left and points back. */
+.cat-bubble[data-side="right"] .cat-bubble-tail {
+  right: auto;
+  left: -6px;
+  transform: rotate(-135deg);
+}
+
 /* The cat's settling bob and hover shake (components/cat/Cat.tsx). Each time
    it reaches the top it bobs twice, under five seconds, so nothing moves on
    its own for long (WCAG 2.2.2). Hovering shakes it once. */

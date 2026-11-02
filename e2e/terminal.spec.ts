@@ -50,6 +50,36 @@ test("typing shows a hint in line with the text, and Tab accepts it", async ({
   await expect(input).toBeFocused();
 });
 
+test("clicking anywhere in the window puts the caret in the prompt", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await expect(input).toBeVisible();
+  await input.blur();
+  await page.getByRole("heading", { level: 1 }).click();
+  await expect(input).toBeFocused();
+  await page.keyboard.type("help");
+  await expect(input).toHaveValue("help");
+});
+
+test("selecting text in the window does not steal it for the prompt", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await expect(input).toBeVisible();
+  await input.blur();
+  // Double-click the first word itself, not the empty end of its line.
+  await page
+    .getByRole("heading", { level: 1 })
+    .dblclick({ position: { x: 10, y: 10 } });
+  await expect(input).not.toBeFocused();
+  expect(await page.evaluate(() => window.getSelection()?.toString())).toBe(
+    "Muji",
+  );
+});
+
 test.describe("on a phone", () => {
   test.use({ viewport: { width: 375, height: 812 }, hasTouch: true });
 
