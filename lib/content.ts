@@ -276,6 +276,23 @@ export const projects: Project[] = [
     context: "Personal project, built with Claude Code",
     outcome:
       "Shipped with an AI coding agent under a gated agreement: plan, approve, test, commit",
+    // Facts from this project's own record; wording approved by Muji, 2026-11-03.
+    story: {
+      problem:
+        "A portfolio that shows how the work gets done, not just what was done, built with an AI coding agent and held to the same bar as production code.",
+      constraints: [
+        "AI-written code has to be checked, not trusted: it can lean on out-of-date framework knowledge, state things that are not true or quietly break accessibility.",
+        "Every fact on the page has to be true and safe to publish, from the numbers to what is said about past employers.",
+        "A terminal is a hard interface to make accessible: keyboards, screen readers, reduced motion and phones all have to work.",
+      ],
+      approach: [
+        "A written, gated working agreement: plan first, wait for approval, work in small steps, run real checks, then commit.",
+        "Tests that guard the content itself: a facts test fails on any number that is not on the résumé, and every output passes axe in both themes.",
+        "Version-matched framework docs instead of the model's memory, which caught several breaking changes in Next.js.",
+        "Each AI tool judged on evidence, with the dead ends written down alongside the wins.",
+        "Progressive enhancement: without JavaScript the whole site is plain HTML, and the same content is a printable page at /cv.",
+      ],
+    },
     highlights: [
       "Designed and built this interactive terminal in Next.js, React and TypeScript, with Claude Code as pair programmer and each change planned, reviewed and checked before commit.",
       "Each change is checked with formatting, linting, type checks, unit tests and Playwright end-to-end tests with axe accessibility checks; GitHub Actions also fails a run if Lighthouse accessibility or best practices scores drop.",
@@ -344,6 +361,31 @@ export const skills = [
     ],
   },
 ];
+
+// Skills a project shows in use although its stack names them differently,
+// or that are not a stack item at all. Each follows from the project's own
+// facts above.
+export const shownBy: Record<string, string[]> = {
+  OCI: ["world-cup-newsletter"], // hosted on Oracle Cloud
+  "REST API design": ["sca-scoring"], // redesigned its API response schemas
+  concurrency: ["sca-scoring", "world-cup-newsletter"], // concurrency controls; worker pools
+  "ETL pipelines": ["sca-scoring"], // its ingestion pipelines
+  "CI/CD": ["this-site"], // GitHub Actions on every change
+  SCA: ["sca-scoring"],
+  "vulnerability analysis": ["vuln-curation"],
+  "AI-assisted development": ["this-site"],
+};
+
+/** The projects that show a skill in use: by their stack, or `shownBy`. */
+export function usedIn(skill: string): string[] {
+  const named = skill.toLowerCase();
+  const slugs = projects
+    .filter((p) => p.stack.some((item) => item.toLowerCase() === named))
+    .map((p) => p.slug);
+  return projects
+    .map((p) => p.slug)
+    .filter((slug) => slugs.includes(slug) || shownBy[skill]?.includes(slug));
+}
 
 export const education = {
   institution: "The University of Queensland",

@@ -15,6 +15,7 @@ import {
   skills,
   type Organisation,
   type Project,
+  usedIn,
 } from "@/lib/content";
 import { helpEntries, linkFor, type Output } from "@/lib/terminal";
 
@@ -285,9 +286,9 @@ function Outcomes({
               </span>{" "}
               <span className="min-w-0 leading-relaxed">
                 <span className="text-fg-strong">{outcome.text}</span>{" "}
-                {/* A shell comment pointing to the proof; wraps as one piece. */}
+                {/* An arrow to the proof, the project; wraps as one piece. */}
                 <span className="text-muted ml-2 text-sm whitespace-nowrap">
-                  <span aria-hidden="true"># </span>
+                  <span aria-hidden="true">↳ </span>
                   <CommandButton
                     command={`open ${outcome.project}`}
                     onRun={onRun}
@@ -627,17 +628,50 @@ function List({ items }: { items: string[] }) {
   );
 }
 
-function Skills() {
+/**
+ * Skills with their evidence: each one a project shows in use is listed with
+ * those projects, as clickable ↳ links; the rest follow on one line.
+ */
+function Skills({ onRun }: { onRun?: RunCommand }) {
   return (
     <div>
       <Title>Skills</Title>
-      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-[11rem_1fr]">
-        {skills.map((skill) => (
-          <div key={skill.group} className="contents">
-            <dt className="text-fg-strong font-semibold">{skill.group}</dt>
-            <dd className="mb-2 sm:mb-0">{skill.items.join(", ")}</dd>
-          </div>
-        ))}
+      <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-[11rem_1fr]">
+        {skills.map((skill) => {
+          const shown = skill.items.filter((item) => usedIn(item).length > 0);
+          const rest = skill.items.filter((item) => !shown.includes(item));
+          return (
+            <div key={skill.group} className="contents">
+              <dt className="text-fg-strong font-semibold">{skill.group}</dt>
+              <dd className="mb-2 sm:mb-0">
+                {shown.length > 0 && (
+                  <ul>
+                    {shown.map((item) => (
+                      <li key={item}>
+                        {item}{" "}
+                        <span className="text-muted text-sm">
+                          <span aria-hidden="true">↳ </span>
+                          <span className="sr-only">used in </span>
+                          {usedIn(item).map((slug, i) => (
+                            <span key={slug}>
+                              {i > 0 && " "}
+                              <CommandButton
+                                command={`open ${slug}`}
+                                label={slug}
+                                onRun={onRun}
+                              />
+                            </span>
+                          ))}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {rest.length > 0 && <p>{rest.join(", ")}</p>}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
     </div>
   );
@@ -926,7 +960,7 @@ export function OutputView({
     case "project":
       return <Project slug={output.slug} />;
     case "skills":
-      return <Skills />;
+      return <Skills onRun={onRun} />;
     case "education":
       return <Education />;
     case "contact":
