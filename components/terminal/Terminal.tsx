@@ -12,7 +12,11 @@ import { Cat, commandEvent, typingEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { AuditContext } from "@/components/terminal/AuditOutput";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
-import { Palette } from "@/components/terminal/Palette";
+import {
+  Palette,
+  paletteEvent,
+  paletteShortcut,
+} from "@/components/terminal/Palette";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
 import type { Audit } from "@/lib/audit";
 import { highlightLines } from "@/lib/content";
@@ -290,6 +294,24 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
                     onRun={runCommand}
                   />
                 ))}
+                {!input.trim() && (
+                  <span className="flex items-baseline gap-2">
+                    or
+                    <button
+                      type="button"
+                      onClick={() =>
+                        window.dispatchEvent(new Event(paletteEvent))
+                      }
+                      aria-haspopup="dialog"
+                      className="text-accent inline-flex min-h-6 cursor-pointer items-center gap-2 underline-offset-4 hover:underline"
+                    >
+                      search all
+                      <kbd className="border-border text-muted hidden rounded border px-1.5 font-mono text-xs sm:inline">
+                        {paletteShortcut()}
+                      </kbd>
+                    </button>
+                  </span>
+                )}
               </p>
             )}
           </div>

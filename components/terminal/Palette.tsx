@@ -5,6 +5,14 @@ import { createPortal } from "react-dom";
 import type { RunCommand } from "@/components/terminal/Outputs";
 import { filterPalette } from "@/lib/terminal";
 
+/** Dispatched on window to open the palette, as the suggestion row does. */
+export const paletteEvent = "terminal:palette";
+
+/** The palette's shortcut as this visitor's keyboard writes it. */
+export function paletteShortcut(): string {
+  return /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘K" : "Ctrl K";
+}
+
 /**
  * The ⌘K (Ctrl+K) command palette: every command with what it does, for
  * visitors who would rather pick than type. A native modal dialog, so focus
@@ -17,7 +25,6 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const results = filterPalette(query);
-  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
 
   function open() {
     setQuery("");
@@ -40,7 +47,11 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
       else open();
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener(paletteEvent, open);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(paletteEvent, open);
+    };
   }, []);
 
   useEffect(() => {
@@ -64,7 +75,7 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
   }
 
   const slot = document.getElementById("palette-slot");
-  const shortcut = mac ? "⌘K" : "Ctrl K";
+  const shortcut = paletteShortcut();
 
   return (
     <>

@@ -22,6 +22,15 @@ test("Ctrl+K opens the palette; typing filters and Enter runs", async ({
   await expect(prompt).toBeFocused();
 });
 
+test("the suggestion row offers the palette too", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /^search all/ }).click();
+  await expect(palette(page)).toBeVisible();
+  await expect(
+    page.getByRole("combobox", { name: "Search commands" }),
+  ).toBeFocused();
+});
+
 test("the arrow keys move through the list", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("textbox", { name: "Command" }).waitFor();
