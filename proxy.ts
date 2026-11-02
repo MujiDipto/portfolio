@@ -12,6 +12,7 @@ export function proxy() {
       // Never let a cache hand this text to a browser, or the page to curl.
       "cache-control": "no-store",
       vary: "user-agent",
+      "x-content-type-options": "nosniff",
     },
   });
 }
