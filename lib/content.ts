@@ -177,7 +177,7 @@ export const projects: Project[] = [
     // From Muji's account; wording approved by Muji, 2026-11-03.
     story: {
       problem:
-        "A software composition analysis service that gives open-source packages a security risk score. Security analysts at Oracle used the scores to triage and prioritise.",
+        "A software composition analysis service that gives open-source packages a security risk score. Security analysts used the scores to triage and prioritise.",
       constraints: [
         "15,000 packages to assess.",
         "Scores had to come back quickly whenever someone queried one.",
@@ -204,7 +204,9 @@ export const projects: Project[] = [
     name: "CocoaPods vulnerability curation",
     context: "Oracle, Senior Software Engineer",
     outcome: "960+ analyst-hours saved; a 4,500-report backlog cut by 73%",
-    // From Muji's account; wording approved by Muji, 2026-11-03.
+    // From Muji's account; wording approved by Muji, 2026-11-03, then kept
+    // general on purpose: no exact curation signals, no per-report time and
+    // no internal team names, so it describes the work, not Oracle's process.
     story: {
       problem:
         "Security analysts curated raw vulnerability reports for the CocoaPods ecosystem by hand, one at a time, and a backlog of 4,500 reports had built up.",
