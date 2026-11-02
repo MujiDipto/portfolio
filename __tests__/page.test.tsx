@@ -5,8 +5,12 @@ import { Terminal } from "@/components/terminal/Terminal";
 import {
   contact,
   education,
+  aboutLines,
+  additionalExperience,
+  contactPitch,
   experience,
   profile,
+  resume,
   projects,
   skills,
 } from "@/lib/content";
@@ -23,8 +27,13 @@ test("the opening and static session contain every piece of resume content", () 
   const pageText = container.textContent ?? "";
   const expected = [
     profile.name,
-    ...profile.summary,
-    ...experience.flatMap((org) => [
+    profile.focus,
+    profile.status,
+    ...aboutLines,
+    contactPitch.line,
+    contactPitch.status,
+    resume.label,
+    ...[...experience, ...additionalExperience].flatMap((org) => [
       org.name,
       ...org.roles.flatMap((r) => [r.title, r.start, r.end, ...r.highlights]),
     ]),

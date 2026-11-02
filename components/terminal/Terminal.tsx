@@ -12,7 +12,7 @@ import { Cat, commandEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
-import { profile } from "@/lib/content";
+import { aboutLines } from "@/lib/content";
 import {
   complete,
   historyStep,
@@ -67,7 +67,7 @@ export function Terminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
   const shouldScroll = useRef(false);
-  const boot = useBoot(profile.summary.length);
+  const boot = useBoot(aboutLines.length);
   const ready = interactive && boot.phase === "done";
 
   useEffect(() => {

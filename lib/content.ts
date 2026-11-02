@@ -1,5 +1,7 @@
-// Site content, transcribed from content/resume.md (the only source of facts).
-// __tests__/content-facts.test.ts checks numbers, links and phone numbers.
+// Site content, transcribed from content/resume.md (the only source of facts)
+// plus the facts Muji confirmed beyond it, listed in CLAUDE.md (OnEarly and the
+// Oracle end date). __tests__/content-facts.test.ts checks numbers, links and
+// phone numbers.
 
 export type Role = {
   title: string;
@@ -10,7 +12,7 @@ export type Role = {
 
 export type Organisation = {
   name: string;
-  location: string;
+  location?: string;
   roles: Role[];
 };
 
@@ -26,14 +28,42 @@ export type Project = {
 export const profile = {
   name: "Muji Dipto",
   title: "Senior Software Engineer",
-  focus: "Backend & Platform Engineering",
+  // Muji's own positioning (2026-11-02), replacing the résumé's focus line.
+  focus: "AI Native Product Engineering",
   location: "Brisbane, QLD",
-  summary: [
-    "Senior Software Engineer with 4+ years at Oracle building backend services and Python data pipelines on Oracle Cloud Infrastructure (OCI).",
-    "Led end-to-end delivery of a risk-scoring service assessing 15,000 software packages daily.",
-    "Cut data-refresh time by 77%, from 2 hours to 28 minutes, through query optimisation and smarter caching.",
-    "Designed an automated vulnerability curation tool in Python that saved 960+ analyst-hours.",
+  // Approved by Muji, 2026-11-02.
+  status: "Not looking, happy to connect",
+  // Number first, so a skimmer reads the scale before the sentence.
+  outcomes: [
+    {
+      value: "15,000",
+      text: "software packages risk-scored daily, on a platform I own end to end",
+    },
+    {
+      value: "77%",
+      text: "faster data refresh, from 2 hours to 28 minutes",
+    },
+    {
+      value: "960+",
+      text: "analyst-hours saved by a curation system I built from scratch",
+    },
   ],
+};
+
+/** Every line `cat about.md` prints, in order; the opening reveals them one by one. */
+export const aboutLines = profile.outcomes.map((o) => `${o.value} ${o.text}`);
+
+/** The closing pitch in `cat contact` (approved by Muji, 2026-11-02). */
+export const contactPitch = {
+  line: "I build the platforms other teams rely on without having to think about them.",
+  status:
+    "I've just joined OnEarly, so I'm not looking for a new role. I'm always happy to talk about backend platforms, data pipelines and software supply-chain security. Email is the quickest way to reach me.",
+};
+
+/** The résumé PDF, published with Muji's phone number by his choice. */
+export const resume = {
+  label: "résumé (PDF)",
+  href: "/muji-dipto-resume.pdf",
 };
 
 export const contact = {
@@ -53,13 +83,24 @@ export const contact = {
 
 export const experience: Organisation[] = [
   {
+    name: "OnEarly",
+    roles: [
+      {
+        title: "Senior Software Engineer",
+        start: "Nov 2026",
+        end: "Present",
+        highlights: [],
+      },
+    ],
+  },
+  {
     name: "Oracle",
     location: "Brisbane, QLD",
     roles: [
       {
         title: "Senior Software Engineer",
         start: "Oct 2025",
-        end: "Present",
+        end: "Oct 2026",
         highlights: [
           "Own the software composition analysis (SCA) service and the risk-scoring platform covering 15,000 software packages, leading backend development, OCI deployment and production operations.",
           "Built a rule-based CocoaPods vulnerability-report curation system from scratch in Python, reducing a 4,500-report backlog by 73% and saving 960+ analyst-hours.",
@@ -90,6 +131,10 @@ export const experience: Organisation[] = [
       },
     ],
   },
+];
+
+/** Listed after the engineering career, as on the résumé. */
+export const additionalExperience: Organisation[] = [
   {
     name: "The University of Queensland",
     location: "Brisbane, QLD",
@@ -110,7 +155,7 @@ export const projects: Project[] = [
   {
     slug: "sca-scoring",
     name: "SCA risk-scoring platform",
-    context: "Oracle, Aug 2022 to present",
+    context: "Oracle, Aug 2022 to Oct 2026",
     highlights: [
       "Led end-to-end delivery of a risk-scoring service assessing 15,000 software packages daily.",
       "Led the design and Java/Micronaut development of the SCA Scoring service.",

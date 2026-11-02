@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { Terminal } from "@/components/terminal/Terminal";
-import { contact, projects } from "@/lib/content";
+import { contact, contactPitch, projects } from "@/lib/content";
 
 // Reduced motion skips the opening animation; __tests__/boot.test.tsx covers it.
 beforeEach(() => {
@@ -29,13 +29,14 @@ describe("Terminal", () => {
       screen.getByRole("heading", { level: 1, name: "Muji Dipto" }),
     ).toBeDefined();
     expect(log.textContent).toContain("960+ analyst-hours");
-    expect(log.textContent).not.toContain("Security Analyst");
+    // A git log highlight: the full work history waits for its command.
+    expect(log.textContent).not.toContain("common schema for NVD and OSV");
   });
 
   test("typing a command and pressing Enter appends its output", async () => {
     const { user, input, log } = await setup();
     await user.type(input, "git log{Enter}");
-    expect(log.textContent).toContain("Security Analyst");
+    expect(log.textContent).toContain("common schema for NVD and OSV");
     expect((input as HTMLInputElement).value).toBe("");
   });
 
@@ -48,6 +49,7 @@ describe("Terminal", () => {
   test("suggested commands can be clicked instead of typed", async () => {
     const { user, log } = await setup();
     await user.click(screen.getByRole("button", { name: "cat contact" }));
+    expect(log.textContent).toContain(contactPitch.line);
     expect(
       within(log)
         .getByRole("link", { name: contact.email.label })

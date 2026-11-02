@@ -5,6 +5,9 @@ import * as content from "@/lib/content";
 // The resume is the only source of facts (CLAUDE.md). These checks keep the
 // site's content from drifting away from it.
 const resume = readFileSync("content/resume.md", "utf8").replaceAll("**", "");
+// Facts Muji confirmed beyond the resume (CLAUDE.md, Site rules).
+const confirmed = "Oracle until Oct 2026. OnEarly from Nov 2026.";
+const sources = `${resume}\n${confirmed}`;
 
 const allowedLinks = new Set([
   "mailto:mujibulislamdipto@gmail.com",
@@ -51,8 +54,8 @@ describe("site content", () => {
 
   // The 77% cut is linked to the scoring pipelines on Muji's confirmation
   // (CLAUDE.md); the number itself still has to come from the resume.
-  test("uses only numbers that appear in the resume", () => {
-    expect(siteText.flatMap((s) => unsupportedNumbers(s, resume))).toEqual([]);
+  test("uses only numbers from the resume or Muji's confirmed facts", () => {
+    expect(siteText.flatMap((s) => unsupportedNumbers(s, sources))).toEqual([]);
   });
 
   test("contains no phone number", () => {

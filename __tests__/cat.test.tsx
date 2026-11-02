@@ -8,7 +8,7 @@ import {
   sinkMs,
 } from "@/components/cat/Cat";
 import { bootDurationMs } from "@/components/terminal/useBoot";
-import { profile } from "@/lib/content";
+import { aboutLines } from "@/lib/content";
 
 function mockMotion(reduce: boolean) {
   window.matchMedia = (query: string) =>
@@ -17,7 +17,7 @@ function mockMotion(reduce: boolean) {
 
 const cat = () => document.querySelector("[data-cat]") as HTMLElement;
 const bubble = () => screen.queryByRole("group", { name: "Sudo says" });
-const bootEnd = bootDurationMs(profile.summary.length);
+const bootEnd = bootDurationMs(aboutLines.length);
 
 function runCommand() {
   act(() => {

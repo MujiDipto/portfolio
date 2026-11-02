@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Terminal } from "@/components/terminal/Terminal";
-import { profile } from "@/lib/content";
+import { aboutLines } from "@/lib/content";
 
 function mockMotion(reduce: boolean) {
   window.matchMedia = (query: string) =>
@@ -19,7 +19,7 @@ function visibleCommand() {
 }
 
 function revealedLines() {
-  return profile.summary.filter((line) => {
+  return aboutLines.filter((line) => {
     const el = [...document.querySelectorAll("[data-boot-line]")].find(
       (node) => node.textContent === line,
     );
@@ -48,7 +48,7 @@ describe("opening animation", () => {
     expect(revealedLines()).toBeGreaterThan(0);
 
     act(() => vi.advanceTimersByTime(1000));
-    expect(revealedLines()).toBe(profile.summary.length);
+    expect(revealedLines()).toBe(aboutLines.length);
     expect(screen.getByRole("textbox", { name: "Command" })).toBeDefined();
   });
 
@@ -66,7 +66,7 @@ describe("opening animation", () => {
     act(() => vi.advanceTimersByTime(200));
     fireEvent.keyDown(window, { key: "a" });
     expect(screen.getByRole("textbox", { name: "Command" })).toBeDefined();
-    expect(revealedLines()).toBe(profile.summary.length);
+    expect(revealedLines()).toBe(aboutLines.length);
   });
 
   test("a tap or click skips straight to the prompt", () => {
@@ -82,7 +82,7 @@ describe("opening animation", () => {
     render(<Terminal />);
     act(() => vi.advanceTimersByTime(0));
     expect(screen.getByRole("textbox", { name: "Command" })).toBeDefined();
-    expect(revealedLines()).toBe(profile.summary.length);
+    expect(revealedLines()).toBe(aboutLines.length);
   });
 
   test("screen readers get the full command and every line from the start", () => {
@@ -90,6 +90,6 @@ describe("opening animation", () => {
     render(<Terminal />);
     const log = screen.getByRole("log");
     expect(log.textContent).toContain("cat about.md");
-    for (const line of profile.summary) expect(log.textContent).toContain(line);
+    for (const line of aboutLines) expect(log.textContent).toContain(line);
   });
 });

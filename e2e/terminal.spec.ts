@@ -9,7 +9,8 @@ test("typing a command shows its output and keeps the prompt ready", async ({
   const input = page.getByRole("textbox", { name: "Command" });
   await input.fill("git log");
   await input.press("Enter");
-  await expect(page.getByText("Security Analyst")).toBeVisible();
+  // A git log highlight; whoami already names the titles.
+  await expect(page.getByText(/common schema for NVD and OSV/)).toBeVisible();
   await expect(input).toBeFocused();
   await expect(input).toHaveValue("");
 });

@@ -23,7 +23,7 @@ export type Result = { output?: Output; effect?: Effect };
 
 export const helpEntries = [
   { command: "whoami", description: "who I am" },
-  { command: "cat about.md", description: "summary" },
+  { command: "cat about.md", description: "outcomes" },
   { command: "git log", description: "work history" },
   {
     command: "ls projects/",

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { profile } from "../lib/content";
+import { aboutLines } from "../lib/content";
 
-const lastLine = profile.summary.at(-1)!;
+const lastLine = aboutLines.at(-1)!;
 
 test("the opening finishes and the prompt is ready within two seconds", async ({
   page,

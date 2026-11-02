@@ -2,10 +2,13 @@ import type { ReactNode } from "react";
 import { Numbers } from "@/components/Numbers";
 import {
   contact,
+  contactPitch,
   education,
+  additionalExperience,
   experience,
   profile,
   projects,
+  resume,
   skills,
 } from "@/lib/content";
 import { helpEntries, type Output } from "@/lib/terminal";
@@ -56,17 +59,123 @@ function Highlights({ items }: { items: string[] }) {
   );
 }
 
+// Pixel icons, drawn like Sudo: each character is one pixel, "#" is filled.
+const icons = {
+  briefcase: [
+    "...###...",
+    "...#.#...",
+    "#########",
+    "#.......#",
+    "#########",
+    "#.......#",
+    "#.......#",
+    "#########",
+  ],
+  pin: [
+    "..###..",
+    ".#####.",
+    "##...##",
+    "##...##",
+    ".#####.",
+    "..###..",
+    "...#...",
+  ],
+};
+
+function PixelIcon({
+  name,
+  className,
+}: {
+  name: keyof typeof icons;
+  className: string;
+}) {
+  const rows = icons[name];
+  return (
+    <svg
+      viewBox={`0 0 ${rows[0].length} ${rows.length}`}
+      width={rows[0].length * 2}
+      height={rows.length * 2}
+      shapeRendering="crispEdges"
+      className={`inline-block flex-none ${className}`}
+      aria-hidden="true"
+      focusable="false"
+    >
+      {rows.flatMap((row, y) =>
+        [...row].map((pixel, x) =>
+          pixel === "#" ? (
+            <rect
+              key={`${x}-${y}`}
+              x={x}
+              y={y}
+              width={1}
+              height={1}
+              fill="currentColor"
+            />
+          ) : null,
+        ),
+      )}
+    </svg>
+  );
+}
+
+/**
+ * Each organisation newest first, styled like `git log`: dates in the number
+ * colour, then the organisation, then the titles held there.
+ */
+function Career() {
+  return (
+    <dl className="grid gap-x-4 text-sm sm:grid-cols-[max-content_max-content_1fr]">
+      {experience.map((org) => {
+        const end = org.roles[0].end;
+        return (
+          <div key={org.name} className="contents">
+            <dd className="text-number mt-2 sm:mt-0">
+              {org.roles.at(-1)!.start} – {end === "Present" ? "present" : end}
+            </dd>
+            <dt className="text-fg-strong font-semibold">{org.name}</dt>
+            <dd>
+              {[...org.roles]
+                .reverse()
+                .map((role) => role.title)
+                .join(" → ")}
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
 function Whoami({ main }: { main: boolean }) {
   const Name = main ? "h1" : "p";
+  const current = experience[0];
   return (
     <div>
       <Name className="text-fg-strong text-3xl font-semibold tracking-tight">
         {profile.name}
       </Name>
       <p className="mt-2 text-lg">
-        {profile.title}, {profile.focus}
+        {profile.title} | {profile.focus}
       </p>
-      <p className="text-muted mt-1 text-sm">{profile.location}</p>
+      <ul className="text-muted mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <li className="flex items-center gap-2">
+          <PixelIcon name="briefcase" className="text-prompt-path" />
+          {current.roles[0].title} @ {current.name}
+        </li>
+        <li className="flex items-center gap-2">
+          <PixelIcon name="pin" className="text-dot-close" />
+          {profile.location}
+        </li>
+        <li className="flex items-center gap-2">
+          <span aria-hidden="true" className="text-accent">
+            ●
+          </span>
+          {profile.status}
+        </li>
+      </ul>
+      <div className="mt-4">
+        <Career />
+      </div>
     </div>
   );
 }
@@ -77,19 +186,24 @@ function Whoami({ main }: { main: boolean }) {
  */
 function About({ revealed }: { revealed?: number }) {
   return (
-    <div className="space-y-2 leading-relaxed">
+    <div className="leading-relaxed">
       <Title>About</Title>
-      {profile.summary.map((line, i) => (
-        <p
-          key={line}
-          data-boot-line
-          className={
-            revealed !== undefined && i >= revealed ? "boot-hidden" : undefined
-          }
-        >
-          <Numbers text={line} />
-        </p>
-      ))}
+      <ul className="space-y-1">
+        {profile.outcomes.map((outcome, i) => (
+          <li
+            key={outcome.value}
+            data-boot-line
+            className={`flex gap-4 ${
+              revealed !== undefined && i >= revealed ? "boot-hidden" : ""
+            }`}
+          >
+            <span className="text-number w-[6ch] flex-none text-right font-semibold">
+              {outcome.value}
+            </span>{" "}
+            <span>{outcome.text}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -98,7 +212,7 @@ function Experience() {
   return (
     <div className="space-y-6">
       <Title>Experience</Title>
-      {experience.map((org) =>
+      {[...experience, ...additionalExperience].map((org) =>
         org.roles.map((role) => (
           <article key={`${org.name}-${role.title}`}>
             <p className="text-number text-sm">
@@ -106,9 +220,16 @@ function Experience() {
             </p>
             <h3 className="text-fg-strong font-semibold">
               {role.title}, {org.name}
-              <span className="text-muted font-normal"> ({org.location})</span>
+              {org.location && (
+                <span className="text-muted font-normal">
+                  {" "}
+                  ({org.location})
+                </span>
+              )}
             </h3>
-            <Highlights items={role.highlights} />
+            {role.highlights.length > 0 && (
+              <Highlights items={role.highlights} />
+            )}
           </article>
         )),
       )}
@@ -200,17 +321,28 @@ function Contact({ note }: { note?: string }) {
     { label: "email", link: contact.email },
     { label: "linkedin", link: contact.linkedin },
     { label: "github", link: contact.github },
+    { label: "résumé", link: resume, download: true },
   ];
   return (
     <div>
       <Title>Contact</Title>
       {note && <p className="text-prompt-user mb-2">{note}</p>}
+      <p className="text-fg-strong text-lg font-semibold">
+        {contactPitch.line}
+      </p>
+      <p className="mt-2 mb-4 max-w-[70ch] leading-relaxed">
+        {contactPitch.status}
+      </p>
       <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-[6rem_1fr]">
         {rows.map((row) => (
           <div key={row.label} className="contents">
             <dt className="text-muted">{row.label}</dt>
             <dd className="mb-1 break-all sm:mb-0">
-              <a href={row.link.href} className={linkClass}>
+              <a
+                href={row.link.href}
+                download={row.download}
+                className={linkClass}
+              >
                 {row.link.label}
               </a>
             </dd>

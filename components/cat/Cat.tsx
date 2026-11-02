@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { CatImage } from "@/components/cat/CatImage";
 import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
-import { profile } from "@/lib/content";
+import { aboutLines } from "@/lib/content";
 
 /** Dispatched on window each time the terminal runs a command. */
 export const commandEvent = "terminal:command";
 
 /** What the cat says in its bubble, around a button that runs `help`. */
-export const catLine = ["Hi, I’m Sudo! Run", "to see what you can do."];
+export const catLine = [
+  "Hi, I am Sudo, the keeper of this terminal. Run",
+  "to see a list of commands.",
+];
 
 // public/sudo.webp is drawn at twice this size, so it stays sharp on
 // high-density screens.
@@ -102,7 +105,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
           go("rising");
           later(arrive, riseMs);
         },
-        Math.max(0, bootDurationMs(profile.summary.length) - riseMs),
+        Math.max(0, bootDurationMs(aboutLines.length) - riseMs),
       );
     }, 0);
 

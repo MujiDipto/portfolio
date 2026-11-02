@@ -12,6 +12,19 @@ test("home page has language, title and the name as main heading", async ({
   );
 });
 
+test("cat contact links a résumé that downloads as a PDF", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "cat contact" }).click();
+  const link = page.getByRole("link", { name: "résumé (PDF)" });
+  await expect(link).toHaveAttribute("download", "");
+  const response = await request.get((await link.getAttribute("href"))!);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toBe("application/pdf");
+});
+
 test("starts in Ayu dark even when the system prefers light", async ({
   page,
 }) => {

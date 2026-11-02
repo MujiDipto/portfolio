@@ -49,7 +49,7 @@ test("its bubble is one line, and its help button runs help", async ({
 }) => {
   await page.goto("/");
   await expect(bubble(page)).toHaveText(
-    "Hi, I’m Sudo! Run help to see what you can do.",
+    "Hi, I am Sudo, the keeper of this terminal. Run help to see a list of commands.",
   );
   // One line: the first and last letters sit at the same height.
   const drift = await bubble(page)
