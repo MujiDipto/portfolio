@@ -2,7 +2,7 @@
 
 A running record of every tool we try while building the portfolio site: what it is, how to install it, how we used it, and whether it was worth it.
 
-Last updated: 2026-11-01
+Last updated: 2026-11-03
 Machine: MacBook Air (M1, MacBookAir10,1), macOS 26.1
 Claude Code version: 2.1.316 (Claude Code), native install
 
@@ -21,25 +21,26 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 - **Mixed:** helpful in some situations, with noticeable cost or friction.
 - **Not useful:** no clear benefit, or the cost outweighed it.
 - **Not safe for work:** fine for a personal project, but not for code that touches regulated data.
+- **Not tried:** on the list, but never used in this project, so no verdict. Evaluate it on its own before relying on it.
 
 ## Summary
 
 | Tool | Source | Verdict | Tested on | One-line finding |
 | --- | --- | --- | --- | --- |
-| Ghostty | Community (open source) | Pending | 2026-11-01 | Configured and validated; not used for project work yet |
-| Claude Code desktop app | | | | |
-| Claude Code terminal | Official (Anthropic) | Pending | 2026-11-01 | Installed and verified; not used for project work yet |
-| mise (Node 26 pin) | Community (open source) | Pending | 2026-11-01 | Pins Node 26 per project; global setup untouched |
-| Next.js `AGENTS.md` | Official (Vercel) | Pending | 2026-11-01 | Points agents at version-matched docs in `node_modules`; imported into CLAUDE.md |
-| frontend-design skill | Official (Anthropic) | Pending | 2026-11-01 | Text-only design guidance; installed at project scope, loaded on the next turn |
-| GitHub CLI | Official (GitHub) | Useful | 2026-11-01 | Pinned actions to SHAs and checked repos before creating one; broad token scope |
-| Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret reads and paused `git push` in tests |
-| typescript-lsp | | | | |
-| explanatory-output-style | | | | |
-| Playwright MCP | | | | |
-| superpowers | | | | |
-| gstack | | | | |
-| Memory plugin | | | | |
+| Project permission rules | Official (built in) | Useful | 2026-11-01 | Deny and ask rules blocked secret and PDF reads and paused `git push` in tests; zero cost |
+| Next.js `AGENTS.md` (bundled docs) | Official (Vercel) | Useful | 2026-11-01 to 03 | Version-matched docs fixed or prevented outdated code at least seven times |
+| Claude Code desktop app (Code tab) | Official (Anthropic) | Useful | 2026-11-01 to 03 | Where all project work happened; its built-in browser caught layout and motion bugs the tests missed |
+| GitHub CLI | Official (GitHub) | Useful | 2026-11-01 to 03 | Pinned actions to SHAs, watched every CI run in the background; broad token scope |
+| mise (Node 26 pin) | Community (open source) | Useful | 2026-11-01 to 03 | Every local build, test and Lighthouse run used the pinned Node 26, matching Vercel |
+| frontend-design skill | Official (Anthropic) | Mixed | 2026-11-01 | Changed one early colour decision; little effect once Muji steered the design directly |
+| Claude Code terminal | Official (Anthropic) | Not tried | 2026-11-01 | Installed and verified; no project work done in it |
+| Ghostty | Community (open source) | Not tried | 2026-11-01 | Configured and validated; not used for project work |
+| typescript-lsp | | Not tried | | |
+| explanatory-output-style | | Not tried | | |
+| Playwright MCP | | Not tried | | The desktop app's built-in browser covered this need |
+| superpowers | | Not tried | | |
+| gstack | | Not tried | | |
+| Memory plugin | | Not tried | | |
 
 ## Tool entries
 Copy this block for each tool.
@@ -54,6 +55,27 @@ Copy this block for each tool.
 - **Risks and permissions:** (what it can read, run or send; what to check before using it on work code)
 - **Remove it:** (exact steps)
 
+### Claude Code desktop app (Code tab)
+- **What it is and who makes it:** the Code tab of the Claude desktop app: the same Claude Code agent as the CLI, with a chat transcript, a task list, a file pane and a built-in browser pane beside it. Official, Anthropic. Already installed (4.4212.0 at the 2026-11-01 baseline).
+- **Why we used it:** it was the default way in, and the built-in browser made it possible to look at the site, not just test it.
+- **Install and configure:** nothing beyond the app. `.claude/launch.json` defines the `portfolio-dev` server (`mise exec -- npm run dev`, port 3000) so the browser pane can start it.
+- **How we used it here:** every phase of the build, 2026-11-01 to 2026-11-03, about 54 commits. The browser pane was used after almost every visual change: screenshots at 1366×768, at phone size (375×812) and in both themes; clicking through commands, the palette and deep links; and measuring with small scripts (for example, comparing the window's `scrollHeight` with `clientHeight` to prove the first screen fits). Long commands (CI runs, Lighthouse) ran in the background and reported back when done.
+- **Verdict:** Useful.
+- **Evidence (bugs the browser pane caught that unit and e2e tests did not):**
+  - The links row pushed the first screen 45px past the window at 1366×768; fixed before commit.
+  - On phones, the outcome numbers' fixed column squeezed sentences into narrow lines; changed to stack.
+  - `npm audit` briefly showed its finished result before the scan animation started (a one-frame flash); fixed and given a test.
+  - The palette's `commands` button crowded the centred title on phones; shortened to `menu`.
+  - `/cv` at 84 characters wide wrapped the highlights; widened.
+  - The link-preview card cut off the third highlight once the links row was added; the capture viewport was changed.
+- **Friction:**
+  - The pane throttles animation when it is in the background, so screenshots often caught animations mid-way (half-counted numbers, a half-drawn graph). Take a second screenshot before calling it a bug.
+  - A window resize sent before the pane was open returned "No preview is open", and the first screenshot was then at the pane's own size, not the one asked for. Open the pane first, then resize.
+  - Coordinates must come from the latest screenshot; a scroll using coordinates from a scaled screenshot failed.
+  - Sending a file over 8000px wide (the 8x LinkedIn banner) to the phone viewer was rejected; 7920px (5x) worked.
+- **Risks and permissions:** same agent and data handling as the CLI. The browser pane sends screenshots and page text to Anthropic as part of the conversation, so on work code use it only on local or staging builds with synthetic data, never on a page showing real regulated data. Background tasks run real shell commands with your permissions.
+- **Remove it:** nothing to remove; delete `.claude/launch.json` to drop the preview server config.
+
 ### Claude Code terminal (CLI)
 - **What it is and who makes it:** the `claude` command-line agent. Official, made by Anthropic. Same agent as the desktop app's Code tab, run in a terminal.
 - **Why we tried it:** to compare it with the desktop app and decide when each is the better choice, and because the brief pairs it with Ghostty.
@@ -64,9 +86,9 @@ Copy this block for each tool.
   4. Result: `~/.local/bin/claude` symlinked to `~/.local/share/claude/versions/2.1.316`. The installer did not edit any shell profile; it prints the PATH line to add to `~/.zshrc` yourself.
   5. Verified: `claude --version` prints `2.1.316 (Claude Code)`. `codesign --verify` reports valid; `spctl` reports "Notarized Developer ID, Anthropic PBC (Q6L2SF6YDW)". `claude doctor` reports one warning, `~/.local/bin` not on PATH.
   6. `claude doctor` run from the desktop app's shell shows auto-updates disabled, because the app sets `DISABLE_AUTOUPDATER=1` in its own environment. After adding the PATH line to `~/.zshrc`, Muji ran `claude doctor` in Ghostty: "Auto-updates: enabled", "Auto-update channel: latest", "No installation issues found". Not yet signed in to claude.ai.
-- **How we used it here:** not used for project work yet.
-- **Verdict:** Pending.
-- **Evidence:** to be recorded once used alongside the desktop app.
+- **How we used it here:** not used for project work; all of it happened in the desktop app (see above), which runs the same agent.
+- **Verdict:** Not tried.
+- **Evidence:** none from this project. The install and verification above stand.
 - **Risks and permissions:** reads and writes files in the folder it runs in, and runs shell commands subject to your permission mode. Sends prompts, file contents and command output to Anthropic under the signed-in account. Keeps transcripts in `~/.claude/projects`, which contain whatever code it read. Updates itself in the background. For work code with regulated data: use only an employer-approved account with the right data agreement, never a personal account, and consider a pinned version or the `stable` channel.
 - **Remove it:** `rm -f ~/.local/bin/claude && rm -rf ~/.local/share/claude ~/.local/state/claude`, then remove the PATH line from `~/.zshrc`. Settings and history in `~/.claude` are shared with the desktop app; leave them unless removing both.
 
@@ -129,9 +151,9 @@ Copy this block for each tool.
   5. Verified: `ghostty +validate-config` exits 0, and `ghostty +show-config` lists all ten values as set. Not yet checked by eye in a running window, and the notifications have not been triggered yet.
   6. Checked against the Claude Code terminal docs (`code.claude.com/docs/en/terminal-config`): in Ghostty, Shift+Enter for a newline and Claude Code's desktop notifications work without setup.
   7. Considered and not applied: `macos-option-as-alt = left` (needed for Claude Code's Option shortcuts such as Option+P; use Shift+Enter or Ctrl+J for newlines instead), `window-save-state = always`, a global quick-terminal hotkey (needs macOS Accessibility permission, which lets Ghostty see keystrokes system-wide), `copy-on-select` (risks copying secrets to the clipboard without meaning to), background opacity or blur (hurts contrast), and third-party cursor shaders (third-party code, GPU cost).
-- **How we used it here:** not used for project work yet.
-- **Verdict:** Pending.
-- **Evidence:** to be recorded once used with the CLI.
+- **How we used it here:** not used for project work; the CLI it was set up for was not used either.
+- **Verdict:** Not tried.
+- **Evidence:** config validated only. Not checked by eye in a running window, and the long-command notifications were never triggered.
 - **Risks and permissions:** runs your shell as your user, like any terminal. Good defaults to keep: `clipboard-read = ask` (programs must ask before reading the clipboard) and `clipboard-paste-protection = true` (warns before pasting text that could run commands). `clipboard-write = allow` lets programs set the clipboard. The only network traffic the config adds is the update check. Notifications need Ghostty to be allowed in System Settings > Notifications. Low risk for work use; check whether your employer requires an approved terminal.
 - **Remove it:** delete the settings block from the config file (or the file), then drag Ghostty.app to the Bin if removing the app.
 
@@ -145,8 +167,8 @@ Copy this block for each tool.
   4. Ran `mise trust mise.toml` (mise ignores a repo's config until trusted), then `mise install`. It downloaded `node-v26.13.0-darwin-arm64.tar.gz` in 4.5 seconds. `mise settings get node.verify` returned `true`.
   5. Verified: in the project, `node --version` prints `v26.13.0` (via `~/.local/share/mise/shims/node`) and `npm --version` prints `11.20.0`. In the home directory, `node --version` still prints `v23.11.0`. The global `~/.config/mise/config.toml` is unchanged.
 - **How we used it here:** pins the Node used for scaffolding, builds and tests. When we scaffold, `package.json` gets `"engines": { "node": "26.x" }` so Vercel uses the same major version.
-- **Verdict:** Pending.
-- **Evidence:** to be recorded once builds run on it.
+- **Verdict:** Useful.
+- **Evidence:** every local `dev`, `build`, unit, end-to-end and Lighthouse run from 2026-11-01 to 2026-11-03 ran on Node 26.13.0 through `mise.toml`, and Vercel built with the same major version from `engines`. No version mismatch came up between local, CI and Vercel. It also sets `NEXT_TELEMETRY_DISABLED` for the project. Cost: none noticed.
 - **Risks and permissions:** downloads runtimes into `~/.local/share/mise` with no sudo. A trusted `mise.toml` can also set environment variables and run tasks, so read a repo's `mise.toml` before running `mise trust`. Two Node installs can confuse; `which node` shows which one runs. For work: a pinned `mise.toml` per repo is a good habit; check whether your employer standardises on another manager such as nvm or volta.
 - **Remove it:** delete `mise.toml` from the repo and run `mise uninstall node@26.13.0`. To remove mise itself: remove the activate line from `~/.zshrc`, `brew uninstall mise`, and delete `~/.local/share/mise`.
 - **Cleanup still to do (not part of this step):** the 2021 Node 14 installer in `/usr/local/bin` (needs sudo to remove) and Homebrew Node 23.
@@ -163,8 +185,16 @@ Copy this block for each tool.
   5. Claude Code reads `CLAUDE.md`, not `AGENTS.md`, so `CLAUDE.md` imports it with an `@AGENTS.md` line.
   6. Verified the docs exist: `node_modules/next/dist/docs/` holds 474 markdown files (4.4 MB).
 - **How we used it here:** to set up Vitest, Claude read the bundled guide `node_modules/next/dist/docs/01-app/02-guides/testing/vitest.md` instead of relying on memory or the web. The guide recommended `vite-tsconfig-paths`; checking the installed Vite 8.3.5 types showed a built-in `resolve.tsconfigPaths` option, so that package was skipped.
-- **Verdict:** Pending, early signs positive.
-- **Evidence so far:** one setup done from version-matched docs (2026-11-01). The first CI run then failed typecheck with `Cannot find name 'LayoutProps'`: the type is generated into `.next/types` by `next dev` or `next build`, which existed locally but not on a clean CI checkout. The bundled CLI docs (`03-api-reference/06-cli/next.md`) gave the fix, `next typegen && tsc --noEmit`. Reproduced locally by deleting `.next` and `next-env.d.ts` (plain `tsc` exit 2, same error), then confirmed the fix (exit 0). Still to record whether it avoids outdated APIs while building pages.
+- **Verdict:** Useful.
+- **Evidence:** the bundled docs were the source for these, each one an API that changed in Next.js 16 or a detail memory would likely have got wrong:
+  1. Vitest setup (above).
+  2. `next typegen` before `tsc` in CI (below).
+  3. Tailwind through `@tailwindcss/postcss`, fixing stale CSS in `next dev` (Dead ends).
+  4. `robots.ts` and `sitemap.ts` file conventions.
+  5. Metadata merging is shallow, so `/cv` repeats its full `openGraph` object.
+  6. `middleware` is renamed `proxy` in Next.js 16, and its matcher's `has` header condition let `curl dipto.dev` run only for curl, wget and HTTPie, keeping the home page static.
+  7. With Cache Components, pages cannot read the clock while prerendering (`new Date()` fails the build); the docs explained why and the options (`"use cache"`, `io()`), which led to a safer choice (Dead ends).
+- **Earlier evidence:** one setup done from version-matched docs (2026-11-01). The first CI run then failed typecheck with `Cannot find name 'LayoutProps'`: the type is generated into `.next/types` by `next dev` or `next build`, which existed locally but not on a clean CI checkout. The bundled CLI docs (`03-api-reference/06-cli/next.md`) gave the fix, `next typegen && tsc --noEmit`. Reproduced locally by deleting `.next` and `next-env.d.ts` (plain `tsc` exit 2, same error), then confirmed the fix (exit 0). Still to record whether it avoids outdated APIs while building pages.
 - **Risks and permissions:** text only. Reading the bundled docs costs context tokens. `next dev` rewrites the file if it is removed.
 - **Remove it:** delete `AGENTS.md`, remove the `@AGENTS.md` line from `CLAUDE.md`, and pass `--no-agents-md` on future scaffolds. `next dev` may re-create it; check `node_modules/next/dist/server/lib/generate-agent-files.js`.
 
@@ -184,8 +214,8 @@ Copy this block for each tool.
   4. Verified: `diff -r` between the cached files and the reviewed commit shows no differences apart from an installer marker file, `.in_use`.
   5. The desktop session that installed it did not list the skill in the same turn, but listed it as `frontend-design:frontend-design` from the next turn on, with no restart.
 - **How we used it here:** loaded for layer 2 step 1 (design tokens). Following its process, Claude wrote a short token plan and reviewed it against the brief before coding. That review changed one decision: Ayu dark is close to the skill's "near-black with one bright accent" cliché, so colour was given fixed meanings drawn from Ayu's syntax palette (user, path, links, number literals) instead of a single accent.
-- **Verdict:** Pending.
-- **Evidence:** so far, one concrete design change prompted by its calibration list. Cost: about 2,300 tokens when loaded. Watch for one tension: it lists "near-black background with one bright accent" and "monospace for small labels" as generic tells, and our chosen terminal direction is close to both. The skill says the brief always wins, so it should guide only what the brief leaves open.
+- **Verdict:** Mixed.
+- **Evidence:** one concrete design change prompted by its calibration list (colour given fixed meanings instead of a single accent), still visible in the site. After that, the design was driven by Muji's direct feedback over many short iterations (the mascot, the opening, the senior pitch, the graph), and the skill was not reloaded. Useful for a first pass on a blank page; little value once there is a clear brief and an engaged reviewer. Cost: about 2,300 tokens when loaded. Watch for one tension: it lists "near-black background with one bright accent" and "monospace for small labels" as generic tells, and our chosen terminal direction is close to both. The skill says the brief always wins, so it should guide only what the brief leaves open.
 - **Risks and permissions:** text only; it cannot run code, read files or send data. Context cost only when loaded. Low risk for work.
 - **Remove it:** `claude plugin uninstall frontend-design@anthropic-plugin-directory --scope project`, which removes the `enabledPlugins` entry.
 
@@ -212,14 +242,49 @@ Record what did not work and why. Negative results are valuable.
 - 2026-11-01, Lighthouse CI (`@lhci/cli` 0.15.1, Google): installing it raised `npm audit` from 17 to 36 findings, 13 high (path traversal and arbitrary file writes in `extract-zip` and `tmp`, denial of service in `basic-ftp` and `zod`), all through its bundled Lighthouse 12 and Puppeteer chain. Its last release was June 2025. Uninstalled it the same minute. Replaced with `lighthouse` 13.6.0 (released 2026-10-27; 0 high findings) plus our own `scripts/lighthouse.mjs` (3 runs, medians, thresholds in `scripts/lighthouse-thresholds.mjs` with 9 unit tests). Lesson: audit right after each install, and check the release date of wrapper tools, not just the tool they wrap.
 - 2026-11-02, `create-next-app` 16.4.3's Tailwind setup: the scaffold routes CSS through a custom Turbopack loader (`turbopack.rules["*.css"]` with `@tailwindcss/turbopack` 4.3.3). In `next dev`, edits to `app/globals.css` were never served, even after a full reload, while `.tsx` edits were; this showed Muji a stale preview twice. A probe test (append a dummy rule, check the browser's stylesheets) confirmed it. The bundled Next.js docs (`01-getting-started/11-css.md`) recommend `@tailwindcss/postcss` with `postcss.config.mjs` instead; switching fixed it (the probe rule now appears and disappears without a restart), and before/after screenshots in both themes were byte-identical. Lesson: verify the preview the person is actually looking at, not only a fresh production build, and check scaffold defaults against the bundled docs.
 
+- 2026-11-02, Prettier and whitespace-sensitive HTML: the LinkedIn banner (`assets/linkedin/banner.html`) drew the git graph with `white-space: pre`. Running Prettier, required by CI, re-wrapped the long lines and collapsed the spaces that aligned the columns, so the rendered banner broke. Caught by re-rendering before pushing. Fixed by laying the graph out with fixed-width cells instead of spaces, so formatting cannot change the render. Lesson: after formatting a file whose output is visual, render it again.
+- 2026-11-02, a lint failure that reached CI: `assets/linkedin/render.cjs` used `require()`, which the ESLint config forbids. It was committed after the last full lint run, so CI failed on `main`; fixed by making it an ES module. Lesson: run the full gate (format, lint, typecheck, tests) before every commit, including commits that only touch scripts or assets.
+- 2026-11-02, `git push` with images: pushing about 1.3 MB of PNGs failed with "send-pack: unexpected disconnect while reading sideband packet", and git still printed "Everything up-to-date". Checking `git status -sb` showed the branch still ahead. A retry with `git -c http.postBuffer=157286400 push` (for that command only) worked. Lesson: confirm a push with `git status -sb`, not git's last line.
+- 2026-11-02, a build-time value in Next.js 16: `npm audit` was to show the date it ran, but `new Date()` fails prerendering with Cache Components. `"use cache"` would have captured it, but would also make the page revalidate and re-run `npm audit` on Vercel's servers, which have no npm. A `BUILD_DATE` set in `next.config.ts` worked, and was later removed with the date line. Lesson: read the framework's explanation of an error before reaching for its suggested fix.
+- 2026-11-02, axe and visible labels: the palette button had `aria-label="Command menu (⌘K)"` and visible text `⌘K`; axe flagged `label-content-name-mismatch` (WCAG 2.5.3), apparently ignoring the ⌘ symbol. Fixed by letting the visible text be the name. Also caught by axe: the purple number colour reached only 3.92:1 on the page background on `/cv` in light mode; the page now sits on the window surface the theme was checked against. Lesson: theme contrast tests only cover the surfaces they list.
+- 2026-11-02, Vercel domain switch: after making `dipto.dev` the primary domain and redeploying, the build appeared to still use `www.dipto.dev` from `VERCEL_PROJECT_PRODUCTION_URL` (canonical URLs, sitemap and the curl card all said `www`). Next step: set `SITE_URL=https://dipto.dev` for Production, which `lib/site.ts` prefers, and redeploy without the build cache. Not yet confirmed. Lesson: pin a site's address in one explicit setting rather than relying on platform values after domain changes.
+
 ## Work-safety notes
 What is safe to use at work, what needs approval first, and what must stay on personal projects.
 
-- Safe at work: project permission rules in `.claude/settings.json` (deny secret reads, ask before push and deploy), paired with the sandbox for OS-level enforcement.
+- Safe at work:
+  - Project permission rules in `.claude/settings.json` (deny secret reads, ask before push and deploy), paired with the sandbox for OS-level enforcement.
+  - A `CLAUDE.md` with a gated working agreement (plan, wait, small steps, real checks, commit after approval) and the exact check commands. It is text, and it shaped every step of this project.
+  - Framework docs bundled with the installed version (`AGENTS.md` style). Text only; costs context.
+  - `mise.toml` per repo, with the employer's approved version manager if they standardise on another.
 - Needs approval first:
+  - Claude Code itself, desktop app or CLI: only under an employer account with the right data agreement, never a personal one, because prompts, file contents and command output go to Anthropic.
+  - The desktop app's browser pane: screenshots and page text go to Anthropic. Use it on local or staging builds with synthetic data only.
+  - GitHub CLI: with a fine-grained token for one repository, read-only where possible, not the broad `repo` scope used here.
+  - Any plugin, skill or MCP server: read its files first (as with frontend-design), prefer official sources, and install at project scope.
 - Personal projects only:
+  - Anything that sends data to a third party not covered by the employer's agreements.
+  - Tools listed as "Not tried" above, until each has been evaluated on its own.
 
-## Retrospective (fill in at the end)
-- Final ranking of tools:
-- Recommended minimal setup for work:
-- What I would do differently:
+## Retrospective (2026-11-03)
+- **Final ranking of tools, by value for the cost:**
+  1. **Project permission rules:** free, enforced, and the pattern carries straight to work repos.
+  2. **Bundled framework docs (`AGENTS.md`):** the biggest quality win. Seven times, the version-matched docs replaced memory that would have been wrong for Next.js 16.
+  3. **Desktop app with the built-in browser:** looking at the page caught six real layout and motion bugs that unit and end-to-end tests passed.
+  4. **GitHub CLI:** quiet and dependable for pinning actions and watching CI; needs a narrower token at work.
+  5. **mise:** boring in the best way; nothing went wrong.
+  6. **frontend-design skill:** helpful once, on a blank page.
+  - Not ranked, because they were never used for the work: the Claude Code CLI, Ghostty, typescript-lsp, explanatory-output-style, Playwright MCP, superpowers, gstack and the memory plugin.
+- **Recommended minimal setup for work (regulated data):**
+  1. Claude Code under the employer's account and data agreement, on the `stable` channel.
+  2. A committed `.claude/settings.json` with deny rules for secrets and data files, ask rules for push and deploy, and the sandbox on; managed settings if the employer offers them.
+  3. A `CLAUDE.md` with the gated working agreement and the exact check commands (format, lint, typecheck, tests, e2e with axe).
+  4. The framework's bundled docs referenced from `CLAUDE.md`.
+  5. `gh` with a fine-grained, single-repo token.
+  6. A pinned runtime per repo (`mise.toml` or the employer's tool).
+  - Leave out by default: third-party plugins and MCP servers, and the browser pane on any page with real regulated data.
+- **What I would do differently:**
+  - Evaluate the listed tools one at a time early, as `CLAUDE.md` asks, instead of leaving six untried while the site took over.
+  - Record evidence in this file the day it happens; reconstructing it at the end is slower and loses detail.
+  - Run the full quality gate before every commit, including asset-only commits (the one CI failure on `main` came from skipping it).
+  - Settle the domain before the first deploy, and set `SITE_URL` from day one.
