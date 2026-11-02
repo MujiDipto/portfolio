@@ -377,3 +377,48 @@ describe("everyday shell commands", () => {
     }
   });
 });
+
+describe("git commands", () => {
+  const text = (command: string) => {
+    const { output } = run(command);
+    return output?.type === "message" || output?.type === "error"
+      ? output.text
+      : output?.type;
+  };
+
+  test.each([
+    ["git pull", "Already up to date."],
+    ["git fetch", "Already up to date."],
+    ["git push", "remote: Permission denied."],
+    ["git push origin main", "remote: Permission denied."],
+    [
+      "git commit -m wip",
+      "git commit: this terminal is read-only. Try git log",
+    ],
+    [
+      "git checkout main",
+      "git checkout: this terminal is read-only. Try git log",
+    ],
+    ["git", "usage: git log, git log --graph, git status, git branch"],
+    ["git yolo", "git: 'yolo' is not a git command. Try git log"],
+  ])("%s", (command, expected) => {
+    expect(text(command)).toBe(expected);
+  });
+
+  test("git diff on a clean tree prints nothing", () => {
+    expect(run("git diff")).toEqual({});
+  });
+
+  test("only an unknown subcommand is a mistake", () => {
+    for (const command of [
+      "git pull",
+      "git push",
+      "git diff",
+      "git commit",
+      "git",
+    ]) {
+      expect(run(command).output?.type, command).not.toBe("error");
+    }
+    expect(run("git yolo").output?.type).toBe("error");
+  });
+});

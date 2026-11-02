@@ -70,6 +70,13 @@ export function reply(command: string): Line {
   // them rather than treating them as mistakes.
   if (!output || output.type === "message") {
     const word = firstWord(command);
+    const pair = command
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .slice(0, 2)
+      .join(" ");
+    if (shell[pair]) return shell[pair];
     if (shell[word]) return shell[word];
     if (readOnly.includes(word)) {
       return { text: "Read-only, I'm afraid. I guard this terminal." };
@@ -114,6 +121,15 @@ const shell: Record<string, Line> = {
   id: { text: "Muji is uid 1000. I'm just the cat." },
   history: { text: "Your trail so far. ↑ brings any of it back." },
   man: { text: "No manuals here, but there is", command: "help" },
+  "git push": { text: "Only Muji pushes here. I just guard the branch." },
+  "git pull": {
+    text: "Fresh as it gets. See what's new:",
+    command: "git log --graph",
+  },
+  "git fetch": {
+    text: "Fresh as it gets. See what's new:",
+    command: "git log --graph",
+  },
   git: {
     text: "Clean tree, open branch. The full story:",
     command: "git log --graph",

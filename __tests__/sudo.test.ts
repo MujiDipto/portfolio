@@ -89,3 +89,12 @@ test("answers everyday shell commands, never as mistakes, suggesting only real c
     }
   }
 });
+
+test("answers git push and pull in character", () => {
+  expect(reply("git push").text).toMatch(/Only Muji pushes here/);
+  expect(reply("git pull").command).toBe("git log --graph");
+  for (const command of ["git push", "git pull", "git commit", "git diff"]) {
+    expect(isMistake(command), command).toBe(false);
+    expect(reply(command).text, command).not.toMatch(/not a command/);
+  }
+});

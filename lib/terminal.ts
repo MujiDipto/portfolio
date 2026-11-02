@@ -103,6 +103,19 @@ export type Context = {
   now?: Date;
 };
 
+// git commands that would change the repository; the terminal is read-only.
+const gitWrites = [
+  "add",
+  "commit",
+  "merge",
+  "rebase",
+  "reset",
+  "stash",
+  "checkout",
+  "switch",
+  "clone",
+];
+
 /** `date`'s output, in Brisbane time: "Tue 03 Nov 2026 09:41:07 AEST". */
 export function formatDate(now: Date): string {
   const part = (options: Intl.DateTimeFormatOptions) =>
@@ -148,7 +161,22 @@ export function run(input: string, context: Context = {}): Result {
         );
       }
       if (arg === "branch") return message("* onearly\n  main");
-      break;
+      if (!arg) {
+        return message(
+          "usage: git log, git log --graph, git status, git branch",
+        );
+      }
+      if (arg === "pull" || arg === "fetch") {
+        return message("Already up to date.");
+      }
+      if (arg === "push") {
+        return message("remote: Permission denied.");
+      }
+      if (arg === "diff") return {};
+      if (gitWrites.includes(arg)) {
+        return message(`git ${arg}: this terminal is read-only. Try git log`);
+      }
+      return error(`git: '${arg}' is not a git command. Try git log`);
     case "pwd":
       return message("/home/muji");
     case "cd":
