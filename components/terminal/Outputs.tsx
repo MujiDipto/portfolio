@@ -175,7 +175,25 @@ function Whoami({ main }: { main: boolean }) {
           {profile.status}
         </li>
       </ul>
-      <div className="mt-4">
+      {/* Everything a recruiter needs, without typing a command. */}
+      <ul
+        aria-label="Links"
+        className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm"
+      >
+        {[
+          { label: "résumé.pdf", href: resume.href, download: true },
+          { label: "linkedin", href: contact.linkedin.href },
+          { label: "github", href: contact.github.href },
+          { label: "email", href: contact.email.href },
+        ].map((link) => (
+          <li key={link.label}>
+            <a href={link.href} download={link.download} className={linkClass}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3">
         <Career />
       </div>
     </div>

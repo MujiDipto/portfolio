@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { axe } from "./axe";
+import { contact, resume } from "../lib/content";
 
 test("home page has language, title and the name as main heading", async ({
   page,
@@ -54,6 +55,29 @@ test("cat contact links a résumé that downloads as a PDF", async ({
   const response = await request.get((await link.getAttribute("href"))!);
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toBe("application/pdf");
+});
+
+test("the first screen links the résumé, LinkedIn, GitHub and email", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const links = page.getByRole("list", { name: "Links" });
+  await expect(links).toBeInViewport();
+  const expected = [
+    ["résumé.pdf", resume.href],
+    ["linkedin", contact.linkedin.href],
+    ["github", contact.github.href],
+    ["email", contact.email.href],
+  ];
+  for (const [name, href] of expected) {
+    await expect(
+      links.getByRole("link", { name, exact: true }),
+    ).toHaveAttribute("href", href);
+  }
+  await expect(links.getByRole("link", { name: "résumé.pdf" })).toHaveAttribute(
+    "download",
+    "",
+  );
 });
 
 test("starts in Ayu dark even when the system prefers light", async ({
