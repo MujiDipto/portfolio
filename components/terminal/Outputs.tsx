@@ -343,7 +343,10 @@ type GraphRow = {
   lanes: string;
   branch: Branch;
   date?: string;
-  head?: boolean;
+  /** The branch HEAD is on, shown as `HEAD -> name`. */
+  head?: string;
+  /** A branch that points here without HEAD, such as `main`. */
+  ref?: string;
   tag?: string;
   /** A merge names its branch, which runs `command` when clicked. */
   merge?: { branch: Exclude<Branch, "main">; command: string };
@@ -372,13 +375,15 @@ export function careerGraph(): GraphRow[] {
       lanes: "*  ",
       branch: "main",
       date: current.roles[0].start,
-      head: true,
+      // The current chapter: a branch ahead of main, not merged yet.
+      head: "onearly",
       text: `joined ${current.name} as ${current.roles[0].title}`,
     },
     {
       lanes: "*  ",
       branch: "main",
       date: senior.end,
+      ref: "main",
       merge: { branch: "oracle", command: "git log" },
       text: `${tenure(oracle)}, ${analyst.title} to ${senior.title}`,
     },
@@ -479,14 +484,17 @@ function CareerGraph({ onRun }: { onRun?: RunCommand }) {
                   {row.date}
                 </span>
                 <span className="min-w-0">
-                  {(row.head || row.tag) && (
+                  {(row.head || row.ref || row.tag) && (
                     <span className="font-semibold">
                       (
                       {row.head && (
-                        <span className="text-prompt-path">HEAD -&gt; </span>
+                        <>
+                          <span className="text-prompt-path">HEAD -&gt; </span>
+                          <span className="text-prompt-user">{row.head}</span>
+                        </>
                       )}
-                      {row.head && (
-                        <span className="text-prompt-user">main</span>
+                      {row.ref && (
+                        <span className="text-prompt-user">{row.ref}</span>
                       )}
                       {row.tag && (
                         <span className="text-accent">tag: {row.tag}</span>

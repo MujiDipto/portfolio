@@ -57,7 +57,8 @@ test("git log --graph shows the career as a branch history", async ({
   const input = page.getByRole("textbox", { name: "Command" });
   await input.fill("git log --graph");
   await input.press("Enter");
-  await expect(page.getByText("(HEAD -> main)")).toBeVisible();
+  await expect(page.getByText("(HEAD -> onearly)")).toBeVisible();
+  await expect(page.getByText("(main)", { exact: true })).toBeVisible();
   await expect(
     page.getByText("promoted to Senior Software Engineer"),
   ).toBeVisible();

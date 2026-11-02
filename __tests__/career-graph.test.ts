@@ -14,7 +14,12 @@ test("tells the career newest first: every role, the degree and the tenure", () 
       title,
     ).toBe(true);
   }
-  expect(commits[0].head).toBe(true);
+  // OnEarly is the open chapter: HEAD is on its branch, one ahead of main.
+  expect(commits[0].head).toBe("onearly");
+  expect(commits[1]).toMatchObject({
+    ref: "main",
+    merge: { branch: "oracle" },
+  });
   expect(commits[0].text).toContain(experience[0].name);
   expect(commits.some((c) => c.text!.includes(tenure(oracle)))).toBe(true);
   expect(commits.some((c) => c.text === education.degree)).toBe(true);
