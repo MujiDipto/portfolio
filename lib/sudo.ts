@@ -110,6 +110,7 @@ export const tips: Line[] = [
   { text: "Tip: Tab or → accepts the grey hint." },
   { text: "Tip: ↑ and ↓ bring back earlier commands." },
   { text: "Tip: Esc clears the line." },
+  { text: "Tip: Page Up and Page Down scroll the output." },
   { text: "Tip: prefer light? Try", command: "theme light" },
   { text: `Tip: in your own terminal, try curl ${siteUrl.host}` },
 ];

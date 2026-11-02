@@ -195,6 +195,14 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
       setInput(hint);
     } else if (event.key === "Escape") {
       setInput("");
+    } else if (event.key === "PageUp" || event.key === "PageDown") {
+      // As in a real terminal, Page Up and Page Down scroll the output, so
+      // keyboard users can read long output without leaving the prompt.
+      event.preventDefault();
+      const output = event.currentTarget.closest("main");
+      if (!output) return;
+      const page = output.clientHeight * 0.85;
+      output.scrollBy({ top: event.key === "PageUp" ? -page : page });
     }
   }
 

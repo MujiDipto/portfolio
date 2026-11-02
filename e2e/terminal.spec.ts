@@ -64,6 +64,26 @@ test("git log --graph shows the career as a branch history", async ({
   ).toBeVisible();
 });
 
+test("Page Up and Page Down scroll long output from the prompt", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("git log");
+  await input.press("Enter");
+  const output = page.locator("main");
+  const scrollTop = () => output.evaluate((el) => el.scrollTop);
+  const start = await scrollTop();
+  await input.press("PageDown");
+  await expect.poll(scrollTop).toBeGreaterThan(start);
+  await input.press("PageUp");
+  await input.press("PageUp");
+  await expect.poll(scrollTop).toBeLessThan(start);
+  // The keys scroll; they do not move focus or change the line.
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue("");
+});
+
 test("npm audit scans the site's real dependencies", async ({ page }) => {
   await page.goto("/");
   const input = page.getByRole("textbox", { name: "Command" });

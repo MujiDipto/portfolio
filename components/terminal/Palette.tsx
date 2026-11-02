@@ -134,6 +134,9 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
           <ul
             id="palette-list"
             role="listbox"
+            // Driven from the search box with the arrow keys; Chrome would
+            // otherwise make this scrollable list a Tab stop of its own.
+            tabIndex={-1}
             aria-label="Commands"
             className="max-h-[50vh] overflow-y-auto py-2"
           >
