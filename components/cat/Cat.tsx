@@ -236,14 +236,16 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
               }
         }
       >
-        <div key={said} className="cat-body">
+        <div key={`body-${said}`} className="cat-body">
           {/* The art faces left; mirrored, it faces its bubble on its right. */}
           <div className="relative" style={{ transform: "scaleX(-1)" }}>
             <CatImage {...catSize} />
             {startled && !cheering && <AngerMark />}
           </div>
         </div>
-        {petted > 0 && <Hearts key={petted} />}
+        {/* Prefixed keys: the two counters often match, and siblings need
+            different keys. */}
+        {petted > 0 && <Hearts key={`hearts-${petted}`} />}
       </div>
 
       {line && x !== null && state === "up" && (

@@ -218,3 +218,18 @@ describe("zoomies", () => {
     expect(bubble()!.textContent).toBe(said(zoomies));
   });
 });
+
+test("rapid clicks never give React two siblings with the same key", () => {
+  const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+  arrived();
+  for (let i = 0; i < 12; i++) {
+    fireEvent.click(cat());
+    act(() => vi.advanceTimersByTime(100));
+  }
+  act(() => vi.advanceTimersByTime(5000));
+  const keyErrors = errors.mock.calls.filter((args) =>
+    String(args[0]).includes("same key"),
+  );
+  errors.mockRestore();
+  expect(keyErrors).toEqual([]);
+});
