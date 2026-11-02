@@ -213,6 +213,33 @@ export const projects: Project[] = [
     ],
     stack: ["Figma", "React", "Oracle JET"],
   },
+  // This site, as evidence for "AI Native Product Engineering". Its facts are
+  // the project's own record: CLAUDE.md, SETUP.md, the tests and CI (wording
+  // approved by Muji, 2026-11-03).
+  {
+    slug: "this-site",
+    name: "dipto.dev, this terminal",
+    context: "Personal project, built with Claude Code",
+    outcome:
+      "Shipped with an AI coding agent under a gated agreement: plan, approve, test, commit",
+    highlights: [
+      "Designed and built this interactive terminal in Next.js, React and TypeScript, with Claude Code as pair programmer and each change planned, reviewed and checked before commit.",
+      "Each change is checked with formatting, linting, type checks, unit tests and Playwright end-to-end tests with axe accessibility checks; GitHub Actions also fails a run if Lighthouse accessibility or best practices scores drop.",
+      "Audits its own dependencies with a real npm audit at build time, and answers curl with a plain-text card through a Next.js proxy while the page stays static.",
+      "Evaluated each AI tool on evidence and wrote up the verdicts, the dead ends and a minimal setup for AI-assisted work on sensitive, regulated code.",
+    ],
+    stack: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Vitest",
+      "Playwright",
+      "GitHub Actions",
+      "Vercel",
+      "Claude Code",
+    ],
+  },
 ];
 
 export const skills = [
