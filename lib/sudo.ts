@@ -155,6 +155,9 @@ export function isMistake(command: string): boolean {
   return !callsSudo(command) && run(command).output?.type === "error";
 }
 
+/** After five fast clicks Sudo gets the zoomies (components/cat/Cat.tsx). */
+export const zoomies: Line = { text: "Zoomies! Okay… I'm calm now." };
+
 /** Shown in turn each time the visitor clicks the cat. */
 export const tips: Line[] = [
   { text: "Tip: Tab or → accepts the grey hint." },

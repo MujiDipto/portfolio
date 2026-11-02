@@ -62,6 +62,7 @@ test("nothing the site does is blocked by its CSP", async ({ page }) => {
     "neofetch",
     "theme light",
     "theme dark",
+    "sudo hire muji",
   ]) {
     await input.fill(command);
     await input.press("Enter");

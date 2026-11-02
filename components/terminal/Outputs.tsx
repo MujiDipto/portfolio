@@ -470,7 +470,7 @@ function CareerGraph({ onRun }: { onRun?: RunCommand }) {
           <li
             key={i}
             // In the terminal the graph draws itself line by line (globals.css).
-            className={`flex gap-3 ${onRun ? "graph-row" : ""}`}
+            className={`flex gap-3 ${onRun ? "reveal-row" : ""}`}
             style={onRun ? ({ "--row": i } as CSSProperties) : undefined}
             aria-hidden={row.text ? undefined : true}
           >
@@ -695,6 +695,71 @@ function Education() {
   );
 }
 
+/** The subject `sudo hire muji` puts on its email, so Muji knows the route. */
+export const hireSubject = "Found you via sudo hire muji";
+
+/**
+ * `sudo hire muji`, the hidden egg: a short privilege-escalation sequence
+ * that hands over every way to reach Muji, printed line by line. It stays
+ * honest about his status. No password prompt, even as a joke: a page that
+ * asks for one looks like phishing.
+ */
+function Hire({ animate }: { animate: boolean }) {
+  const grants = [
+    {
+      label: "résumé.pdf",
+      href: resume.href,
+      text: "download now",
+      download: true,
+    },
+    {
+      label: "direct line",
+      href: `${contact.email.href}?subject=${encodeURIComponent(hireSubject)}`,
+      text: "email Muji",
+    },
+    {
+      label: "linkedin",
+      href: contact.linkedin.href,
+      text: contact.linkedin.label,
+    },
+    { label: "github", href: contact.github.href, text: contact.github.label },
+  ];
+  // Each line prints a beat after the last (globals.css .reveal-row).
+  const reveal = (n: number, className = "") => ({
+    className: `${animate ? "reveal-row" : ""} ${className}`.trim(),
+    style: animate ? ({ "--row": n * 2 } as CSSProperties) : undefined,
+  });
+  return (
+    <div className="leading-relaxed">
+      <Title>Access granted</Title>
+      <p {...reveal(0, "text-muted")}>
+        [sudo] privileges confirmed for visitor
+      </p>
+      <p {...reveal(1)}>granting access to: muji</p>
+      <ul className="my-1">
+        {grants.map((g, i) => (
+          <li key={g.label} {...reveal(i + 2, "grid grid-cols-[2ch_14ch_1fr]")}>
+            <span aria-hidden="true" className="text-prompt-user">
+              ✓
+            </span>
+            <span>{g.label}</span>
+            <span>
+              <TextLink href={g.href} download={g.download}>
+                {g.text}
+              </TextLink>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p {...reveal(6, "text-prompt-user font-semibold")}>access granted.</p>
+      <p {...reveal(7, "text-muted text-sm")}>
+        note: Muji isn&apos;t looking for a new role right now, but he&apos;s
+        always happy to talk.
+      </p>
+    </div>
+  );
+}
+
 /** What colleagues wrote, as quotes with their names and roles. */
 function Recommendations() {
   return (
@@ -721,7 +786,7 @@ function Recommendations() {
   );
 }
 
-function Contact({ note }: { note?: string }) {
+function Contact() {
   const rows = [
     { label: "email", link: contact.email },
     { label: "linkedin", link: contact.linkedin },
@@ -731,7 +796,6 @@ function Contact({ note }: { note?: string }) {
   return (
     <div>
       <Title>Contact</Title>
-      {note && <p className="text-prompt-user mb-2">{note}</p>}
       <p className="text-fg-strong text-lg font-semibold">
         {contactPitch.line}
       </p>
@@ -997,7 +1061,9 @@ export function OutputView({
     case "education":
       return <Education />;
     case "contact":
-      return <Contact note={output.note} />;
+      return <Contact />;
+    case "hire":
+      return <Hire animate={Boolean(onRun)} />;
     case "recommendations":
       return <Recommendations />;
     case "files":

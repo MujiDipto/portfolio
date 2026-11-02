@@ -86,15 +86,16 @@ body {
   outline-offset: 2px;
 }
 
-/* `git log --graph` draws itself line by line when run in the terminal,
-   about half a second in all. Opacity only, so screen readers get every line
-   at once. */
-.graph-row {
-  animation: graph-row 160ms ease-out both;
+/* Output that prints line by line when run in the terminal (git log
+   --graph, sudo hire muji): each row fades in a beat after the last, about
+   half a second in all. Opacity only, so screen readers get every line at
+   once. */
+.reveal-row {
+  animation: reveal-row 160ms ease-out both;
   animation-delay: calc(var(--row) * 35ms);
 }
 
-@keyframes graph-row {
+@keyframes reveal-row {
   from {
     opacity: 0;
     transform: translateY(2px);
@@ -102,7 +103,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .graph-row {
+  .reveal-row {
     animation: none;
   }
 }
@@ -283,7 +284,32 @@ html[data-js] .boot-hidden {
   }
 }
 
+/* The zoomies (five fast clicks): a dash to the right end of the top edge
+   and back, then a spin. --zoom-x is set by components/cat/Cat.tsx. */
+[data-cat][data-zooming] {
+  animation: cat-zoomies 1.1s ease-in-out 1;
+}
+
+[data-cat][data-zooming] .cat-body {
+  animation: cat-spin 0.35s ease-in-out 0.75s 1;
+}
+
+@keyframes cat-zoomies {
+  45%,
+  55% {
+    transform: translateX(var(--zoom-x));
+  }
+}
+
+@keyframes cat-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-cat][data-zooming],
+  [data-cat][data-zooming] .cat-body,
   [data-cat][data-state="up"] .cat-body,
   [data-cat][data-mood="angry"] .cat-body,
   [data-cat][data-mood="happy"] .cat-body {

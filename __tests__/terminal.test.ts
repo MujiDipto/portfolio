@@ -83,7 +83,7 @@ describe("run", () => {
 
   test("the hire easter egg shows contact details", () => {
     expect(run("sudo hire muji")).toEqual({
-      output: { type: "contact", note: "permission granted." },
+      output: { type: "hire" },
     });
   });
 });

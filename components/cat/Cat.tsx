@@ -5,7 +5,16 @@ import { CatImage } from "@/components/cat/CatImage";
 import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
 import { highlightLines } from "@/lib/content";
-import { greeting, isMistake, jumps, reply, tips, type Line } from "@/lib/sudo";
+import {
+  greeting,
+  isEgg,
+  isMistake,
+  jumps,
+  reply,
+  tips,
+  zoomies,
+  type Line,
+} from "@/lib/sudo";
 import { commandForHash } from "@/lib/terminal";
 
 /** Dispatched on window each time the terminal runs a command; detail is the command. */
@@ -23,6 +32,11 @@ const bubbleGap = 10; // pixels between the cat and its bubble
 export const riseMs = 700;
 export const startleMs = 600;
 export const cheerMs = 900;
+// Five clicks within 1.5 seconds set off the zoomies, at most once every 4.
+export const zoomClicks = 5;
+const zoomWindowMs = 1500;
+export const zoomMs = 1100;
+const zoomCooldownMs = 4000;
 const fallbackWidth = 900; // when it cannot measure (tests)
 
 /** Where the cat is: behind the window (down), on its way, or up on top. */
@@ -59,12 +73,18 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
   const tipIndex = useRef(0);
   // Counts pets, so each click floats a fresh set of hearts.
   const [petted, setPetted] = useState(0);
+  const [zooming, setZooming] = useState(false);
+  const clicks = useRef<number[]>([]);
+  const zoomCooling = useRef(false);
+  const zoomTimers = useRef<number[]>([]);
 
   // Mirrors of state for the window listeners.
   const stateRef = useRef<CatState>("down");
   const entering = useRef(true);
 
   useEffect(() => {
+    // The zoomies' timers, cleared with the rest when the cat unmounts.
+    const zoomTimerList = zoomTimers.current;
     const go = (next: CatState) => {
       stateRef.current = next;
       setState(next);
@@ -126,6 +146,8 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       const command = (event as CustomEvent<string>).detail ?? "";
       if (isMistake(command)) react(setStartled, startleMs);
       if (jumps(command)) react(setCheering, cheerMs);
+      // The easter egg gets hearts as well as a jump.
+      if (isEgg(command)) setPetted((n) => n + 1);
       say(reply(command));
     };
     const onTyping = () => setLine(null);
@@ -138,16 +160,47 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       window.removeEventListener("pointerdown", skip);
       window.removeEventListener(commandEvent, onCommand);
       window.removeEventListener(typingEvent, onTyping);
+      zoomTimerList.forEach(window.clearTimeout);
     };
   }, []);
 
-  function showTip() {
+  function showTip(now: number) {
     if (stateRef.current !== "up") return;
+    clicks.current = [...clicks.current, now].filter(
+      (t) => now - t < zoomWindowMs,
+    );
+    if (clicks.current.length >= zoomClicks && !zoomCooling.current) {
+      clicks.current = [];
+      startZoomies();
+      return;
+    }
     setAngry(false);
     setPetted((n) => n + 1);
     setLine(tips[tipIndex.current % tips.length]);
     setSaid((n) => n + 1);
     tipIndex.current++;
+  }
+
+  /** A dash along the top edge and back, then a spin (globals.css). */
+  function startZoomies() {
+    const reduce =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const later = (fn: () => void, ms: number) =>
+      zoomTimers.current.push(window.setTimeout(fn, ms));
+    zoomCooling.current = true;
+    setAngry(false);
+    setLine(null);
+    setPetted((n) => n + 1);
+    if (!reduce) setZooming(true);
+    later(
+      () => {
+        setZooming(false);
+        setLine(zoomies);
+        setSaid((n) => n + 1);
+      },
+      reduce ? 0 : zoomMs,
+    );
+    later(() => (zoomCooling.current = false), zoomCooldownMs);
   }
 
   const hidden = state === "down";
@@ -161,9 +214,10 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
         data-x={x === null ? "" : Math.round(x)}
         data-state={state}
         data-mood={cheering ? "happy" : angry || startled ? "angry" : "calm"}
+        data-zooming={zooming ? "" : undefined}
         onMouseEnter={() => setAngry(true)}
         onMouseLeave={() => setAngry(false)}
-        onClick={showTip}
+        onClick={(event) => showTip(event.timeStamp)}
         className="pointer-events-auto absolute cursor-pointer"
         style={
           x === null
@@ -177,6 +231,8 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
                   ? `translateY(${catSize.height + 4}px)`
                   : undefined,
                 transition: transitions[state],
+                // How far the zoomies dash: to the right end of the top edge.
+                ["--zoom-x" as string]: `${Math.max(0, width - x - catSize.width - cornerInset)}px`,
               }
         }
       >

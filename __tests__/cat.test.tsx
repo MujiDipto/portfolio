@@ -7,10 +7,12 @@ import {
   riseMs,
   startleMs,
   typingEvent,
+  zoomClicks,
+  zoomMs,
 } from "@/components/cat/Cat";
 import { bootDurationMs } from "@/components/terminal/useBoot";
 import { highlightLines } from "@/lib/content";
-import { greeting, reply, tips } from "@/lib/sudo";
+import { greeting, reply, tips, zoomies } from "@/lib/sudo";
 
 function mockMotion(reduce: boolean) {
   window.matchMedia = (query: string) =>
@@ -167,5 +169,52 @@ describe("Cat", () => {
     render(<Cat onRun={() => {}} />);
     expect(cat().getAttribute("aria-hidden")).toBe("true");
     expect(screen.queryByRole("button", { name: /pause/ })).toBeNull();
+  });
+});
+
+describe("zoomies", () => {
+  /** Clicks the cat `times` times, `gapMs` apart. */
+  function clickCat(times: number, gapMs = 100) {
+    for (let i = 0; i < times; i++) {
+      fireEvent.click(cat());
+      act(() => vi.advanceTimersByTime(gapMs));
+    }
+  }
+
+  test("five fast clicks set off a dash, then Sudo calms down", () => {
+    arrived();
+    clickCat(zoomClicks - 1);
+    expect(cat().dataset.zooming).toBeUndefined();
+    expect(bubble()!.textContent).toBe(said(tips[zoomClicks - 2]));
+    clickCat(1, 0);
+    expect(cat().dataset.zooming).toBe("");
+    // No bubble while it dashes, so the two never collide.
+    expect(bubble()).toBeNull();
+    act(() => vi.advanceTimersByTime(zoomMs));
+    expect(cat().dataset.zooming).toBeUndefined();
+    expect(bubble()!.textContent).toBe(said(zoomies));
+  });
+
+  test("slow clicks just show tips", () => {
+    arrived();
+    clickCat(zoomClicks + 2, 600);
+    expect(cat().dataset.zooming).toBeUndefined();
+  });
+
+  test("it rests for a few seconds before it can go again", () => {
+    arrived();
+    clickCat(zoomClicks, 50);
+    act(() => vi.advanceTimersByTime(zoomMs));
+    clickCat(zoomClicks, 50);
+    expect(cat().dataset.zooming).toBeUndefined();
+  });
+
+  test("with reduced motion it says the line without moving", () => {
+    mockMotion(true);
+    render(<Cat onRun={() => {}} />);
+    act(() => vi.advanceTimersByTime(100));
+    clickCat(zoomClicks, 50);
+    expect(cat().dataset.zooming).toBeUndefined();
+    expect(bubble()!.textContent).toBe(said(zoomies));
   });
 });

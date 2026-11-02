@@ -13,7 +13,8 @@ export type Output =
   | { type: "project"; slug: string }
   | { type: "skills" }
   | { type: "education" }
-  | { type: "contact"; note?: string }
+  | { type: "contact" }
+  | { type: "hire" }
   | { type: "recommendations" }
   | { type: "files"; hidden?: boolean }
   | { type: "neofetch" }
@@ -265,7 +266,7 @@ export function run(input: string, context: Context = {}): Result {
       return message("rm: permission denied. This terminal is read-only.");
     case "sudo":
       if (args.join(" ") === "hire muji") {
-        return { output: { type: "contact", note: "permission granted." } };
+        return { output: { type: "hire" } };
       }
       return error("sudo: nice try. Try help");
   }

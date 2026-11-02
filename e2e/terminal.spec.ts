@@ -84,6 +84,21 @@ test("Page Up and Page Down scroll long output from the prompt", async ({
   await expect(input).toHaveValue("");
 });
 
+test("sudo hire muji grants access, with a pre-filled email", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("sudo hire muji");
+  await input.press("Enter");
+  const log = page.getByRole("log");
+  await expect(log.getByText("access granted.")).toBeVisible();
+  await expect(log.getByRole("link", { name: "email Muji" })).toHaveAttribute(
+    "href",
+    /subject=Found%20you%20via%20sudo%20hire%20muji$/,
+  );
+});
+
 test("npm audit scans the site's real dependencies", async ({ page }) => {
   await page.goto("/");
   const input = page.getByRole("textbox", { name: "Command" });
@@ -194,6 +209,7 @@ for (const theme of ["light", "dark"] as const) {
       "npm audit",
       "tree",
       "cat recommendations.md",
+      "sudo hire muji",
       "git status",
       "history",
       "mkdir x",

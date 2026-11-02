@@ -94,6 +94,15 @@ test("the easter egg makes it jump", async ({ page }) => {
   await expect(bubble(page)).toContainText("Permission granted");
 });
 
+test("five fast clicks give it the zoomies", async ({ page }) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  for (let i = 0; i < 5; i++) await cat(page).click({ delay: 10 });
+  await expect(cat(page)).toHaveAttribute("data-zooming", "");
+  await expect(bubble(page)).toContainText("Zoomies!");
+  await expect(cat(page)).not.toHaveAttribute("data-zooming", "");
+});
+
 test("its bubble is on its right, the way it faces", async ({ page }) => {
   await page.goto("/");
   await expect(bubble(page)).toBeVisible();
