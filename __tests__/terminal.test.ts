@@ -263,3 +263,115 @@ describe("command palette", () => {
     expect(filterPalette("nothing like this")).toEqual([]);
   });
 });
+
+describe("ls flags", () => {
+  test.each([
+    "ls -a",
+    "ls -la",
+    "ls -al",
+    "ls -ali",
+    "ls -lah",
+    "ls -A",
+    "ls --all",
+    "ls -l -a",
+    "ls -a .",
+  ])("%s shows the hidden files", (command) => {
+    expect(run(command).output).toEqual({ type: "files", hidden: true });
+  });
+
+  test.each(["ls", "ls -l", "ls -lh", "ls ."])(
+    "%s lists the usual files",
+    (command) => {
+      expect(run(command).output).toEqual({ type: "files" });
+    },
+  );
+
+  test("a path still works after flags", () => {
+    expect(run("ls -la projects/").output).toEqual({ type: "projects" });
+    expect(run("ls -l nope").output).toEqual({
+      type: "error",
+      text: "ls: cannot access 'nope': No such file or directory",
+    });
+  });
+});
+
+describe("everyday shell commands", () => {
+  const text = (command: string, context?: Parameters<typeof run>[1]) => {
+    const { output } = run(command, context);
+    return output?.type === "message" ? output.text : output?.type;
+  };
+
+  test.each([
+    ["pwd", "/home/muji"],
+    [
+      "cd projects",
+      "cd: this is a guided tour, you stay in ~. Try ls projects/",
+    ],
+    ["id", "uid=1000(muji) gid=1000(muji)"],
+    ["uname -a", "Next.js 16 on Node 26, hosted on Vercel"],
+    ["git status", "On branch onearly\nnothing to commit, working tree clean"],
+    ["git branch", "* onearly\n  main"],
+    ["man ls", "man: no manual entry for ls. Try help"],
+    ["mkdir x", "mkdir: permission denied. This terminal is read-only."],
+    ["chmod 777 /", "chmod: permission denied. This terminal is read-only."],
+  ])("%s", (command, expected) => {
+    expect(text(command)).toBe(expected);
+  });
+
+  test("cd home prints nothing, like a shell", () => {
+    for (const command of ["cd", "cd ~", "cd ."]) {
+      expect(run(command)).toEqual({});
+    }
+  });
+
+  test("echo keeps what was typed, case and all", () => {
+    expect(text("echo Hello, World")).toBe("Hello, World");
+    expect(text("echo")).toBe("");
+  });
+
+  test("head, tail, less and more read files like cat", () => {
+    for (const reader of ["head", "tail", "less", "more"]) {
+      expect(run(`${reader} skills.txt`).output).toEqual({ type: "skills" });
+      expect(text(`${reader} nope`)).toBe("error");
+    }
+  });
+
+  test("date is Brisbane time", () => {
+    const now = new Date("2026-11-02T23:41:07Z");
+    expect(text("date", { now })).toBe("Tue 03 Nov 2026 09:41:07 AEST");
+  });
+
+  test("history numbers the commands like bash, the current one last", () => {
+    expect(text("history", { history: ["pwd", "ls", "history"] })).toBe(
+      "   1  pwd\n   2  ls\n   3  history",
+    );
+  });
+
+  test("tree is a command", () => {
+    expect(run("tree").output).toEqual({ type: "tree" });
+  });
+
+  test("none of them is a mistake", () => {
+    for (const command of [
+      "pwd",
+      "cd",
+      "cd projects",
+      "echo hi",
+      "date",
+      "hostname",
+      "uname",
+      "id",
+      "history",
+      "tree",
+      "head skills.txt",
+      "man ls",
+      "git status",
+      "git branch",
+      "mkdir x",
+      "kill 1",
+      "brew install x",
+    ]) {
+      expect(run(command).output?.type, command).not.toBe("error");
+    }
+  });
+});

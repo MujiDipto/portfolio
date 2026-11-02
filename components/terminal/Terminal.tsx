@@ -136,7 +136,10 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
   }, [ready]);
 
   function runCommand(command: string) {
-    const result = run(command);
+    const result = run(command, {
+      history: [...history, command.trim()],
+      now: new Date(),
+    });
     // Keep the address shareable: it links to what is on screen. Replacing,
     // not pushing, so Back still leaves the site.
     const link = linkFor(command);

@@ -678,6 +678,47 @@ function Files({ onRun, hidden }: { onRun?: RunCommand; hidden?: boolean }) {
   );
 }
 
+/** `tree`: the files and projects as a tree, each one clickable. */
+function Tree({ onRun }: { onRun?: RunCommand }) {
+  const rows: { lead: string; label: string; command: string }[] = [
+    { lead: "├── ", label: "contact", command: "cat contact" },
+    { lead: "├── ", label: "education.md", command: "cat education.md" },
+    { lead: "├── ", label: "highlights.md", command: "cat highlights.md" },
+    { lead: "├── ", label: "projects/", command: "ls projects/" },
+    ...projects.map((p, i) => ({
+      lead: `│   ${i === projects.length - 1 ? "└── " : "├── "}`,
+      label: `${p.slug}/`,
+      command: `open ${p.slug}`,
+    })),
+    { lead: "└── ", label: "skills.txt", command: "cat skills.txt" },
+  ];
+  return (
+    <div>
+      <p className="text-prompt-path">~</p>
+      <ul>
+        {rows.map((row) => (
+          <li key={row.label} className="flex">
+            <span aria-hidden="true" className="text-muted whitespace-pre">
+              {row.lead}
+            </span>
+            <CommandButton
+              command={row.command}
+              label={row.label}
+              onRun={onRun}
+              className={
+                row.label.endsWith("/") ? "text-prompt-path" : "text-fg-strong"
+              }
+            />
+          </li>
+        ))}
+      </ul>
+      <p className="text-muted mt-1 text-sm">
+        {projects.length + 1} directories, 4 files
+      </p>
+    </div>
+  );
+}
+
 const months = [
   "Jan",
   "Feb",
@@ -846,6 +887,8 @@ export function OutputView({
       return <Files onRun={onRun} hidden={output.hidden} />;
     case "neofetch":
       return <Neofetch />;
+    case "tree":
+      return <Tree onRun={onRun} />;
     case "audit":
       return <AuditOutput animate={Boolean(onRun)} />;
     case "secrets":
@@ -853,7 +896,7 @@ export function OutputView({
     case "help":
       return <Help onRun={onRun} />;
     case "message":
-      return <p className="text-muted">{output.text}</p>;
+      return <p className="whitespace-pre-wrap">{output.text}</p>;
     case "error":
       return <p className="text-fg">{output.text}</p>;
   }

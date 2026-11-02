@@ -1,6 +1,7 @@
 // The terminal's command engine: pure functions, no React. Outputs name what to
 // show; the UI renders them from lib/content.ts so facts stay in one place.
 import { projects } from "@/lib/content";
+import { siteUrl } from "@/lib/site";
 import type { Theme } from "@/lib/theme";
 
 export type Output =
@@ -16,6 +17,7 @@ export type Output =
   | { type: "files"; hidden?: boolean }
   | { type: "neofetch" }
   | { type: "audit" }
+  | { type: "tree" }
   | { type: "secrets" }
   | { type: "help" }
   | { type: "message"; text: string }
@@ -71,11 +73,53 @@ const message = (text: string): Result => ({
   output: { type: "message", text },
 });
 
-export function run(input: string): Result {
+// Commands that would change something get a polite refusal, like `rm`.
+export const readOnly = [
+  "mkdir",
+  "touch",
+  "mv",
+  "cp",
+  "chmod",
+  "chown",
+  "kill",
+  "reboot",
+  "shutdown",
+  "apt",
+  "apt-get",
+  "brew",
+];
+
+/** What some commands read beyond their input: `history` and `date`. */
+export type Context = {
+  /** Commands run so far, oldest first, the current one last. */
+  history?: string[];
+  now?: Date;
+};
+
+/** `date`'s output, in Brisbane time: "Tue 03 Nov 2026 09:41:07 AEST". */
+export function formatDate(now: Date): string {
+  const part = (options: Intl.DateTimeFormatOptions) =>
+    now.toLocaleString("en-AU", { timeZone: "Australia/Brisbane", ...options });
+  const time = part({
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  return `${part({ weekday: "short" })} ${part({ day: "2-digit" })} ${part({ month: "short" })} ${part({ year: "numeric" })} ${time} AEST`;
+}
+
+export function run(input: string, context: Context = {}): Result {
   const words = input.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length === 0) return {};
   const [command, ...args] = words;
   const arg = args[0];
+
+  if (readOnly.includes(command)) {
+    return message(
+      `${command}: permission denied. This terminal is read-only.`,
+    );
+  }
 
   switch (command) {
     case "whoami":
@@ -90,21 +134,70 @@ export function run(input: string): Result {
           ? { output: { type: "graph" } }
           : { output: { type: "experience" } };
       }
-      break;
-    case "ls":
-      if (!arg) return { output: { type: "files" } };
-      if (["-a", "-la", "-al"].includes(arg)) {
-        return { output: { type: "files", hidden: true } };
+      // In step with git log --graph: HEAD is on onearly, one ahead of main.
+      if (arg === "status") {
+        return message(
+          "On branch onearly\nnothing to commit, working tree clean",
+        );
       }
-      if (arg === "projects" || arg === "projects/") {
+      if (arg === "branch") return message("* onearly\n  main");
+      break;
+    case "pwd":
+      return message("/home/muji");
+    case "cd":
+      if (!arg || arg === "~" || arg === "." || arg === "~/") return {};
+      return message(
+        "cd: this is a guided tour, you stay in ~. Try ls projects/",
+      );
+    case "echo":
+      // As typed, case kept; React renders it as text, never as HTML.
+      return message(input.trim().replace(/^\S+\s*/, ""));
+    case "date":
+      return message(formatDate(context.now ?? new Date()));
+    case "hostname":
+      return message(siteUrl.host);
+    case "uname":
+      return message("Next.js 16 on Node 26, hosted on Vercel");
+    case "id":
+      return message("uid=1000(muji) gid=1000(muji)");
+    case "history": {
+      // Numbered like bash, which counts the current command too.
+      const past = context.history ?? [input.trim()];
+      return message(
+        past.map((c, i) => `${String(i + 1).padStart(4)}  ${c}`).join("\n"),
+      );
+    }
+    case "tree":
+      return { output: { type: "tree" } };
+    case "man":
+      return message(
+        arg
+          ? `man: no manual entry for ${arg}. Try help`
+          : "What manual page do you want? Try help",
+      );
+    case "ls": {
+      // Flags in any combination, as in a real shell: any that includes
+      // "a" (-a, -la, -ali, --all) shows the hidden files.
+      const flags = args.filter((a) => a.startsWith("-"));
+      const [path] = args.filter((a) => !a.startsWith("-"));
+      const all = flags.some((f) => f === "--all" || /^-[^-]*a/.test(f));
+      if (!path || path === "." || path === "./") {
+        return { output: { type: "files", ...(all && { hidden: true }) } };
+      }
+      if (path === "projects" || path === "projects/") {
         return { output: { type: "projects" } };
       }
-      return error(`ls: cannot access '${arg}': No such file or directory`);
+      return error(`ls: cannot access '${path}': No such file or directory`);
+    }
     case "cat":
-      if (!arg) return error("cat: missing file operand. Try ls");
+    case "head":
+    case "tail":
+    case "less":
+    case "more":
+      if (!arg) return error(`${command}: missing file operand. Try ls`);
       return files[arg]
         ? { output: files[arg] }
-        : error(`cat: ${arg}: No such file or directory`);
+        : error(`${command}: ${arg}: No such file or directory`);
     case "open": {
       if (!arg) return error("open: missing project name. Try ls projects/");
       const slug = arg.replace(/^projects\//, "").replace(/\/$/, "");

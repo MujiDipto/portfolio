@@ -63,3 +63,29 @@ describe("Sudo", () => {
     expect(reply("sudo hire muji").text).toContain("Permission granted");
   });
 });
+
+test("answers everyday shell commands, never as mistakes, suggesting only real commands", () => {
+  for (const command of [
+    "pwd",
+    "cd",
+    "cd projects",
+    "echo hi",
+    "date",
+    "hostname",
+    "uname",
+    "id",
+    "history",
+    "tree",
+    "man ls",
+    "git status",
+    "git branch",
+    "mkdir x",
+  ]) {
+    const line = reply(command);
+    expect(line.text, command).not.toMatch(/not a command/);
+    expect(isMistake(command), command).toBe(false);
+    if (line.command) {
+      expect(run(line.command).output?.type, line.command).not.toBe("error");
+    }
+  }
+});
