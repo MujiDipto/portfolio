@@ -50,6 +50,19 @@ test("typing shows a hint in line with the text, and Tab accepts it", async ({
   await expect(input).toBeFocused();
 });
 
+test("git log --graph shows the career as a branch history", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("git log --graph");
+  await input.press("Enter");
+  await expect(page.getByText("(HEAD -> main)")).toBeVisible();
+  await expect(
+    page.getByText("promoted to Senior Software Engineer, Oracle"),
+  ).toBeVisible();
+});
+
 test("neofetch shows Sudo and the career as system info", async ({ page }) => {
   await page.goto("/");
   const input = page.getByRole("textbox", { name: "Command" });
@@ -146,6 +159,7 @@ for (const theme of ["light", "dark"] as const) {
     const commands = [
       "help",
       "git log",
+      "git log --graph",
       "ls projects/",
       ...projects.map((p) => `open ${p.slug}`),
       "cat skills.txt",

@@ -20,6 +20,8 @@ describe("run", () => {
     ["help", { type: "help" }],
     ["ls", { type: "files" }],
     ["neofetch", { type: "neofetch" }],
+    ["git log --graph", { type: "graph" }],
+    ["git log --oneline --graph", { type: "graph" }],
     ["ls -a", { type: "files", hidden: true }],
     ["cat .sudo-secrets", { type: "secrets" }],
   ])("%s", (input, output) => {
@@ -102,7 +104,7 @@ describe("easter eggs", () => {
 
 describe("matches", () => {
   test("offers every command that starts with what was typed", () => {
-    expect(matches("git")).toEqual(["git log"]);
+    expect(matches("git")).toEqual(["git log", "git log --graph"]);
     expect(matches("open wor")).toEqual(["open world-cup-newsletter"]);
     expect(matches("cat ")).toEqual([
       "cat highlights.md",
@@ -113,7 +115,7 @@ describe("matches", () => {
   });
 
   test("ignores case and leading spaces", () => {
-    expect(matches("  GI")).toEqual(["git log"]);
+    expect(matches("  GI")).toEqual(["git log", "git log --graph"]);
   });
 
   test("puts commands from history first, newest first", () => {
@@ -133,7 +135,7 @@ describe("matches", () => {
   test("offers nothing for an empty prompt, unknown input or a finished command", () => {
     expect(matches("")).toEqual([]);
     expect(matches("zzz")).toEqual([]);
-    expect(matches("git log")).toEqual([]);
+    expect(matches("help")).toEqual([]);
   });
 
   test("a finished command can still lead to a longer one", () => {

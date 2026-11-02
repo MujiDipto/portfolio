@@ -17,6 +17,10 @@ const replies: Record<string, Line> = {
   whoami: { text: "Want the numbers? Try", command: "cat highlights.md" },
   highlights: { text: "See where they came from:", command: "git log" },
   experience: { text: "Now see what Muji built:", command: "ls projects/" },
+  graph: {
+    text: "Two branches, one HEAD. The full story:",
+    command: "git log",
+  },
   files: { text: "The projects live in", command: "ls projects/" },
   projects: { text: "Click a folder to open it." },
   project: { text: "Seen enough? Say hi:", command: "cat contact" },

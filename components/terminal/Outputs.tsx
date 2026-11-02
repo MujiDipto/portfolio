@@ -238,6 +238,109 @@ function Experience() {
   );
 }
 
+/** A short, stable stand-in for a commit hash, so the graph looks like git. */
+function fakeHash(text: string): string {
+  let hash = 0;
+  for (const char of text) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash.toString(16).padStart(7, "0").slice(0, 7);
+}
+
+type GraphRow = { lanes: string; date?: string; text?: string; ref?: string };
+
+/**
+ * The career as `git log --graph`: newest first, with tutoring as a side
+ * branch that ran alongside the degree and merged when Oracle began. Every
+ * fact comes from lib/content.ts; only the hashes are made up.
+ */
+export function careerGraph(): GraphRow[] {
+  const [current, oracle] = experience;
+  const [senior, engineer, analyst] = oracle.roles;
+  const tutor = additionalExperience[0].roles[0];
+  return [
+    {
+      lanes: "*  ",
+      date: current.roles[0].start,
+      ref: "HEAD -> main",
+      text: `joined ${current.name} as ${current.roles[0].title}`,
+    },
+    {
+      lanes: "*  ",
+      date: senior.start,
+      text: `promoted to ${senior.title}, ${oracle.name}`,
+    },
+    {
+      lanes: "*  ",
+      date: engineer.start,
+      text: `became ${engineer.title}, ${oracle.name}`,
+    },
+    {
+      lanes: "*  ",
+      date: analyst.start,
+      text: `merge: joined ${oracle.name} as ${analyst.title}`,
+    },
+    { lanes: "|\\ " },
+    {
+      lanes: "| *",
+      date: tutor.start,
+      text: `tutor: ${tutor.title.replace("Casual Tutor, ", "")}, UQ`,
+    },
+    {
+      lanes: "* |",
+      date: education.end,
+      text: `graduated: ${education.degree}`,
+    },
+    { lanes: "|/ " },
+    {
+      lanes: "*  ",
+      date: education.start,
+      text: `started: ${education.degree}, UQ`,
+    },
+  ];
+}
+
+function CareerGraph() {
+  return (
+    <div className="text-sm">
+      <Title>Career graph</Title>
+      <ul>
+        {careerGraph().map((row, i) =>
+          row.text ? (
+            <li key={i} className="flex gap-3">
+              <span
+                aria-hidden="true"
+                className="text-prompt-user flex-none whitespace-pre"
+              >
+                {row.lanes}
+              </span>
+              {/* On phones the hash gives way so the message can wrap. */}
+              <span aria-hidden="true" className="text-accent hidden sm:inline">
+                {fakeHash(row.text)}
+              </span>
+              <span className="text-number w-[8ch] flex-none">{row.date}</span>
+              <span className="min-w-0">
+                {row.ref && (
+                  <span className="text-prompt-path font-semibold">
+                    ({row.ref}){" "}
+                  </span>
+                )}
+                {row.text}
+              </span>
+            </li>
+          ) : (
+            <li
+              key={i}
+              aria-hidden="true"
+              className="text-prompt-user whitespace-pre"
+            >
+              {row.lanes}
+            </li>
+          ),
+        )}
+      </ul>
+    </div>
+  );
+}
+
 function ProjectList({ onRun }: { onRun?: RunCommand }) {
   return (
     <div>
@@ -539,6 +642,8 @@ export function OutputView({
       return <Outcomes revealed={revealed} />;
     case "experience":
       return <Experience />;
+    case "graph":
+      return <CareerGraph />;
     case "projects":
       return <ProjectList onRun={onRun} />;
     case "project":

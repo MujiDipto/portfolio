@@ -7,6 +7,7 @@ export type Output =
   | { type: "whoami" }
   | { type: "highlights" }
   | { type: "experience" }
+  | { type: "graph" }
   | { type: "projects" }
   | { type: "project"; slug: string }
   | { type: "skills" }
@@ -27,6 +28,7 @@ export const helpEntries = [
   { command: "whoami", description: "who I am" },
   { command: "cat highlights.md", description: "outcomes" },
   { command: "git log", description: "work history" },
+  { command: "git log --graph", description: "career at a glance" },
   {
     command: "ls projects/",
     description: "selected projects (open <name> for details)",
@@ -81,7 +83,11 @@ export function run(input: string): Result {
     case "clear":
       return { effect: { type: "clear" } };
     case "git":
-      if (arg === "log") return { output: { type: "experience" } };
+      if (arg === "log") {
+        return args.includes("--graph")
+          ? { output: { type: "graph" } }
+          : { output: { type: "experience" } };
+      }
       break;
     case "ls":
       if (!arg) return { output: { type: "files" } };
@@ -141,6 +147,7 @@ const completions = [
   "cat education.md",
   "cat contact",
   "git log",
+  "git log --graph",
   "ls",
   "ls projects/",
   ...projects.map((p) => `open ${p.slug}`),
