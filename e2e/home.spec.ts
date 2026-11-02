@@ -12,6 +12,37 @@ test("home page has language, title and the name as main heading", async ({
   );
 });
 
+test("link previews and icons are complete and load", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  const meta = (key: string) =>
+    page
+      .locator(`meta[property="${key}"], meta[name="${key}"]`)
+      .first()
+      .getAttribute("content");
+  expect(await meta("og:title")).toBe("Muji Dipto | Senior Software Engineer");
+  expect(await meta("og:description")).toContain("OnEarly");
+  expect(await meta("og:image:alt")).toContain("Sudo");
+  expect(await meta("twitter:card")).toBe("summary_large_image");
+  const image = (await meta("og:image"))!;
+  expect(image).toMatch(/^https?:\/\//); // previews need an absolute URL
+  expect(await meta("og:image:width")).toBe("1200");
+  expect(await meta("og:image:height")).toBe("630");
+
+  const files = [
+    new URL(image).pathname + new URL(image).search,
+    (await page.locator('link[rel="icon"]').first().getAttribute("href"))!,
+    (await page.locator('link[rel="apple-touch-icon"]').getAttribute("href"))!,
+  ];
+  for (const file of files) {
+    const response = await request.get(file);
+    expect(response.status(), file).toBe(200);
+    expect(response.headers()["content-type"], file).toBe("image/png");
+  }
+});
+
 test("cat contact links a résumé that downloads as a PDF", async ({
   page,
   request,

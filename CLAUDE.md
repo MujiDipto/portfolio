@@ -78,6 +78,8 @@ Run from the repo root; mise supplies Node 26 and sets `NEXT_TELEMETRY_DISABLED=
 - Lint and typecheck: `npm run lint` and `npm run typecheck`
 - Format: `npm run format`; check with `npm run format:check`. Markdown and `content/` are excluded.
 - Lighthouse: `npm run build` then `npm run lighthouse` (3 runs, medians; fails below 0.9 on accessibility or best practices, warns on performance and SEO; reports in `.lighthouse/`, never uploaded).
+- Icons and link-preview card: `npm run build` then `npm run brand-images`, then build again. It writes `app/icon.png`, `app/apple-icon.png` (Sudo's head, from `assets/sudo-source.webp`) and `app/opengraph-image.png` (a screenshot of the real first screen). Rerun after changing the opening or the cat, and commit the results.
+- Site address: `lib/site.ts`, from `SITE_URL`, else Vercel's production URL. Set `SITE_URL=https://muji.dev` when the domain is ready.
 - CI: `.github/workflows/ci.yml` runs all of the above on pushes and pull requests to `main`. Actions are pinned to commit SHAs; keep it that way. Repo: `MujiDipto/portfolio` (private).
 
 ## Next.js guidance
