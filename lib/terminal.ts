@@ -5,7 +5,7 @@ import type { Theme } from "@/lib/theme";
 
 export type Output =
   | { type: "whoami" }
-  | { type: "about" }
+  | { type: "highlights" }
   | { type: "experience" }
   | { type: "projects" }
   | { type: "project"; slug: string }
@@ -23,7 +23,7 @@ export type Result = { output?: Output; effect?: Effect };
 
 export const helpEntries = [
   { command: "whoami", description: "who I am" },
-  { command: "cat about.md", description: "outcomes" },
+  { command: "cat highlights.md", description: "outcomes" },
   { command: "git log", description: "work history" },
   {
     command: "ls projects/",
@@ -45,8 +45,11 @@ export const suggestions = [
 ];
 
 const files: Record<string, Output> = {
-  "about.md": { type: "about" },
-  about: { type: "about" },
+  "highlights.md": { type: "highlights" },
+  highlights: { type: "highlights" },
+  // The file's old name, so anyone who guesses it still gets an answer.
+  "about.md": { type: "highlights" },
+  about: { type: "highlights" },
   "skills.txt": { type: "skills" },
   skills: { type: "skills" },
   "education.md": { type: "education" },
@@ -110,7 +113,7 @@ export function run(input: string): Result {
 // Every full command hints can offer; the easter egg stays hidden.
 const completions = [
   "whoami",
-  "cat about.md",
+  "cat highlights.md",
   "cat skills.txt",
   "cat education.md",
   "cat contact",

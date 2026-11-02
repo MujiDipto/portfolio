@@ -62,14 +62,13 @@ function Highlights({ items }: { items: string[] }) {
 // Pixel icons, drawn like Sudo: each character is one pixel, "#" is filled.
 const icons = {
   briefcase: [
-    "...###...",
-    "...#.#...",
-    "#########",
-    "#.......#",
-    "#########",
-    "#.......#",
-    "#.......#",
-    "#########",
+    "..###..",
+    "..#.#..",
+    "#######",
+    "#.....#",
+    "#######",
+    "#.....#",
+    "#######",
   ],
   pin: [
     "..###..",
@@ -184,10 +183,10 @@ function Whoami({ main }: { main: boolean }) {
  * `revealed` is how many lines the opening animation has printed; hidden lines
  * stay in the DOM so screen readers and search engines get them at once.
  */
-function About({ revealed }: { revealed?: number }) {
+function Outcomes({ revealed }: { revealed?: number }) {
   return (
     <div className="leading-relaxed">
-      <Title>About</Title>
+      <Title>Highlights</Title>
       <ul className="space-y-1">
         {profile.outcomes.map((outcome, i) => (
           <li
@@ -355,9 +354,9 @@ function Contact({ note }: { note?: string }) {
 
 function Files({ onRun }: { onRun?: RunCommand }) {
   const entries = [
-    { label: "about.md", command: "cat about.md" },
     { label: "contact", command: "cat contact" },
     { label: "education.md", command: "cat education.md" },
+    { label: "highlights.md", command: "cat highlights.md" },
     { label: "projects/", command: "ls projects/" },
     { label: "skills.txt", command: "cat skills.txt" },
   ];
@@ -415,8 +414,8 @@ export function OutputView({
   switch (output.type) {
     case "whoami":
       return <Whoami main={main} />;
-    case "about":
-      return <About revealed={revealed} />;
+    case "highlights":
+      return <Outcomes revealed={revealed} />;
     case "experience":
       return <Experience />;
     case "projects":

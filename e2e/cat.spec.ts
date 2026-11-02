@@ -81,7 +81,7 @@ test("it stays put after commands and suggests a next step", async ({
   await expect(cat(page)).toHaveAttribute("data-state", "up");
   await expect(cat(page)).toHaveAttribute("data-x", arrived!);
   expect(await animation(page)).toBe("cat-bob");
-  await bubble(page).getByRole("button", { name: "cat about.md" }).click();
+  await bubble(page).getByRole("button", { name: "cat highlights.md" }).click();
   await expect(page.getByText(/analyst-hours saved/).last()).toBeVisible();
 });
 

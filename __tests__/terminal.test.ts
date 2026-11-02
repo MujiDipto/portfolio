@@ -11,7 +11,7 @@ import { projects } from "@/lib/content";
 describe("run", () => {
   test.each([
     ["whoami", { type: "whoami" }],
-    ["cat about.md", { type: "about" }],
+    ["cat highlights.md", { type: "highlights" }],
     ["git log", { type: "experience" }],
     ["ls projects/", { type: "projects" }],
     ["cat skills.txt", { type: "skills" }],
@@ -34,7 +34,8 @@ describe("run", () => {
   test.each([
     ["  GIT   LOG  ", { type: "experience" }],
     ["ls projects", { type: "projects" }],
-    ["cat about", { type: "about" }],
+    ["cat about", { type: "highlights" }],
+    ["cat about.md", { type: "highlights" }],
     ["cat skills", { type: "skills" }],
     ["open sca-scoring/", { type: "project", slug: "sca-scoring" }],
     ["open projects/vuln-curation", { type: "project", slug: "vuln-curation" }],
@@ -82,7 +83,7 @@ describe("matches", () => {
     expect(matches("git")).toEqual(["git log"]);
     expect(matches("open wor")).toEqual(["open world-cup-newsletter"]);
     expect(matches("cat ")).toEqual([
-      "cat about.md",
+      "cat highlights.md",
       "cat skills.txt",
       "cat education.md",
       "cat contact",
@@ -97,7 +98,7 @@ describe("matches", () => {
     expect(matches("cat ", ["cat contact", "cat skills.txt"])).toEqual([
       "cat skills.txt",
       "cat contact",
-      "cat about.md",
+      "cat highlights.md",
       "cat education.md",
     ]);
   });

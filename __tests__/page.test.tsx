@@ -5,7 +5,7 @@ import { Terminal } from "@/components/terminal/Terminal";
 import {
   contact,
   education,
-  aboutLines,
+  highlightLines,
   additionalExperience,
   contactPitch,
   experience,
@@ -29,7 +29,7 @@ test("the opening and static session contain every piece of resume content", () 
     profile.name,
     profile.focus,
     profile.status,
-    ...aboutLines,
+    ...highlightLines,
     contactPitch.line,
     contactPitch.status,
     resume.label,

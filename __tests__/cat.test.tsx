@@ -9,7 +9,7 @@ import {
   typingEvent,
 } from "@/components/cat/Cat";
 import { bootDurationMs } from "@/components/terminal/useBoot";
-import { aboutLines } from "@/lib/content";
+import { highlightLines } from "@/lib/content";
 import { greeting, reply, tips } from "@/lib/sudo";
 
 function mockMotion(reduce: boolean) {
@@ -19,7 +19,7 @@ function mockMotion(reduce: boolean) {
 
 const cat = () => document.querySelector("[data-cat]") as HTMLElement;
 const bubble = () => screen.queryByRole("group", { name: "Sudo says" });
-const bootEnd = bootDurationMs(aboutLines.length);
+const bootEnd = bootDurationMs(highlightLines.length);
 const said = (line: { text: string; command?: string; after?: string }) =>
   [line.text, line.command, line.after].filter(Boolean).join(" ");
 
@@ -98,6 +98,7 @@ describe("Cat", () => {
     expect(cat().dataset.state).toBe("up");
     expect(cat().dataset.x).toBe(before);
     expect(cat().dataset.mood).toBe("angry");
+    expect(cat().querySelector("svg")).not.toBeNull(); // the anger mark
     expect(bubble()!.textContent).toBe(said(reply("xyz")));
     act(() => vi.advanceTimersByTime(startleMs));
     expect(cat().dataset.mood).toBe("calm");
@@ -130,12 +131,11 @@ describe("Cat", () => {
     expect(bubble()).not.toBeNull();
   });
 
-  test("hovering makes it angry, and leaving calms it", () => {
+  test("hovering makes it shake, without the anger mark", () => {
     arrived();
-    expect(cat().querySelector("svg")).toBeNull();
     fireEvent.mouseEnter(cat());
     expect(cat().dataset.mood).toBe("angry");
-    expect(cat().querySelector("svg")).not.toBeNull(); // the anger mark
+    expect(cat().querySelector("svg")).toBeNull();
     fireEvent.mouseLeave(cat());
     expect(cat().dataset.mood).toBe("calm");
   });

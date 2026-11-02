@@ -23,7 +23,7 @@ async function setup() {
 }
 
 describe("Terminal", () => {
-  test("opens with whoami and about, and nothing else", async () => {
+  test("opens with whoami and highlights, and nothing else", async () => {
     const { log } = await setup();
     expect(
       screen.getByRole("heading", { level: 1, name: "Muji Dipto" }),

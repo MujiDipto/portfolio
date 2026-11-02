@@ -12,7 +12,7 @@ import { Cat, commandEvent, typingEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
-import { aboutLines } from "@/lib/content";
+import { highlightLines } from "@/lib/content";
 import {
   historyStep,
   matches,
@@ -28,7 +28,7 @@ const bootEntryId = 1;
 
 const opening: Entry[] = [
   { id: 0, command: "whoami", output: { type: "whoami" } },
-  { id: bootEntryId, command: bootCommand, output: { type: "about" } },
+  { id: bootEntryId, command: bootCommand, output: { type: "highlights" } },
 ];
 
 const noop = () => () => {};
@@ -66,7 +66,7 @@ export function Terminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
   const shouldScroll = useRef(false);
-  const boot = useBoot(aboutLines.length);
+  const boot = useBoot(highlightLines.length);
   const ready = interactive && boot.phase === "done";
   // Fish-style hints: the best match shows as grey text after the caret.
   const hints = matches(input, history);

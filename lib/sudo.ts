@@ -14,8 +14,8 @@ export const greeting: Line = {
 
 /** A next step after each kind of output, so the cat guides the visit. */
 const replies: Record<string, Line> = {
-  whoami: { text: "Want the numbers? Try", command: "cat about.md" },
-  about: { text: "See where they came from:", command: "git log" },
+  whoami: { text: "Want the numbers? Try", command: "cat highlights.md" },
+  highlights: { text: "See where they came from:", command: "git log" },
   experience: { text: "Now see what Muji built:", command: "ls projects/" },
   files: { text: "The projects live in", command: "ls projects/" },
   projects: { text: "Click a folder to open it." },

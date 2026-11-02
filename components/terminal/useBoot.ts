@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export const bootCommand = "cat about.md";
+export const bootCommand = "cat highlights.md";
 
-// Timings in milliseconds; the whole opening takes about 1.5 seconds.
+// Timings in milliseconds; the whole opening takes under 2 seconds.
 const startDelay = 250;
 const perLetter = 55;
 const pauseBeforeOutput = 150;
@@ -37,7 +37,7 @@ const done: Boot = {
 };
 
 /**
- * Types `cat about.md`, then reveals its output line by line. Any key press,
+ * Types `cat highlights.md`, then reveals its output line by line. Any key press,
  * click or tap finishes at once; with reduced motion it finishes immediately.
  */
 export function useBoot(lineCount: number): Boot {

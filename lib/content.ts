@@ -50,8 +50,10 @@ export const profile = {
   ],
 };
 
-/** Every line `cat about.md` prints, in order; the opening reveals them one by one. */
-export const aboutLines = profile.outcomes.map((o) => `${o.value} ${o.text}`);
+/** Every line `cat highlights.md` prints, in order; the opening reveals them one by one. */
+export const highlightLines = profile.outcomes.map(
+  (o) => `${o.value} ${o.text}`,
+);
 
 /** The closing pitch in `cat contact` (approved by Muji, 2026-11-02). */
 export const contactPitch = {

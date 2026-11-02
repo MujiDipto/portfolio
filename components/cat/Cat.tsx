@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CatImage } from "@/components/cat/CatImage";
 import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
-import { aboutLines } from "@/lib/content";
+import { highlightLines } from "@/lib/content";
 import { greeting, isEgg, isMistake, reply, tips, type Line } from "@/lib/sudo";
 
 /** Dispatched on window each time the terminal runs a command; detail is the command. */
@@ -40,7 +40,7 @@ const transitions: Partial<Record<CatState, string>> = {
  * makes it shake; `sudo hire muji` makes it jump for joy. Typing closes the
  * bubble; clicking the cat shows a tip. The window is
  * drawn over the cat's layer (components/TerminalWindow.tsx), so it hides
- * whatever is below the edge. Hovering makes it angry. Its settling bob and
+ * whatever is below the edge. Hovering makes it shake. Its settling bob and
  * shake are CSS (app/globals.css). With reduced motion it talks but never
  * moves. The picture is decorative; the bubble's buttons are real.
  */
@@ -103,7 +103,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
           go("rising");
           later(arrive, riseMs);
         },
-        Math.max(0, bootDurationMs(aboutLines.length) - riseMs),
+        Math.max(0, bootDurationMs(highlightLines.length) - riseMs),
       );
     }, 0);
 
@@ -180,7 +180,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
           {/* The art faces left; mirrored, it faces its bubble on its right. */}
           <div className="relative" style={{ transform: "scaleX(-1)" }}>
             <CatImage {...catSize} />
-            {(angry || startled) && !cheering && <AngerMark />}
+            {startled && !cheering && <AngerMark />}
           </div>
         </div>
       </div>
@@ -213,7 +213,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
   );
 }
 
-/** A pixel anger mark, drawn beside the helmet (away from the red plume) while hovered. */
+/** A pixel anger mark, drawn beside the helmet after an unknown command. */
 function AngerMark() {
   const pixels = [
     [1, 0],

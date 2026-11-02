@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { aboutLines } from "../lib/content";
+import { highlightLines } from "../lib/content";
 
-const lastLine = aboutLines.at(-1)!;
+const lastLine = highlightLines.at(-1)!;
 
 test("the opening finishes and the prompt is ready within two seconds", async ({
   page,
@@ -43,6 +43,6 @@ test.describe("without JavaScript", () => {
   }) => {
     await page.goto("/");
     await expect(page.getByText(lastLine)).toHaveCSS("opacity", "1");
-    await expect(page.getByText("cat about.md")).toHaveCSS("opacity", "1");
+    await expect(page.getByText("cat highlights.md")).toHaveCSS("opacity", "1");
   });
 });
