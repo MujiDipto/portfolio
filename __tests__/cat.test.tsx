@@ -112,10 +112,19 @@ describe("Cat", () => {
     expect(bubble()).toBeNull();
   });
 
+  test("rm makes it jump in front of the window", () => {
+    arrived();
+    runCommand("rm -rf /");
+    expect(cat().dataset.mood).toBe("happy");
+    expect(bubble()!.textContent).toBe(said(reply("rm -rf /")));
+  });
+
   test("clicking the cat calms it and shows the tips in turn", () => {
     arrived();
     fireEvent.mouseEnter(cat());
+    expect(cat().querySelector("[data-hearts]")).toBeNull();
     fireEvent.click(cat());
+    expect(cat().querySelector("[data-hearts]")).not.toBeNull();
     expect(cat().dataset.mood).toBe("calm");
     expect(bubble()!.textContent).toBe(said(tips[0]));
     fireEvent.click(cat());

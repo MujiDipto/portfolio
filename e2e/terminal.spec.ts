@@ -50,6 +50,26 @@ test("typing shows a hint in line with the text, and Tab accepts it", async ({
   await expect(input).toBeFocused();
 });
 
+test("neofetch shows Sudo and the career as system info", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("neofetch");
+  await input.press("Enter");
+  await expect(page.getByText("4 yrs 10 mos at Oracle")).toBeVisible();
+  await expect(page.locator("#content img")).toBeVisible();
+});
+
+test("ls -a reveals a hidden file whose riddle leads to the easter egg", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("ls -a");
+  await input.press("Enter");
+  await page.getByRole("button", { name: ".sudo-secrets" }).click();
+  await expect(page.getByText("It starts with my name")).toBeVisible();
+});
+
 test("clicking anywhere in the window puts the caret in the prompt", async ({
   page,
 }) => {
@@ -131,6 +151,10 @@ for (const theme of ["light", "dark"] as const) {
       "cat skills.txt",
       "cat education.md",
       "cat contact",
+      "neofetch",
+      "ls -a",
+      "cat .sudo-secrets",
+      "exit",
       "xyz",
       `theme ${theme}`,
     ];

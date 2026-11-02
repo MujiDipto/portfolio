@@ -12,7 +12,9 @@ export type Output =
   | { type: "skills" }
   | { type: "education" }
   | { type: "contact"; note?: string }
-  | { type: "files" }
+  | { type: "files"; hidden?: boolean }
+  | { type: "neofetch" }
+  | { type: "secrets" }
   | { type: "help" }
   | { type: "message"; text: string }
   | { type: "error"; text: string };
@@ -32,6 +34,7 @@ export const helpEntries = [
   { command: "cat skills.txt", description: "skills" },
   { command: "cat education.md", description: "education" },
   { command: "cat contact", description: "how to reach me" },
+  { command: "neofetch", description: "system info, Sudo included" },
   { command: "theme dark|light", description: "switch colours" },
   { command: "clear", description: "clear the screen" },
 ];
@@ -55,9 +58,14 @@ const files: Record<string, Output> = {
   "education.md": { type: "education" },
   education: { type: "education" },
   contact: { type: "contact" },
+  // Hidden: only `ls -a` lists it. It leads to the easter egg.
+  ".sudo-secrets": { type: "secrets" },
 };
 
 const error = (text: string): Result => ({ output: { type: "error", text } });
+const message = (text: string): Result => ({
+  output: { type: "message", text },
+});
 
 export function run(input: string): Result {
   const words = input.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -77,6 +85,9 @@ export function run(input: string): Result {
       break;
     case "ls":
       if (!arg) return { output: { type: "files" } };
+      if (["-a", "-la", "-al"].includes(arg)) {
+        return { output: { type: "files", hidden: true } };
+      }
       if (arg === "projects" || arg === "projects/") {
         return { output: { type: "projects" } };
       }
@@ -101,6 +112,18 @@ export function run(input: string): Result {
         };
       }
       return error("theme: choose light or dark");
+    case "neofetch":
+      return { output: { type: "neofetch" } };
+    // Easter eggs: real terminal habits, answered in the site's voice. They
+    // stay out of help and the hints.
+    case "exit":
+    case "logout":
+      return message("exit: Sudo is guarding the door.");
+    case "vim":
+    case "vi":
+      return message("vim: not here. This terminal is for reading.");
+    case "rm":
+      return message("rm: permission denied. This terminal is read-only.");
     case "sudo":
       if (args.join(" ") === "hire muji") {
         return { output: { type: "contact", note: "permission granted." } };
@@ -123,6 +146,7 @@ const completions = [
   ...projects.map((p) => `open ${p.slug}`),
   "theme light",
   "theme dark",
+  "neofetch",
   "help",
   "clear",
 ];

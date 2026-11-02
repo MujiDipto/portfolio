@@ -1,5 +1,5 @@
-// What Sudo, the mascot, says (approved by Muji, 2026-11-02): pure
-// functions, no React. Each line may end in a command the visitor can click.
+// What Sudo, the mascot, says (approved by Muji, 2026-11-02): pure functions,
+// no React. Each line may end in a command the visitor can click.
 // Sudo speaks about Muji, never for him, and adds no facts beyond
 // lib/content.ts.
 import { run } from "@/lib/terminal";
@@ -24,6 +24,8 @@ const replies: Record<string, Line> = {
   education: { text: "Want to talk to Muji?", command: "cat contact" },
   contact: { text: "Email is fastest. I'll keep watch here." },
   help: { text: "Tip: Tab or → accepts the grey hint." },
+  neofetch: { text: "That's me on the left. Handsome, right?" },
+  secrets: { text: "Shh. Don't tell Muji I told you." },
   error: { text: "Hmm, that's not a command. Try", command: "help" },
 };
 
@@ -34,7 +36,12 @@ export function reply(command: string): Line {
   if (callsSudo(command)) {
     return { text: "That's my name! But only Muji has sudo rights here." };
   }
+  const joke = jokes[firstWord(command)];
+  if (joke) return joke;
   const { output, effect } = run(command);
+  if (output?.type === "files" && output.hidden) {
+    return { text: "Ooh, you found the hidden files." };
+  }
   if (effect?.type === "clear") {
     return { text: "All clean. Lost? Try", command: "help" };
   }
@@ -55,9 +62,33 @@ export function isEgg(command: string): boolean {
   );
 }
 
+/** Sudo's side of the terminal easter eggs (lib/terminal.ts). */
+const jokes: Record<string, Line> = {
+  exit: {
+    text: "Nobody leaves without saying hi. Try",
+    command: "cat contact",
+  },
+  logout: {
+    text: "Nobody leaves without saying hi. Try",
+    command: "cat contact",
+  },
+  vim: { text: "Esc, then :q. You're welcome." },
+  vi: { text: "Esc, then :q. You're welcome." },
+  rm: { text: "Not on my watch." },
+};
+
+function firstWord(command: string): string {
+  return command.trim().toLowerCase().split(/\s+/)[0];
+}
+
+/** Whether Sudo jumps: for joy at the easter egg, or to stop an `rm`. */
+export function jumps(command: string): boolean {
+  return isEgg(command) || firstWord(command) === "rm";
+}
+
 /** `sudo` is the cat's own name, so it answers rather than treat it as a typo. */
 function callsSudo(command: string): boolean {
-  return command.trim().toLowerCase().split(/\s+/)[0] === "sudo";
+  return firstWord(command) === "sudo";
 }
 
 /** Whether a command is one the terminal does not know. */

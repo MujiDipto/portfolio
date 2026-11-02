@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { greeting, isEgg, isMistake, reply, tips } from "@/lib/sudo";
+import { greeting, isEgg, isMistake, jumps, reply, tips } from "@/lib/sudo";
 import { helpEntries, run } from "@/lib/terminal";
 
 const commands = helpEntries.map((e) =>
@@ -14,7 +14,12 @@ describe("Sudo", () => {
   });
 
   test("only ever suggests commands that work", () => {
-    const lines = [greeting, ...tips, ...commands.map(reply), reply("xyz")];
+    const lines = [
+      greeting,
+      ...tips,
+      ...commands.map(reply),
+      ...["xyz", "exit", "vim", "rm", "ls -a", "cat .sudo-secrets"].map(reply),
+    ];
     for (const line of lines) {
       if (line.command) {
         expect(run(line.command).output?.type, line.command).not.toBe("error");
@@ -38,6 +43,17 @@ describe("Sudo", () => {
       expect(isMistake(command), command).toBe(false);
       expect(reply(command).text, command).toContain("That's my name");
     }
+  });
+
+  test("plays along with terminal habits", () => {
+    for (const command of ["exit", "vim", "rm -rf /", "ls -a", "neofetch"]) {
+      expect(isMistake(command), command).toBe(false);
+      expect(reply(command), command).not.toEqual(reply("xyz"));
+    }
+    expect(reply("exit").command).toBe("cat contact");
+    expect(jumps("rm -rf /")).toBe(true);
+    expect(jumps("sudo hire muji")).toBe(true);
+    expect(jumps("git log")).toBe(false);
   });
 
   test("welcomes the easter egg", () => {

@@ -169,6 +169,23 @@ html[data-js] .boot-hidden {
   animation: cat-jump 0.4s ease-out 2;
 }
 
+/* Petting: hearts float up and fade, once per click. */
+.cat-heart {
+  opacity: 0;
+  animation: cat-heart 0.9s ease-out forwards;
+}
+
+@keyframes cat-heart {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}
+
 @keyframes cat-jump {
   0%,
   100% {
@@ -209,6 +226,10 @@ html[data-js] .boot-hidden {
   [data-cat][data-mood="angry"] .cat-body,
   [data-cat][data-mood="happy"] .cat-body {
     animation: none;
+  }
+
+  .cat-heart {
+    display: none;
   }
 }
 

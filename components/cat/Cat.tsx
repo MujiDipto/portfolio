@@ -5,7 +5,7 @@ import { CatImage } from "@/components/cat/CatImage";
 import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
 import { highlightLines } from "@/lib/content";
-import { greeting, isEgg, isMistake, reply, tips, type Line } from "@/lib/sudo";
+import { greeting, isMistake, jumps, reply, tips, type Line } from "@/lib/sudo";
 
 /** Dispatched on window each time the terminal runs a command; detail is the command. */
 export const commandEvent = "terminal:command";
@@ -38,7 +38,7 @@ const transitions: Partial<Record<CatState, string>> = {
  * then says hi. It rises only once; after that it stays put, and after each
  * command it bobs and suggests a next step (lib/sudo.ts). An unknown command
  * makes it shake; `sudo hire muji` makes it jump for joy. Typing closes the
- * bubble; clicking the cat shows a tip. The window is
+ * bubble; clicking (petting) the cat floats hearts and shows a tip. The window is
  * drawn over the cat's layer (components/TerminalWindow.tsx), so it hides
  * whatever is below the edge. Hovering makes it shake. Its settling bob and
  * shake are CSS (app/globals.css). With reduced motion it talks but never
@@ -56,6 +56,8 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
   const [said, setSaid] = useState(0);
   const [line, setLine] = useState<Line | null>(null);
   const tipIndex = useRef(0);
+  // Counts pets, so each click floats a fresh set of hearts.
+  const [petted, setPetted] = useState(0);
 
   // Mirrors of state for the window listeners.
   const stateRef = useRef<CatState>("down");
@@ -122,7 +124,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       if (entering.current) return;
       const command = (event as CustomEvent<string>).detail ?? "";
       if (isMistake(command)) react(setStartled, startleMs);
-      if (isEgg(command)) react(setCheering, cheerMs);
+      if (jumps(command)) react(setCheering, cheerMs);
       say(reply(command));
     };
     const onTyping = () => setLine(null);
@@ -141,6 +143,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
   function showTip() {
     if (stateRef.current !== "up") return;
     setAngry(false);
+    setPetted((n) => n + 1);
     setLine(tips[tipIndex.current % tips.length]);
     setSaid((n) => n + 1);
     tipIndex.current++;
@@ -183,6 +186,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
             {startled && !cheering && <AngerMark />}
           </div>
         </div>
+        {petted > 0 && <Hearts key={petted} />}
       </div>
 
       {line && x !== null && state === "up" && (
@@ -210,6 +214,41 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** Pixel hearts that float up and fade when the cat is petted (clicked). */
+function Hearts() {
+  const heart = [".#.#.", "#####", ".###.", "..#.."];
+  return (
+    <span aria-hidden="true" data-hearts className="absolute inset-x-0 -top-2">
+      {[-14, 0, 14].map((offset, i) => (
+        <svg
+          key={offset}
+          viewBox="0 0 5 4"
+          width={10}
+          height={8}
+          shapeRendering="crispEdges"
+          className="cat-heart absolute left-1/2"
+          style={{ marginLeft: offset - 5, animationDelay: `${i * 120}ms` }}
+        >
+          {heart.flatMap((row, y) =>
+            [...row].map((pixel, x) =>
+              pixel === "#" ? (
+                <rect
+                  key={`${x}-${y}`}
+                  x={x}
+                  y={y}
+                  width={1}
+                  height={1}
+                  fill="var(--dot-close)"
+                />
+              ) : null,
+            ),
+          )}
+        </svg>
+      ))}
+    </span>
   );
 }
 

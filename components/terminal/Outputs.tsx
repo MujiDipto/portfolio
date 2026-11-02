@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CatImage } from "@/components/cat/CatImage";
 import { Numbers } from "@/components/Numbers";
 import {
   contact,
@@ -10,6 +11,7 @@ import {
   projects,
   resume,
   skills,
+  type Organisation,
 } from "@/lib/content";
 import { helpEntries, type Output } from "@/lib/terminal";
 
@@ -352,8 +354,15 @@ function Contact({ note }: { note?: string }) {
   );
 }
 
-function Files({ onRun }: { onRun?: RunCommand }) {
+function Files({ onRun, hidden }: { onRun?: RunCommand; hidden?: boolean }) {
   const entries = [
+    ...(hidden
+      ? [
+          { label: ".", command: "ls -a" },
+          { label: "..", command: "ls -a" },
+          { label: ".sudo-secrets", command: "cat .sudo-secrets" },
+        ]
+      : []),
     { label: "contact", command: "cat contact" },
     { label: "education.md", command: "cat education.md" },
     { label: "highlights.md", command: "cat highlights.md" },
@@ -375,6 +384,118 @@ function Files({ onRun }: { onRun?: RunCommand }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+/** "Jan 2022" to a count of months, so tenures are computed, not typed. */
+function monthIndex(date: string): number {
+  const [month, year] = date.split(" ");
+  return Number(year) * 12 + months.indexOf(month);
+}
+
+/** How long someone was at an organisation that they have left, as "4 yrs 10 mos". */
+export function tenure(org: Organisation): string {
+  const total =
+    monthIndex(org.roles[0].end) - monthIndex(org.roles.at(-1)!.start) + 1;
+  const years = Math.floor(total / 12);
+  const rest = total % 12;
+  return [
+    years && `${years} ${years === 1 ? "yr" : "yrs"}`,
+    rest && `${rest} ${rest === 1 ? "mo" : "mos"}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * The classic system-info card, with Sudo as the logo and Muji's career as the
+ * specs. Every value comes from lib/content.ts.
+ */
+function Neofetch() {
+  const current = experience[0];
+  const oracle = experience.find((org) => org.name === "Oracle")!;
+  const rows = [
+    ["OS", `${current.roles[0].title} @ ${current.name}`],
+    ["Host", profile.location],
+    ["Kernel", profile.focus],
+    ["Uptime", `${tenure(oracle)} at Oracle`],
+    ["Packages", `${profile.outcomes[0].value} risk-scored daily`],
+    ["Shell", skills[0].items.join(", ")],
+    ["Theme", "Ayu"],
+    ["Font", "Geist Mono"],
+  ];
+  const swatches = [
+    "bg-dot-close",
+    "bg-dot-minimise",
+    "bg-dot-zoom",
+    "bg-prompt-path",
+    "bg-number",
+    "bg-accent",
+    "bg-fg",
+    "bg-muted",
+  ];
+  return (
+    <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+      <div
+        aria-hidden="true"
+        className="flex-none self-start"
+        style={{ transform: "scaleX(-1)" }}
+      >
+        <CatImage width={98} height={104} />
+      </div>
+      <div className="text-sm">
+        <Title>System info</Title>
+        <p>
+          <span className="text-prompt-user font-semibold">muji</span>@
+          <span className="text-prompt-user font-semibold">brisbane</span>
+        </p>
+        <p aria-hidden="true" className="text-muted">
+          {"-".repeat(13)}
+        </p>
+        <dl className="grid grid-cols-[max-content_1fr] gap-x-2">
+          {rows.map(([label, value]) => (
+            <div key={label} className="contents">
+              <dt className="text-prompt-path font-semibold">{label}:</dt>
+              <dd>
+                <Numbers text={value} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p aria-hidden="true" className="mt-3 flex">
+          {swatches.map((swatch) => (
+            <span key={swatch} className={`${swatch} inline-block h-4 w-6`} />
+          ))}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** The hidden file: a riddle whose answer is the easter egg. */
+function Secrets() {
+  return (
+    <div className="text-muted leading-relaxed">
+      <p># .sudo-secrets</p>
+      <p>Only one command makes me jump for joy.</p>
+      <p>It starts with my name and ends with his.</p>
+      <p>In the middle: what every good team should do.</p>
+    </div>
   );
 }
 
@@ -429,7 +550,11 @@ export function OutputView({
     case "contact":
       return <Contact note={output.note} />;
     case "files":
-      return <Files onRun={onRun} />;
+      return <Files onRun={onRun} hidden={output.hidden} />;
+    case "neofetch":
+      return <Neofetch />;
+    case "secrets":
+      return <Secrets />;
     case "help":
       return <Help onRun={onRun} />;
     case "message":

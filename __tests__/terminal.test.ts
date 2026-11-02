@@ -19,6 +19,9 @@ describe("run", () => {
     ["cat contact", { type: "contact" }],
     ["help", { type: "help" }],
     ["ls", { type: "files" }],
+    ["neofetch", { type: "neofetch" }],
+    ["ls -a", { type: "files", hidden: true }],
+    ["cat .sudo-secrets", { type: "secrets" }],
   ])("%s", (input, output) => {
     expect(run(input)).toEqual({ output });
   });
@@ -75,6 +78,25 @@ describe("run", () => {
     expect(run("sudo hire muji")).toEqual({
       output: { type: "contact", note: "permission granted." },
     });
+  });
+});
+
+describe("easter eggs", () => {
+  test.each(["exit", "logout", "vim", "vi", "rm -rf /"])(
+    "%s gets an answer, not an error",
+    (input) => {
+      expect(run(input).output?.type).toBe("message");
+    },
+  );
+
+  test("stay out of help and the hints", () => {
+    const listed = helpEntries.map((e) => e.command).join(" ");
+    for (const egg of ["exit", "vim", "rm", "ls -a", ".sudo-secrets"]) {
+      expect(listed, egg).not.toContain(egg);
+    }
+    for (const typed of ["ex", "vi", "rm", "ls -", "cat .s"]) {
+      expect(matches(typed), typed).toEqual([]);
+    }
   });
 });
 
