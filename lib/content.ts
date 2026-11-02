@@ -230,12 +230,38 @@ export const projects: Project[] = [
     name: "World Cup Newsletter Platform",
     context: "Personal project, deployed",
     outcome:
-      "Deployed: personalised newsletters from live APIs and the Gemini LLM API",
+      "A daily newsletter per subscriber, from live football APIs, written by an LLM",
+    // From the public repo, read 2026-11-03; wording approved by Muji the
+    // same day. The code calls a Llama model through Groq; the résumé's
+    // "Gemini" predates a switch (a stale code comment still says Gemini).
+    // No numbers from the code, as the facts test requires.
+    story: {
+      problem:
+        "Every morning of the 2026 World Cup, each subscriber gets an email about the team they follow: yesterday's result, the group standings, what the media is saying and the next fixture in their own timezone. Written by an LLM, sent without manual work.",
+      constraints: [
+        "Four free data sources to combine (football-data.org, ESPN, TheSportsDB and The Guardian), one of them strictly rate-limited.",
+        "An LLM writing about real matches, where a made-up scoreline would be a serious error.",
+        "Free tiers throughout: the LLM API rejects bursts of requests, and hosting had to cost nothing.",
+      ],
+      approach: [
+        "A Java pipeline fetches every source concurrently on a bounded worker pool, with exponential backoff around each call (skipping errors that cannot succeed) and a rate limiter for the strictest API.",
+        "Each subscriber's facts are bundled from SQLite and sent to a Python FastAPI service, where the LLM writes the email under a strict rule: state only facts present in the bundle.",
+        "Emails are composed one request at a time to stay within the LLM's free tier, and a failure goes to a dead-letter list instead of stopping everyone else's email.",
+        "Runs daily from cron on an Oracle Cloud Always Free virtual machine behind nginx, so it costs nothing to run.",
+      ],
+    },
     highlights: [
-      "Built and deployed a Java and Python platform that ingests data from multiple live APIs and uses the Gemini LLM API to generate personalised newsletters.",
+      "Built and deployed a Java and Python platform that ingests data from multiple live APIs and uses an LLM (Llama, through Groq) to generate personalised newsletters.",
       "Implemented bounded worker pools, prioritised scheduling, fan-out and retry handling to coordinate concurrent requests across rate-limited APIs and the LLM provider.",
     ],
-    stack: ["Java", "Python", "Gemini LLM API"],
+    stack: [
+      "Java",
+      "Python",
+      "FastAPI",
+      "SQLite",
+      "Groq (Llama)",
+      "Oracle Cloud",
+    ],
     link: {
       label: "github.com/MujiDipto/fifa-wc-newsletter",
       href: "https://github.com/MujiDipto/fifa-wc-newsletter",
