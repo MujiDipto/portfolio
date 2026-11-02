@@ -128,7 +128,8 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
               }}
               onKeyDown={onKeyDown}
               id="palette-search"
-              className="text-fg-strong placeholder:text-muted caret-accent w-full bg-transparent"
+              // 16px, like the prompt, stops iOS zooming into the field.
+              className="text-fg-strong placeholder:text-muted caret-accent w-full bg-transparent text-[16px]"
             />
           </div>
           <ul

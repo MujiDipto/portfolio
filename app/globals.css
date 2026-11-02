@@ -77,6 +77,8 @@
 body {
   background: var(--page);
   color: var(--fg);
+  /* The scale's base (above); without it, text falls back to the browser's 16px. */
+  font-size: var(--text-base);
 }
 
 :focus-visible {
