@@ -70,25 +70,28 @@ test("its bubble is one line, and its help button runs help", async ({
   await expect(page.getByText("switch colours")).toBeVisible();
 });
 
-test("it stays put until a command runs, then pops up somewhere new", async ({
+test("it stays put after commands and suggests a next step", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(bubble(page)).toBeVisible();
   const arrived = await cat(page).getAttribute("data-x");
-  await page.waitForTimeout(1500);
-  await expect(cat(page)).toHaveAttribute("data-x", arrived!);
-
   await run(page, "whoami");
-  await expect(cat(page)).toHaveAttribute("data-state", "sinking");
-  await expect(bubble(page)).toBeHidden();
-  await expect(cat(page)).toHaveAttribute("data-state", "up");
-  expect(await cat(page).getAttribute("data-x")).not.toBe(arrived);
-  expect(await animation(page)).toBe("cat-bob");
-  // It arrives with a next step, as a button.
   await expect(bubble(page)).toContainText("Want the numbers?");
+  await expect(cat(page)).toHaveAttribute("data-state", "up");
+  await expect(cat(page)).toHaveAttribute("data-x", arrived!);
+  expect(await animation(page)).toBe("cat-bob");
   await bubble(page).getByRole("button", { name: "cat about.md" }).click();
   await expect(page.getByText(/analyst-hours saved/).last()).toBeVisible();
+});
+
+test("the easter egg makes it jump", async ({ page }) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  await run(page, "sudo hire muji");
+  await expect(cat(page)).toHaveAttribute("data-mood", "happy");
+  expect(await animation(page)).toBe("cat-jump");
+  await expect(bubble(page)).toContainText("Permission granted");
 });
 
 test("its bubble is on its right, the way it faces", async ({ page }) => {
@@ -97,27 +100,6 @@ test("its bubble is on its right, the way it faces", async ({ page }) => {
   const catBox = (await cat(page).boundingBox())!;
   const bubbleBox = (await bubble(page).boundingBox())!;
   expect(bubbleBox.x).toBeGreaterThan(catBox.x + catBox.width);
-  await expect(cat(page)).toHaveAttribute("data-facing", "right");
-});
-
-test("when there is no room on its right, the bubble and the cat turn left", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 700, height: 720 });
-  await page.goto("/");
-  await expect(bubble(page)).toBeVisible();
-  // Walk it until it pops up too close to the right edge for the bubble.
-  for (let i = 0; i < 12; i++) {
-    if ((await bubble(page).getAttribute("data-side")) === "left") break;
-    await run(page, "help");
-    await expect(cat(page)).toHaveAttribute("data-state", "up");
-    await expect(bubble(page)).toBeVisible();
-  }
-  await expect(bubble(page)).toHaveAttribute("data-side", "left");
-  await expect(cat(page)).toHaveAttribute("data-facing", "left");
-  const catBox = (await cat(page).boundingBox())!;
-  const bubbleBox = (await bubble(page).boundingBox())!;
-  expect(bubbleBox.x + bubbleBox.width).toBeLessThan(catBox.x);
 });
 
 test("an unknown command makes it shake and point to help", async ({
@@ -130,6 +112,16 @@ test("an unknown command makes it shake and point to help", async ({
   await expect(cat(page)).toHaveAttribute("data-mood", "angry");
   await expect(bubble(page)).toContainText("not a command");
   await expect(cat(page)).toHaveAttribute("data-x", before!);
+});
+
+test("typing sudo makes it answer to its name, not call it a mistake", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(bubble(page)).toBeVisible();
+  await run(page, "sudo");
+  await expect(bubble(page)).toContainText("That's my name!");
+  await expect(cat(page)).toHaveAttribute("data-mood", "calm");
 });
 
 test("clicking the cat shows a tip", async ({ page }) => {
@@ -149,23 +141,21 @@ test("hovering makes it angry", async ({ page }) => {
   await expect(cat(page)).toHaveAttribute("data-mood", "calm");
 });
 
-test("wherever it pops up, it sits on the top edge and never scrolls the page", async ({
+test("it sits on the top edge, clear of the corners, at any width", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  await expect(bubble(page)).toBeVisible();
-  // The cat layer has the same box as the window.
-  const layer = (await page.locator("#cat-layer").boundingBox())!;
-  for (let i = 0; i < 8; i++) {
-    await run(page, "whoami");
-    await expect(cat(page)).toHaveAttribute("data-state", "sinking");
-    await expect(cat(page)).toHaveAttribute("data-state", "up");
+  for (const width of [700, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(bubble(page)).toBeVisible();
+    // The cat layer has the same box as the window.
+    const layer = (await page.locator("#cat-layer").boundingBox())!;
     const box = (await cat(page).boundingBox())!;
+    const talk = (await bubble(page).boundingBox())!;
     expect(box.y + box.height).toBeLessThanOrEqual(layer.y + 1);
-    // Clear of the rounded corners.
     expect(box.x).toBeGreaterThanOrEqual(layer.x + 16);
-    expect(box.x + box.width).toBeLessThanOrEqual(layer.x + layer.width - 16);
+    // The bubble fits on its right inside the window's width.
+    expect(talk.x + talk.width).toBeLessThanOrEqual(layer.x + layer.width);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
     );

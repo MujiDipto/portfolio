@@ -5,7 +5,7 @@ import { CatImage } from "@/components/cat/CatImage";
 import { CommandButton, type RunCommand } from "@/components/terminal/Outputs";
 import { bootDurationMs } from "@/components/terminal/useBoot";
 import { aboutLines } from "@/lib/content";
-import { greeting, isMistake, reply, tips, type Line } from "@/lib/sudo";
+import { greeting, isEgg, isMistake, reply, tips, type Line } from "@/lib/sudo";
 
 /** Dispatched on window each time the terminal runs a command; detail is the command. */
 export const commandEvent = "terminal:command";
@@ -16,32 +16,29 @@ export const typingEvent = "terminal:typing";
 // public/sudo.webp is drawn at twice this size, so it stays sharp on
 // high-density screens.
 export const catSize = { width: 49, height: 52 };
-const restAt = 0.15; // resting spot, as a share of the top edge; leaves room for the bubble on its right
+const restAt = 0.15; // its spot, as a share of the top edge; leaves room for the bubble on its right
 const cornerInset = 16; // pixels; keeps it clear of the window's rounded corners
-const minMove = 150; // pixels; a shorter hop looks like a twitch
-const maxMove = 600; // pixels
 const bubbleGap = 10; // pixels between the cat and its bubble
-const minBubble = 260; // pixels; below this the bubble goes on the cat's left
 export const riseMs = 700;
-export const sinkMs = 300;
 export const startleMs = 600;
+export const cheerMs = 900;
 const fallbackWidth = 900; // when it cannot measure (tests)
 
 /** Where the cat is: behind the window (down), on its way, or up on top. */
-export type CatState = "down" | "rising" | "up" | "sinking";
+export type CatState = "down" | "rising" | "up";
 
 const transitions: Partial<Record<CatState, string>> = {
   // Like a lift: steady, then slowing to a stop at the top.
   rising: `transform ${riseMs}ms cubic-bezier(0.25, 0.6, 0.35, 1)`,
-  sinking: `transform ${sinkMs}ms ease-in`,
 };
 
 /**
  * The mascot, Sudo, a guide to the terminal. It waits behind the window and
  * rises above its top edge like a lift, arriving as the opening finishes,
- * then says hi. After each command it sinks and rises somewhere else with a
- * next step to try (lib/sudo.ts); an unknown command makes it shake where it
- * stands. Typing closes the bubble; clicking the cat shows a tip. The window is
+ * then says hi. It rises only once; after that it stays put, and after each
+ * command it bobs and suggests a next step (lib/sudo.ts). An unknown command
+ * makes it shake; `sudo hire muji` makes it jump for joy. Typing closes the
+ * bubble; clicking the cat shows a tip. The window is
  * drawn over the cat's layer (components/TerminalWindow.tsx), so it hides
  * whatever is below the edge. Hovering makes it angry. Its settling bob and
  * shake are CSS (app/globals.css). With reduced motion it talks but never
@@ -54,29 +51,29 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
   const [state, setState] = useState<CatState>("down");
   const [angry, setAngry] = useState(false);
   const [startled, setStartled] = useState(false);
+  const [cheering, setCheering] = useState(false);
+  // Counts lines said, so each new line replays the bob (see the cat-body key).
+  const [said, setSaid] = useState(0);
   const [line, setLine] = useState<Line | null>(null);
   const tipIndex = useRef(0);
 
   // Mirrors of state for the window listeners.
-  const xRef = useRef(0);
   const stateRef = useRef<CatState>("down");
   const entering = useRef(true);
-  // What to say on reaching the top.
-  const nextLine = useRef<Line>(greeting);
 
   useEffect(() => {
     const go = (next: CatState) => {
       stateRef.current = next;
       setState(next);
     };
-    const moveTo = (to: number) => {
-      xRef.current = to;
-      setX(to);
+    const say = (next: Line) => {
+      setLine(next);
+      setSaid((n) => n + 1);
     };
     const arrive = () => {
       go("up");
       entering.current = false;
-      setLine(nextLine.current);
+      say(greeting);
     };
 
     const reduce =
@@ -85,15 +82,15 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
     const later = (fn: () => void, ms: number) =>
       timers.push(window.setTimeout(fn, ms));
     let placed = false;
-    let low = 0;
-    let high = 0;
 
     later(() => {
       const measured = rootRef.current?.clientWidth || fallbackWidth;
       setWidth(measured);
-      low = cornerInset;
-      high = Math.max(low, measured - catSize.width - cornerInset);
-      moveTo(Math.round(low + (high - low) * restAt));
+      const high = Math.max(
+        cornerInset,
+        measured - catSize.width - cornerInset,
+      );
+      setX(Math.round(cornerInset + (high - cornerInset) * restAt));
       placed = true;
       if (reduce) {
         arrive();
@@ -117,37 +114,16 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
     window.addEventListener("keydown", skip);
     window.addEventListener("pointerdown", skip);
 
+    const react = (setMood: (on: boolean) => void, ms: number) => {
+      setMood(true);
+      later(() => setMood(false), ms);
+    };
     const onCommand = (event: Event) => {
       if (entering.current) return;
       const command = (event as CustomEvent<string>).detail ?? "";
-      const say = reply(command);
-      // A mistake: it shakes where it stands and points to help.
-      if (isMistake(command) || reduce) {
-        if (isMistake(command)) {
-          setStartled(true);
-          later(() => setStartled(false), startleMs);
-        }
-        nextLine.current = say;
-        if (stateRef.current === "up") setLine(say);
-        return;
-      }
-      nextLine.current = say;
-      // Mid-move it simply says the newest line when it arrives.
-      if (stateRef.current !== "up") return;
-      setLine(null);
-      const from = xRef.current;
-      const lo = Math.max(low, from - maxMove);
-      const hi = Math.min(high, from + maxMove);
-      let target = from;
-      for (let i = 0; i < 20 && Math.abs(target - from) < minMove; i++) {
-        target = Math.round(lo + Math.random() * (hi - lo));
-      }
-      go("sinking");
-      later(() => {
-        moveTo(target);
-        go("rising");
-        later(arrive, riseMs);
-      }, sinkMs);
+      if (isMistake(command)) react(setStartled, startleMs);
+      if (isEgg(command)) react(setCheering, cheerMs);
+      say(reply(command));
     };
     const onTyping = () => setLine(null);
     window.addEventListener(commandEvent, onCommand);
@@ -166,15 +142,12 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
     if (stateRef.current !== "up") return;
     setAngry(false);
     setLine(tips[tipIndex.current % tips.length]);
+    setSaid((n) => n + 1);
     tipIndex.current++;
   }
 
-  const hidden = state === "down" || state === "sinking";
-  // The bubble goes on the cat's right when there is room, and the cat turns
-  // to face it.
-  const roomRight =
-    x === null ? 0 : width - (x + catSize.width + bubbleGap) - cornerInset;
-  const side = roomRight >= minBubble ? "right" : "left";
+  const hidden = state === "down";
+  const bubbleLeft = (x ?? 0) + catSize.width + bubbleGap;
 
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0">
@@ -183,8 +156,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
         data-cat
         data-x={x === null ? "" : Math.round(x)}
         data-state={state}
-        data-mood={angry || startled ? "angry" : "calm"}
-        data-facing={side}
+        data-mood={cheering ? "happy" : angry || startled ? "angry" : "calm"}
         onMouseEnter={() => setAngry(true)}
         onMouseLeave={() => setAngry(false)}
         onClick={showTip}
@@ -204,15 +176,11 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
               }
         }
       >
-        <div className="cat-body">
-          {/* The art faces left; mirrored, it faces right. Either way it
-              faces its bubble. */}
-          <div
-            className="relative"
-            style={side === "right" ? { transform: "scaleX(-1)" } : undefined}
-          >
+        <div key={said} className="cat-body">
+          {/* The art faces left; mirrored, it faces its bubble on its right. */}
+          <div className="relative" style={{ transform: "scaleX(-1)" }}>
             <CatImage {...catSize} />
-            {(angry || startled) && <AngerMark />}
+            {(angry || startled) && !cheering && <AngerMark />}
           </div>
         </div>
       </div>
@@ -221,21 +189,12 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
         <div
           role="group"
           aria-label="Sudo says"
-          data-side={side}
           className="cat-bubble pointer-events-auto absolute px-2 py-1"
-          style={
-            side === "right"
-              ? {
-                  bottom: "calc(100% + 8px)",
-                  left: x + catSize.width + bubbleGap,
-                  maxWidth: roomRight,
-                }
-              : {
-                  bottom: "calc(100% + 8px)",
-                  right: `calc(100% - ${x - bubbleGap}px)`,
-                  maxWidth: Math.max(180, x - bubbleGap - cornerInset),
-                }
-          }
+          style={{
+            bottom: "calc(100% + 8px)",
+            left: bubbleLeft,
+            maxWidth: width - bubbleLeft - cornerInset,
+          }}
         >
           <p className="text-fg-strong text-xs">
             {line.text}

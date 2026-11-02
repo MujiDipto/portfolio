@@ -28,8 +28,11 @@ const replies: Record<string, Line> = {
 };
 
 export function reply(command: string): Line {
-  if (command.trim().toLowerCase() === "sudo hire muji") {
-    return { text: "Permission granted. Good choice." };
+  if (isEgg(command)) {
+    return { text: "Permission granted. Muji's inbox is below." };
+  }
+  if (callsSudo(command)) {
+    return { text: "That's my name! But only Muji has sudo rights here." };
   }
   const { output, effect } = run(command);
   if (effect?.type === "clear") {
@@ -45,9 +48,21 @@ export function reply(command: string): Line {
   return (output && replies[output.type]) ?? replies.error;
 }
 
+/** The hidden easter egg, which Sudo celebrates. */
+export function isEgg(command: string): boolean {
+  return (
+    command.trim().toLowerCase().split(/\s+/).join(" ") === "sudo hire muji"
+  );
+}
+
+/** `sudo` is the cat's own name, so it answers rather than treat it as a typo. */
+function callsSudo(command: string): boolean {
+  return command.trim().toLowerCase().split(/\s+/)[0] === "sudo";
+}
+
 /** Whether a command is one the terminal does not know. */
 export function isMistake(command: string): boolean {
-  return run(command).output?.type === "error";
+  return !callsSudo(command) && run(command).output?.type === "error";
 }
 
 /** Shown in turn each time the visitor clicks the cat. */

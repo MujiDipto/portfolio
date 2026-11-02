@@ -127,9 +127,10 @@ html[data-js] .boot-hidden {
 }
 
 /* The cat's speech bubble: pixel-style, to match the art. Square corners,
-   a hard border, a hard offset shadow, and a tail pointing at the cat. The
-   tail is a rotated square whose two bordered sides form the point; it sits
-   over the bubble's right border, hiding it where the tail joins. */
+   a hard border, a hard offset shadow, and a tail pointing back at the cat on
+   its left. The tail is a rotated square whose two bordered sides form the
+   point; it sits over the bubble's left border, hiding it where the tail
+   joins. */
 .cat-bubble {
   background: var(--window);
   border: 2px solid var(--fg-strong);
@@ -138,26 +139,20 @@ html[data-js] .boot-hidden {
 
 .cat-bubble-tail {
   position: absolute;
-  right: -6px;
+  left: -6px;
   bottom: 9px;
   width: 10px;
   height: 10px;
   background: var(--window);
   border-top: 2px solid var(--fg-strong);
   border-right: 2px solid var(--fg-strong);
-  transform: rotate(45deg);
-}
-
-/* On the cat's right, the tail sits on the bubble's left and points back. */
-.cat-bubble[data-side="right"] .cat-bubble-tail {
-  right: auto;
-  left: -6px;
   transform: rotate(-135deg);
 }
 
-/* The cat's settling bob and hover shake (components/cat/Cat.tsx). Each time
-   it reaches the top it bobs twice, under five seconds, so nothing moves on
-   its own for long (WCAG 2.2.2). Hovering shakes it once. */
+/* The cat's bob, shake and jump (components/cat/Cat.tsx). On arriving, and
+   with each new line it says, it bobs twice, under five seconds, so nothing
+   moves on its own for long (WCAG 2.2.2). Hovering, or a mistake, shakes it
+   once; the easter egg makes it jump. */
 .cat-body {
   transform-origin: 50% 100%;
 }
@@ -168,6 +163,20 @@ html[data-js] .boot-hidden {
 
 [data-cat][data-mood="angry"] .cat-body {
   animation: cat-shake 0.32s steps(1) 1;
+}
+
+[data-cat][data-mood="happy"] .cat-body {
+  animation: cat-jump 0.4s ease-out 2;
+}
+
+@keyframes cat-jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-12px);
+  }
 }
 
 @keyframes cat-bob {
@@ -197,7 +206,8 @@ html[data-js] .boot-hidden {
 
 @media (prefers-reduced-motion: reduce) {
   [data-cat][data-state="up"] .cat-body,
-  [data-cat][data-mood="angry"] .cat-body {
+  [data-cat][data-mood="angry"] .cat-body,
+  [data-cat][data-mood="happy"] .cat-body {
     animation: none;
   }
 }

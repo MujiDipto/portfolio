@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   Cat,
   commandEvent,
+  cheerMs,
   riseMs,
-  sinkMs,
   startleMs,
   typingEvent,
 } from "@/components/cat/Cat";
@@ -62,29 +62,36 @@ describe("Cat", () => {
 
   test("the bubble sits on the cat's right, the way it faces", () => {
     arrived();
-    expect(bubble()!.dataset.side).toBe("right");
-    expect(cat().dataset.facing).toBe("right");
+    const catBox = cat().style;
+    expect(parseFloat(bubble()!.style.left)).toBeGreaterThan(
+      parseFloat(catBox.left) + parseFloat(catBox.width),
+    );
   });
 
-  test("after a command it sinks, rises somewhere new and suggests a next step", () => {
+  test("after a command it stays put, bobs and suggests a next step", () => {
     arrived();
     const before = cat().dataset.x;
+    const body = cat().querySelector(".cat-body");
+    runCommand("whoami");
+    expect(cat().dataset.state).toBe("up");
+    expect(cat().dataset.x).toBe(before);
+    expect(bubble()!.textContent).toBe(said(reply("whoami")));
+    // A fresh body element replays the bob for the new line.
+    expect(cat().querySelector(".cat-body")).not.toBe(body);
     act(() => vi.advanceTimersByTime(60000));
     expect(cat().dataset.x).toBe(before);
-
-    runCommand("whoami");
-    expect(bubble()).toBeNull();
-    expect(cat().dataset.state).toBe("sinking");
-    expect(cat().dataset.x).toBe(before); // it moves only while hidden
-    act(() => vi.advanceTimersByTime(sinkMs));
-    expect(cat().dataset.state).toBe("rising");
-    expect(cat().dataset.x).not.toBe(before);
-    act(() => vi.advanceTimersByTime(riseMs));
-    expect(cat().dataset.state).toBe("up");
-    expect(bubble()!.textContent).toBe(said(reply("whoami")));
   });
 
-  test("an unknown command makes it shake where it stands and point to help", () => {
+  test("the easter egg makes it jump for joy", () => {
+    arrived();
+    runCommand("sudo hire muji");
+    expect(cat().dataset.mood).toBe("happy");
+    expect(bubble()!.textContent).toBe(said(reply("sudo hire muji")));
+    act(() => vi.advanceTimersByTime(cheerMs));
+    expect(cat().dataset.mood).toBe("calm");
+  });
+
+  test("an unknown command makes it shake and point to help", () => {
     arrived();
     const before = cat().dataset.x;
     runCommand("xyz");
@@ -133,7 +140,7 @@ describe("Cat", () => {
     expect(cat().dataset.mood).toBe("calm");
   });
 
-  test("with reduced motion it still talks but never moves", () => {
+  test("with reduced motion it is simply there and still talks", () => {
     mockMotion(true);
     render(<Cat onRun={() => {}} />);
     act(() => vi.advanceTimersByTime(0));

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { greeting, isMistake, reply, tips } from "@/lib/sudo";
+import { greeting, isEgg, isMistake, reply, tips } from "@/lib/sudo";
 import { helpEntries, run } from "@/lib/terminal";
 
 const commands = helpEntries.map((e) =>
@@ -33,7 +33,16 @@ describe("Sudo", () => {
     expect(reply("theme dark").command).toBe("theme light");
   });
 
+  test("answers to its own name instead of calling it a mistake", () => {
+    for (const command of ["sudo", "sudo rm -rf /", "SUDO ls"]) {
+      expect(isMistake(command), command).toBe(false);
+      expect(reply(command).text, command).toContain("That's my name");
+    }
+  });
+
   test("welcomes the easter egg", () => {
+    expect(isEgg("  Sudo   hire MUJI ")).toBe(true);
+    expect(isEgg("sudo hire")).toBe(false);
     expect(isMistake("sudo hire muji")).toBe(false);
     expect(reply("sudo hire muji").text).toContain("Permission granted");
   });
