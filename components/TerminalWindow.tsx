@@ -6,7 +6,15 @@ export function TerminalWindow({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh items-center justify-center sm:p-8">
       <div className="relative flex h-full w-full max-w-[73.6rem] flex-col sm:h-[min(80dvh,48rem,calc(100dvh-11rem))]">
-        <div className="bg-window sm:border-border flex h-full w-full flex-col overflow-hidden sm:rounded-xl sm:border">
+        {/* On wider screens the cat lives here. The window comes after it and
+            is positioned too, so it is drawn on top and hides the cat until
+            it rises above the top edge. */}
+        <aside
+          id="cat-layer"
+          aria-label="Cat"
+          className="pointer-events-none absolute inset-0 hidden sm:block"
+        />
+        <div className="bg-window sm:border-border relative flex h-full w-full flex-col overflow-hidden sm:rounded-xl sm:border">
           <header className="bg-titlebar border-border grid h-11 flex-none grid-cols-[1fr_auto_1fr] items-center border-b px-4">
             <div aria-hidden="true" className="hidden gap-2 sm:flex">
               <span className="bg-dot-close size-3 rounded-full" />
@@ -26,12 +34,6 @@ export function TerminalWindow({ children }: { children: ReactNode }) {
           </header>
           {children}
         </div>
-        {/* On wider screens the cat walks along the window's top edge here. */}
-        <aside
-          id="cat-layer"
-          aria-label="Cat"
-          className="pointer-events-none absolute inset-0 hidden sm:block"
-        />
       </div>
     </div>
   );

@@ -63,7 +63,6 @@ export function Terminal() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [options, setOptions] = useState<string[]>([]);
-  const [catBubble, setCatBubble] = useState(false);
   const nextId = useRef(opening.length);
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
@@ -201,10 +200,7 @@ export function Terminal() {
               ))}
             </p>
           )}
-          {/* On wider screens the cat's bubble offers these while it is open. */}
-          <p
-            className={`text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm ${catBubble ? "sm:hidden" : ""}`}
-          >
+          <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
             <span>try one of these:</span>
             {suggestions.map((command) => (
               <CommandButton
@@ -216,15 +212,13 @@ export function Terminal() {
           </p>
         </div>
       )}
-      {interactive && (
-        <CatPortal onRun={runCommand} onBubbleChange={setCatBubble} />
-      )}
+      {interactive && <CatPortal onRun={runCommand} />}
     </div>
   );
 }
 
 /**
- * Renders the cat into the layer over the window (see TerminalWindow). It
+ * Renders the cat into its layer behind the window (see TerminalWindow). It
  * mounts with the opening so its entrance runs alongside the typing.
  */
 function CatPortal(props: Parameters<typeof Cat>[0]) {

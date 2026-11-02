@@ -10,9 +10,6 @@ const perLetter = 55;
 const pauseBeforeOutput = 150;
 const perLine = 90;
 
-/** When typing starts; the cat starts walking in at the same moment. */
-export const bootStartMs = startDelay;
-
 /** When the opening finishes and the prompt appears. */
 export function bootDurationMs(lineCount: number): number {
   return (

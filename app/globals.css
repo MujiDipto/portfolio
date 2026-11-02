@@ -148,16 +148,15 @@ html[data-js] .boot-hidden {
   transform: rotate(45deg);
 }
 
-/* The cat's motion (components/cat/Cat.tsx). It waddles while walking. When
-   it stops it bobs twice, under five seconds, so nothing moves on its own for
-   long (WCAG 2.2.2). Hovering shakes it once. */
+/* The cat's settling bob and hover shake (components/cat/Cat.tsx). Each time
+   it reaches the top it bobs twice, under five seconds, so nothing moves on
+   its own for long (WCAG 2.2.2). Hovering shakes it once. */
 .cat-body {
   transform-origin: 50% 100%;
-  animation: cat-bob 2.2s ease-in-out 2;
 }
 
-[data-cat][data-moving="true"] .cat-body {
-  animation: cat-waddle 0.36s ease-in-out infinite alternate;
+[data-cat][data-state="up"] .cat-body {
+  animation: cat-bob 2.2s ease-in-out 2;
 }
 
 [data-cat][data-mood="angry"] .cat-body {
@@ -172,15 +171,6 @@ html[data-js] .boot-hidden {
   }
   80% {
     transform: translateY(-2px);
-  }
-}
-
-@keyframes cat-waddle {
-  from {
-    transform: rotate(-4deg) translateY(0);
-  }
-  to {
-    transform: rotate(4deg) translateY(-2px);
   }
 }
 
@@ -199,8 +189,7 @@ html[data-js] .boot-hidden {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cat-body,
-  [data-cat][data-moving="true"] .cat-body,
+  [data-cat][data-state="up"] .cat-body,
   [data-cat][data-mood="angry"] .cat-body {
     animation: none;
   }
