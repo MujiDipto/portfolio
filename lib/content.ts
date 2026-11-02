@@ -22,6 +22,14 @@ export type Project = {
   context: string;
   /** One line, outcome first, from the facts in `highlights` (approved by Muji, 2026-11-02). */
   outcome: string;
+  /** The deep dive, in Muji's own account: what, why it was hard, how. */
+  story?: {
+    problem: string;
+    constraints: string[];
+    approach: string[];
+    /** Only when it adds to the outcome line above it. */
+    result?: string;
+  };
   highlights: string[];
   stack: string[];
   link?: { label: string; href: string };
@@ -166,6 +174,21 @@ export const projects: Project[] = [
     context: "Oracle, Aug 2022 to Oct 2026",
     outcome:
       "15,000 packages risk-scored daily; data refresh cut by 77%, 2 hours to 28 minutes",
+    // From Muji's account; wording approved by Muji, 2026-11-03.
+    story: {
+      problem:
+        "A software composition analysis service that gives open-source packages a security risk score. Security analysts at Oracle used the scores to triage and prioritise.",
+      constraints: [
+        "15,000 packages to assess.",
+        "Scores had to come back quickly whenever someone queried one.",
+        "Scoring depended on external APIs that are slow and rate-limited.",
+      ],
+      approach: [
+        "Scores are computed ahead of time, not on request: data pipelines refresh them continuously and the service answers from its own database.",
+        "Exponential backoff and rate-limit handling keep the pipelines moving through slow external APIs.",
+        "Database indexing, query optimisation and caching keep both the refresh and the lookups fast.",
+      ],
+    },
     highlights: [
       "Led end-to-end delivery of a risk-scoring service assessing 15,000 software packages daily.",
       "Led the design and Java/Micronaut development of the SCA Scoring service.",

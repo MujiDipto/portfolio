@@ -34,6 +34,14 @@ function missingFrom(pageText: string): string[] {
       p.name,
       p.context,
       p.outcome,
+      ...(p.story
+        ? [
+            p.story.problem,
+            ...p.story.constraints,
+            ...p.story.approach,
+            ...(p.story.result ? [p.story.result] : []),
+          ]
+        : []),
       ...p.highlights,
       ...p.stack,
     ]),

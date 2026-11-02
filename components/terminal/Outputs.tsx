@@ -14,6 +14,7 @@ import {
   resume,
   skills,
   type Organisation,
+  type Project,
 } from "@/lib/content";
 import { helpEntries, linkFor, type Output } from "@/lib/terminal";
 
@@ -565,6 +566,8 @@ export function Project({ slug }: { slug: string }) {
       <p className="text-fg-strong mt-2 text-lg">
         <Numbers text={project.outcome} />
       </p>
+      {project.story && <Story story={project.story} />}
+      {project.story && <p className="text-muted mt-4 text-sm"># what I did</p>}
       <Highlights items={project.highlights} />
       <p className="mt-3 text-sm">
         <span className="text-muted">stack:</span> {project.stack.join(", ")}
@@ -576,6 +579,51 @@ export function Project({ slug }: { slug: string }) {
         </p>
       )}
     </article>
+  );
+}
+
+/**
+ * A project's deep dive: the problem, what made it hard, the approach and the
+ * result, laid out like an annotated terminal listing.
+ */
+function Story({ story }: { story: NonNullable<Project["story"]> }) {
+  const rows: [string, ReactNode][] = [
+    ["problem", story.problem],
+    ["hard", <List key="hard" items={story.constraints} />],
+    ["approach", <List key="approach" items={story.approach} />],
+    ...(story.result
+      ? ([["result", <Numbers key="result" text={story.result} />]] as [
+          string,
+          ReactNode,
+        ][])
+      : []),
+  ];
+  return (
+    <dl className="mt-4 grid gap-x-4 gap-y-3 sm:grid-cols-[9ch_1fr]">
+      {rows.map(([label, body]) => (
+        <div key={label} className="contents">
+          <dt className="text-prompt-path">{label}</dt>
+          <dd className="leading-relaxed">{body}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function List({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-1">
+      {items.map((item) => (
+        <li key={item} className="flex gap-2">
+          <span aria-hidden="true" className="text-muted">
+            -
+          </span>
+          <span>
+            <Numbers text={item} />
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
