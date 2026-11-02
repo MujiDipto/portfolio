@@ -107,7 +107,7 @@ export function run(input: string): Result {
   return error(`command not found: ${words.join(" ")}. Try help`);
 }
 
-// Every full command a visitor can complete to; the easter egg stays hidden.
+// Every full command hints can offer; the easter egg stays hidden.
 const completions = [
   "whoami",
   "cat about.md",
@@ -124,21 +124,18 @@ const completions = [
   "clear",
 ];
 
-function sharedPrefix(values: string[]): string {
-  return values.reduce((prefix, value) => {
-    let i = 0;
-    while (i < prefix.length && prefix[i] === value[i]) i++;
-    return prefix.slice(0, i);
-  });
-}
-
-/** Tab completion: the completed value, plus the options when it is ambiguous. */
-export function complete(input: string): { value: string; options: string[] } {
+/**
+ * Commands that start with what the visitor has typed, for hints as they type:
+ * commands from their own history first (newest first), then the rest. Only
+ * real commands are offered, so typos in history and the easter egg never are.
+ */
+export function matches(input: string, history: string[] = []): string[] {
   const typed = input.toLowerCase().trimStart();
-  const matches = completions.filter((c) => c.startsWith(typed));
-  if (matches.length === 0) return { value: input, options: [] };
-  if (matches.length === 1) return { value: matches[0], options: [] };
-  return { value: sharedPrefix(matches), options: [...matches].sort() };
+  if (!typed) return [];
+  const known = [...history].reverse().filter((c) => completions.includes(c));
+  return [...new Set([...known, ...completions])].filter(
+    (c) => c.startsWith(typed) && c !== typed,
+  );
 }
 
 /**

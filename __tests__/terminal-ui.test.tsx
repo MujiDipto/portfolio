@@ -92,11 +92,34 @@ describe("Terminal", () => {
     expect(document.activeElement).toBe(input);
   });
 
-  test("Tab on an ambiguous start lists the options", async () => {
+  test("typing shows the best match as a hint after the caret", async () => {
     const { user, input } = await setup();
+    const hint = () => document.querySelector("[data-hint]")!;
+    await user.type(input, "gi");
+    expect(hint().textContent).toBe("git log");
+    expect(hint().getAttribute("aria-hidden")).toBe("true");
+    await user.clear(input);
+    expect(hint().textContent).toBe("");
+  });
+
+  test("→ at the end of the line accepts the hint", async () => {
+    const { user, input } = await setup();
+    await user.type(input, "ls");
+    await user.keyboard("{ArrowRight}");
+    expect((input as HTMLInputElement).value).toBe("ls projects/");
+  });
+
+  test("while typing, the suggestions narrow to matching commands", async () => {
+    const { user, input, log } = await setup();
     await user.type(input, "cat ");
-    await user.keyboard("{Tab}");
-    expect(screen.getByText("cat education.md")).toBeDefined();
+    expect(screen.getByText("matching:")).toBeDefined();
+    expect(screen.queryByRole("button", { name: "git log" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "cat education.md" }));
+    expect(log.textContent).toContain("Bachelor of Engineering");
+    // Unknown input hides the row rather than offering nothing.
+    await user.type(input, "zzz");
+    expect(screen.queryByText("matching:")).toBeNull();
+    expect(screen.queryByText("try one of these:")).toBeNull();
   });
 
   test("Tab on an empty prompt moves focus on, so there is no keyboard trap", async () => {

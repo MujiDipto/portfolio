@@ -23,6 +23,51 @@ test("a visitor can reach contact details without typing", async ({ page }) => {
   ).toHaveAttribute("href", contact.email.href);
 });
 
+test("typing shows a hint in line with the text, and Tab accepts it", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.pressSequentially("gi");
+  const hint = page.locator("[data-hint]");
+  await expect(hint).toHaveText("git log");
+  // The hint is drawn in the input's font from the same left edge, so its
+  // letters sit exactly after the typed ones.
+  const styles = await page.evaluate(() => {
+    const pick = (el: Element) => {
+      const s = getComputedStyle(el);
+      return [s.fontFamily, s.fontSize, s.letterSpacing].join("|");
+    };
+    return [
+      pick(document.querySelector("#command")!),
+      pick(document.querySelector("[data-hint]")!),
+    ];
+  });
+  expect(styles[0]).toBe(styles[1]);
+  expect((await hint.boundingBox())!.x).toBe((await input.boundingBox())!.x);
+  await input.press("Tab");
+  await expect(input).toHaveValue("git log");
+  await expect(input).toBeFocused();
+});
+
+test.describe("on a phone", () => {
+  test.use({ viewport: { width: 375, height: 812 }, hasTouch: true });
+
+  test("matching commands narrow as you type and can be tapped", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const input = page.getByRole("textbox", { name: "Command" });
+    await input.tap();
+    await input.pressSequentially("ls");
+    await expect(page.getByText("matching:")).toBeVisible();
+    await page.getByRole("button", { name: "ls projects/" }).tap();
+    await expect(
+      page.getByRole("button", { name: `${projects[0].slug}/` }),
+    ).toBeVisible();
+  });
+});
+
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 

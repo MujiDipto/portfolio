@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
-  complete,
+  matches,
   helpEntries,
   historyStep,
   run,
@@ -77,34 +77,44 @@ describe("run", () => {
   });
 });
 
-describe("complete", () => {
-  test("completes a unique prefix to the full command", () => {
-    expect(complete("git")).toEqual({ value: "git log", options: [] });
-    expect(complete("open wor")).toEqual({
-      value: "open world-cup-newsletter",
-      options: [],
-    });
+describe("matches", () => {
+  test("offers every command that starts with what was typed", () => {
+    expect(matches("git")).toEqual(["git log"]);
+    expect(matches("open wor")).toEqual(["open world-cup-newsletter"]);
+    expect(matches("cat ")).toEqual([
+      "cat about.md",
+      "cat skills.txt",
+      "cat education.md",
+      "cat contact",
+    ]);
   });
 
-  test("extends to the shared prefix and lists the options", () => {
-    expect(complete("cat ")).toEqual({
-      value: "cat ",
-      options: [
-        "cat about.md",
-        "cat contact",
-        "cat education.md",
-        "cat skills.txt",
-      ],
-    });
-    expect(complete("cat s").value).toBe("cat skills.txt");
+  test("ignores case and leading spaces", () => {
+    expect(matches("  GI")).toEqual(["git log"]);
   });
 
-  test("leaves unknown input alone", () => {
-    expect(complete("zzz")).toEqual({ value: "zzz", options: [] });
+  test("puts commands from history first, newest first", () => {
+    expect(matches("cat ", ["cat contact", "cat skills.txt"])).toEqual([
+      "cat skills.txt",
+      "cat contact",
+      "cat about.md",
+      "cat education.md",
+    ]);
   });
 
-  test("does not complete the hidden easter egg", () => {
-    expect(complete("sudo")).toEqual({ value: "sudo", options: [] });
+  test("never offers typos from history or the hidden easter egg", () => {
+    expect(matches("ca", ["cat nothing"])).not.toContain("cat nothing");
+    expect(matches("sudo", ["sudo hire muji"])).toEqual([]);
+  });
+
+  test("offers nothing for an empty prompt, unknown input or a finished command", () => {
+    expect(matches("")).toEqual([]);
+    expect(matches("zzz")).toEqual([]);
+    expect(matches("git log")).toEqual([]);
+  });
+
+  test("a finished command can still lead to a longer one", () => {
+    expect(matches("ls")).toEqual(["ls projects/"]);
   });
 });
 

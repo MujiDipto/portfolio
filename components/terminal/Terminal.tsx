@@ -14,8 +14,8 @@ import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
 import { aboutLines } from "@/lib/content";
 import {
-  complete,
   historyStep,
+  matches,
   run,
   suggestions,
   type Output,
@@ -62,13 +62,16 @@ export function Terminal() {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [options, setOptions] = useState<string[]>([]);
   const nextId = useRef(opening.length);
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
   const shouldScroll = useRef(false);
   const boot = useBoot(aboutLines.length);
   const ready = interactive && boot.phase === "done";
+  // Fish-style hints: the best match shows as grey text after the caret.
+  const hints = matches(input, history);
+  const hint = hints[0];
+  const ghost = hint ? hint.slice(input.toLowerCase().trimStart().length) : "";
 
   useEffect(() => {
     // Focus the prompt once it appears, for mouse and trackpad users only, so
@@ -102,7 +105,6 @@ export function Terminal() {
     setHistory(nextHistory);
     setHistoryIndex(nextHistory.length);
     setInput("");
-    setOptions([]);
     inputRef.current?.focus({ preventScroll: true });
   }
 
@@ -117,18 +119,21 @@ export function Terminal() {
       );
       setHistoryIndex(index);
       setInput(history[index] ?? "");
-    } else if (event.key === "Tab" && !event.shiftKey && input.trim()) {
-      // Tab completes only when there is something to complete; on an empty
-      // prompt it moves focus as usual, so keyboard users are never trapped.
-      const result = complete(input);
-      if (result.value !== input || result.options.length > 0) {
-        event.preventDefault();
-        setInput(result.value);
-        setOptions(result.options);
-      }
+    } else if (event.key === "Tab" && !event.shiftKey && hint) {
+      // Tab accepts a hint only when there is one; otherwise it moves focus
+      // as usual, so keyboard users are never trapped.
+      event.preventDefault();
+      setInput(hint);
+    } else if (
+      event.key === "ArrowRight" &&
+      hint &&
+      event.currentTarget.selectionStart === input.length
+    ) {
+      // As in fish and zsh: → at the end of the line accepts the hint.
+      event.preventDefault();
+      setInput(hint);
     } else if (event.key === "Escape") {
       setInput("");
-      setOptions([]);
     }
   }
 
@@ -178,38 +183,46 @@ export function Terminal() {
               <PromptPrefix />
               <span className="sr-only">Command</span>
             </label>
-            <input
-              ref={inputRef}
-              id="command"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={onKeyDown}
-              autoComplete="off"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              enterKeyHint="go"
-              // 16px stops iOS zooming into the field.
-              className="text-fg-strong caret-accent min-w-0 flex-1 bg-transparent text-[16px]"
-            />
+            <div className="relative min-w-0 flex-1">
+              {/* The hint sits under the input in the same font, after an
+                  invisible copy of what was typed, so the letters line up. */}
+              <div
+                aria-hidden="true"
+                data-hint
+                className="text-muted pointer-events-none absolute inset-0 overflow-hidden text-[16px] whitespace-pre"
+              >
+                <span className="invisible">{input}</span>
+                {ghost}
+              </div>
+              <input
+                ref={inputRef}
+                id="command"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={onKeyDown}
+                autoComplete="off"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint="go"
+                // 16px stops iOS zooming into the field.
+                className="text-fg-strong caret-accent relative w-full bg-transparent text-[16px]"
+              />
+            </div>
           </form>
-          {options.length > 0 && (
-            <p className="text-muted mt-2 flex flex-wrap gap-x-6 text-sm">
-              {options.map((option) => (
-                <span key={option}>{option}</span>
+          {/* Touch screens have no Tab key, so matches are buttons too. */}
+          {(!input.trim() || hints.length > 0) && (
+            <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+              <span>{input.trim() ? "matching:" : "try one of these:"}</span>
+              {(input.trim() ? hints : suggestions).map((command) => (
+                <CommandButton
+                  key={command}
+                  command={command}
+                  onRun={runCommand}
+                />
               ))}
             </p>
           )}
-          <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
-            <span>try one of these:</span>
-            {suggestions.map((command) => (
-              <CommandButton
-                key={command}
-                command={command}
-                onRun={runCommand}
-              />
-            ))}
-          </p>
         </div>
       )}
       {interactive && <CatPortal onRun={runCommand} />}
