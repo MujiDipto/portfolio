@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { CatImage } from "@/components/cat/CatImage";
 import { CountUp } from "@/components/terminal/CountUp";
 import { Numbers } from "@/components/Numbers";
@@ -21,6 +21,34 @@ export type RunCommand = (command: string) => void;
 
 export const linkClass =
   "text-accent underline underline-offset-4 hover:no-underline";
+
+/**
+ * A link. Other sites (LinkedIn, GitHub, a repo) open in a new tab, so the
+ * terminal session is not lost; email, the résumé download and this site's
+ * own pages stay in place.
+ */
+function TextLink({
+  href,
+  download,
+  children,
+}: {
+  href: string;
+  download?: boolean;
+  children: ReactNode;
+}) {
+  const external = /^https?:\/\//.test(href);
+  return (
+    <a
+      href={href}
+      download={download}
+      className={linkClass}
+      {...(external && { target: "_blank", rel: "noopener noreferrer" })}
+    >
+      {children}
+      {external && <span className="sr-only"> (opens in a new tab)</span>}
+    </a>
+  );
+}
 
 /**
  * A command a visitor can click. Without JavaScript (and on /cv) it links to
@@ -214,9 +242,9 @@ export function Whoami({
           ...(cvLink ? [{ label: "non-interactive mode", href: "/cv" }] : []),
         ].map((link) => (
           <li key={link.label}>
-            <a href={link.href} download={link.download} className={linkClass}>
+            <TextLink href={link.href} download={link.download}>
               {link.label}
-            </a>
+            </TextLink>
           </li>
         ))}
       </ul>
@@ -308,97 +336,182 @@ function fakeHash(text: string): string {
   return hash.toString(16).padStart(7, "0").slice(0, 7);
 }
 
-type GraphRow = { lanes: string; date?: string; text?: string; ref?: string };
+type Branch = "main" | "oracle" | "uq";
+
+type GraphRow = {
+  /** The graph characters; column 0 is main, the rest the row's branch. */
+  lanes: string;
+  branch: Branch;
+  date?: string;
+  head?: boolean;
+  tag?: string;
+  /** A merge names its branch, which runs `command` when clicked. */
+  merge?: { branch: Exclude<Branch, "main">; command: string };
+  text?: string;
+};
+
+// Like git's coloured graph: each branch keeps its own colour.
+const laneColour: Record<Branch, string> = {
+  main: "text-prompt-user",
+  oracle: "text-number",
+  uq: "text-prompt-path",
+};
 
 /**
- * The career as `git log --graph`: newest first, with tutoring as a side
- * branch that ran alongside the degree and merged when Oracle began. Every
- * fact comes from lib/content.ts; only the hashes are made up.
+ * The career as `git log --graph`, newest first: Oracle and the degree are
+ * branches that merge into main, as real history would. Every fact comes from
+ * lib/content.ts; only the hashes and the decorative `senior` tag are made up.
  */
 export function careerGraph(): GraphRow[] {
   const [current, oracle] = experience;
   const [senior, engineer, analyst] = oracle.roles;
   const tutor = additionalExperience[0].roles[0];
+  const thesis = education.notes[0];
   return [
     {
       lanes: "*  ",
+      branch: "main",
       date: current.roles[0].start,
-      ref: "HEAD -> main",
+      head: true,
       text: `joined ${current.name} as ${current.roles[0].title}`,
     },
     {
       lanes: "*  ",
-      date: senior.start,
-      text: `promoted to ${senior.title}, ${oracle.name}`,
+      branch: "main",
+      date: senior.end,
+      merge: { branch: "oracle", command: "git log" },
+      text: `${tenure(oracle)}, ${analyst.title} to ${senior.title}`,
     },
-    {
-      lanes: "*  ",
-      date: engineer.start,
-      text: `became ${engineer.title}, ${oracle.name}`,
-    },
-    {
-      lanes: "*  ",
-      date: analyst.start,
-      text: `merge: joined ${oracle.name} as ${analyst.title}`,
-    },
-    { lanes: "|\\ " },
+    { lanes: "|\\ ", branch: "oracle" },
     {
       lanes: "| *",
-      date: tutor.start,
-      text: `tutor: ${tutor.title.replace("Casual Tutor, ", "")}, UQ`,
+      branch: "oracle",
+      date: senior.start,
+      tag: "senior",
+      text: `promoted to ${senior.title}`,
     },
     {
-      lanes: "* |",
-      date: education.end,
-      text: `graduated: ${education.degree}`,
+      lanes: "| *",
+      branch: "oracle",
+      date: engineer.start,
+      text: `became ${engineer.title}`,
     },
-    { lanes: "|/ " },
+    {
+      lanes: "| *",
+      branch: "oracle",
+      date: analyst.start,
+      text: `joined ${oracle.name} as ${analyst.title}`,
+    },
+    { lanes: "|/ ", branch: "oracle" },
     {
       lanes: "*  ",
+      branch: "main",
+      date: education.end,
+      merge: { branch: "uq", command: "cat education.md" },
+      text: education.degree,
+    },
+    { lanes: "|\\ ", branch: "uq" },
+    {
+      lanes: "| *",
+      branch: "uq",
+      // "Honours thesis with Oracle: automated IoT firmware ..." from the résumé.
+      text: thesis
+        .slice(0, thesis.indexOf(" through"))
+        .replace("Honours thesis", "honours thesis")
+        .replace("automated ", ""),
+    },
+    {
+      lanes: "| *",
+      branch: "uq",
+      date: tutor.start,
+      text: `started tutoring ${tutor.title.replace("Casual Tutor, ", "")}`,
+    },
+    { lanes: "|/ ", branch: "uq" },
+    // The root commit, where the uq branch splits off.
+    {
+      lanes: "*  ",
+      branch: "main",
       date: education.start,
-      text: `started: ${education.degree}, UQ`,
+      text: `started at ${education.institution}`,
     },
   ];
 }
 
-function CareerGraph() {
+function Lanes({ row }: { row: GraphRow }) {
+  return (
+    <span aria-hidden="true" className="flex-none whitespace-pre">
+      {[...row.lanes].map((char, column) => (
+        <span
+          key={column}
+          className={laneColour[column === 0 ? "main" : row.branch]}
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function CareerGraph({ onRun }: { onRun?: RunCommand }) {
   return (
     <div className="text-sm">
       <Title>Career graph</Title>
       <ul>
-        {careerGraph().map((row, i) =>
-          row.text ? (
-            <li key={i} className="flex gap-3">
-              <span
-                aria-hidden="true"
-                className="text-prompt-user flex-none whitespace-pre"
-              >
-                {row.lanes}
-              </span>
-              {/* On phones the hash gives way so the message can wrap. */}
-              <span aria-hidden="true" className="text-accent hidden sm:inline">
-                {fakeHash(row.text)}
-              </span>
-              <span className="text-number w-[8ch] flex-none">{row.date}</span>
-              <span className="min-w-0">
-                {row.ref && (
-                  <span className="text-prompt-path font-semibold">
-                    ({row.ref}){" "}
-                  </span>
-                )}
-                {row.text}
-              </span>
-            </li>
-          ) : (
-            <li
-              key={i}
-              aria-hidden="true"
-              className="text-prompt-user whitespace-pre"
-            >
-              {row.lanes}
-            </li>
-          ),
-        )}
+        {careerGraph().map((row, i) => (
+          <li
+            key={i}
+            // In the terminal the graph draws itself line by line (globals.css).
+            className={`flex gap-3 ${onRun ? "graph-row" : ""}`}
+            style={onRun ? ({ "--row": i } as CSSProperties) : undefined}
+            aria-hidden={row.text ? undefined : true}
+          >
+            <Lanes row={row} />
+            {row.text && (
+              <>
+                {/* On phones the hash gives way so the message can wrap. */}
+                <span
+                  aria-hidden="true"
+                  className="text-accent hidden flex-none sm:inline"
+                >
+                  {fakeHash(row.text)}
+                </span>
+                <span className="text-number w-[8ch] flex-none">
+                  {row.date}
+                </span>
+                <span className="min-w-0">
+                  {(row.head || row.tag) && (
+                    <span className="font-semibold">
+                      (
+                      {row.head && (
+                        <span className="text-prompt-path">HEAD -&gt; </span>
+                      )}
+                      {row.head && (
+                        <span className="text-prompt-user">main</span>
+                      )}
+                      {row.tag && (
+                        <span className="text-accent">tag: {row.tag}</span>
+                      )}
+                      ){" "}
+                    </span>
+                  )}
+                  {row.merge && (
+                    <>
+                      Merge branch &apos;
+                      <CommandButton
+                        command={row.merge.command}
+                        label={row.merge.branch}
+                        onRun={onRun}
+                        className={laneColour[row.merge.branch]}
+                      />
+                      &apos;:{" "}
+                    </>
+                  )}
+                  {row.text}
+                </span>
+              </>
+            )}
+          </li>
+        ))}
       </ul>
     </div>
   );
@@ -450,9 +563,7 @@ export function Project({ slug }: { slug: string }) {
       {project.link && (
         <p className="mt-1 text-sm">
           <span className="text-muted">repo:</span>{" "}
-          <a href={project.link.href} className={linkClass}>
-            {project.link.label}
-          </a>
+          <TextLink href={project.link.href}>{project.link.label}</TextLink>
         </p>
       )}
     </article>
@@ -514,13 +625,9 @@ function Contact({ note }: { note?: string }) {
           <div key={row.label} className="contents">
             <dt className="text-muted">{row.label}</dt>
             <dd className="mb-1 break-all sm:mb-0">
-              <a
-                href={row.link.href}
-                download={row.download}
-                className={linkClass}
-              >
+              <TextLink href={row.link.href} download={row.download}>
                 {row.link.label}
-              </a>
+              </TextLink>
             </dd>
           </div>
         ))}
@@ -715,7 +822,7 @@ export function OutputView({
     case "experience":
       return <Experience />;
     case "graph":
-      return <CareerGraph />;
+      return <CareerGraph onRun={onRun} />;
     case "projects":
       return <ProjectList onRun={onRun} />;
     case "project":

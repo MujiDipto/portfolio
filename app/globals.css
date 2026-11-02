@@ -84,6 +84,27 @@ body {
   outline-offset: 2px;
 }
 
+/* `git log --graph` draws itself line by line when run in the terminal,
+   about half a second in all. Opacity only, so screen readers get every line
+   at once. */
+.graph-row {
+  animation: graph-row 160ms ease-out both;
+  animation-delay: calc(var(--row) * 35ms);
+}
+
+@keyframes graph-row {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-row {
+    animation: none;
+  }
+}
+
 /* /cv shows the section titles the terminal keeps for screen readers. */
 .cv [data-title] {
   position: static;

@@ -8,6 +8,10 @@ test("home page has language, title and the name as main heading", async ({
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page).toHaveTitle("Muji Dipto | Senior Software Engineer");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /^https?:\/\/[^/]+\/?$/,
+  );
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Muji Dipto",
   );
@@ -57,22 +61,37 @@ test("cat contact links a résumé that downloads as a PDF", async ({
   expect(response.headers()["content-type"]).toBe("application/pdf");
 });
 
-test("the first screen links the résumé, LinkedIn, GitHub and email", async ({
+test("the first screen links the résumé, LinkedIn, GitHub, email and /cv", async ({
   page,
 }) => {
   await page.goto("/");
   const links = page.getByRole("list", { name: "Links" });
   await expect(links).toBeInViewport();
+  // Other sites open in a new tab and say so; the rest stay in this one.
   const expected = [
-    ["résumé.pdf", resume.href],
-    ["linkedin", contact.linkedin.href],
-    ["github", contact.github.href],
-    ["email", contact.email.href],
+    { name: "résumé.pdf", href: resume.href, newTab: false },
+    {
+      name: "linkedin (opens in a new tab)",
+      href: contact.linkedin.href,
+      newTab: true,
+    },
+    {
+      name: "github (opens in a new tab)",
+      href: contact.github.href,
+      newTab: true,
+    },
+    { name: "email", href: contact.email.href, newTab: false },
+    { name: "non-interactive mode", href: "/cv", newTab: false },
   ];
-  for (const [name, href] of expected) {
-    await expect(
-      links.getByRole("link", { name, exact: true }),
-    ).toHaveAttribute("href", href);
+  for (const { name, href, newTab } of expected) {
+    const link = links.getByRole("link", { name, exact: true });
+    await expect(link).toHaveAttribute("href", href);
+    if (newTab) {
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    } else {
+      await expect(link).not.toHaveAttribute("target");
+    }
   }
   await expect(links.getByRole("link", { name: "résumé.pdf" })).toHaveAttribute(
     "download",

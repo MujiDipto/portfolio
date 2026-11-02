@@ -59,7 +59,7 @@ test("git log --graph shows the career as a branch history", async ({
   await input.press("Enter");
   await expect(page.getByText("(HEAD -> main)")).toBeVisible();
   await expect(
-    page.getByText("promoted to Senior Software Engineer, Oracle"),
+    page.getByText("promoted to Senior Software Engineer"),
   ).toBeVisible();
 });
 

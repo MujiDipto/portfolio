@@ -268,8 +268,9 @@ export const education = {
   institution: "The University of Queensland",
   location: "Brisbane, QLD",
   degree: "Bachelor of Engineering (Honours), Software Engineering",
-  start: "2018",
-  end: "2021",
+  // Months confirmed by Muji (2026-11-02); the résumé gives years only.
+  start: "Feb 2018",
+  end: "Nov 2021",
   notes: [
     "Honours thesis with Oracle: automated IoT firmware vulnerability detection through open-source dependency analysis and vulnerability database lookups.",
     "High Distinctions in Advanced Cybersecurity, Cybersecurity, Data Visualisation and Statistics; Distinction in Machine Learning.",
