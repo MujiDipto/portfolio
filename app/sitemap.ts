@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
-// The whole site is one page; every command's output is on it.
+// The terminal, and /cv: the same content as a plain page.
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: siteUrl.href }];
+  return [{ url: siteUrl.href }, { url: new URL("/cv", siteUrl).href }];
 }

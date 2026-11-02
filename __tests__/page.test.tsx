@@ -1,4 +1,5 @@
 import { render } from "@testing-library/react";
+import Cv from "@/app/cv/page";
 import { expect, test } from "vitest";
 import { StaticSession } from "@/components/terminal/StaticSession";
 import { Terminal } from "@/components/terminal/Terminal";
@@ -15,16 +16,8 @@ import {
   skills,
 } from "@/lib/content";
 
-// Without JavaScript the opening plus the static session are printed, so
-// search engines and no-JS visitors get every piece of content.
-test("the opening and static session contain every piece of resume content", () => {
-  const { container } = render(
-    <>
-      <Terminal />
-      <StaticSession />
-    </>,
-  );
-  const pageText = container.textContent ?? "";
+/** Every piece of résumé content the site shows; missing ones are returned. */
+function missingFrom(pageText: string): string[] {
   const expected = [
     profile.name,
     profile.focus,
@@ -52,5 +45,34 @@ test("the opening and static session contain every piece of resume content", () 
     contact.linkedin.label,
     contact.github.label,
   ];
-  expect(expected.filter((text) => !pageText.includes(text))).toEqual([]);
+  return expected.filter((text) => !pageText.includes(text));
+}
+
+// Without JavaScript the opening plus the static session are printed, so
+// search engines and no-JS visitors get every piece of content.
+test("the opening and static session contain every piece of resume content", () => {
+  const { container } = render(
+    <>
+      <Terminal />
+      <StaticSession />
+    </>,
+  );
+  expect(missingFrom(container.textContent ?? "")).toEqual([]);
+});
+
+test("/cv contains every piece of resume content as plain HTML", () => {
+  const { container } = render(<Cv />);
+  expect(missingFrom(container.textContent ?? "")).toEqual([]);
+  // One h1, then visible section headings.
+  expect(container.querySelectorAll("h1")).toHaveLength(1);
+  expect(
+    [...container.querySelectorAll("h2")].map((h) => h.textContent),
+  ).toEqual([
+    "Highlights",
+    "Experience",
+    "Projects",
+    "Skills",
+    "Education",
+    "Contact",
+  ]);
 });

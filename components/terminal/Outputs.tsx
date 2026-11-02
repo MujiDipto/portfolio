@@ -14,7 +14,7 @@ import {
   skills,
   type Organisation,
 } from "@/lib/content";
-import { helpEntries, type Output } from "@/lib/terminal";
+import { helpEntries, linkFor, type Output } from "@/lib/terminal";
 
 /** Runs a command when a visitor clicks it; absent in the no-JS session. */
 export type RunCommand = (command: string) => void;
@@ -22,7 +22,10 @@ export type RunCommand = (command: string) => void;
 export const linkClass =
   "text-accent underline underline-offset-4 hover:no-underline";
 
-/** A command a visitor can click; plain text when there is no JavaScript. */
+/**
+ * A command a visitor can click. Without JavaScript (and on /cv) it links to
+ * the command's deep link instead, or is plain text when it has none.
+ */
 export function CommandButton({
   command,
   label = command,
@@ -34,7 +37,18 @@ export function CommandButton({
   onRun?: RunCommand;
   className?: string;
 }) {
-  if (!onRun) return <code className={className}>{label}</code>;
+  if (!onRun) {
+    const link = linkFor(command);
+    if (!link) return <code className={className}>{label}</code>;
+    return (
+      <a
+        href={`/#${link}`}
+        className={`${className} underline underline-offset-4 hover:no-underline`}
+      >
+        {label}
+      </a>
+    );
+  }
   return (
     <button
       type="button"
@@ -47,7 +61,12 @@ export function CommandButton({
 }
 
 function Title({ children }: { children: ReactNode }) {
-  return <h2 className="sr-only">{children}</h2>;
+  // Screen-reader only in the terminal; app/cv/page.tsx shows them (globals.css).
+  return (
+    <h2 data-title className="sr-only">
+      {children}
+    </h2>
+  );
 }
 
 function Highlights({ items }: { items: string[] }) {
@@ -148,7 +167,14 @@ function Career() {
   );
 }
 
-function Whoami({ main }: { main: boolean }) {
+export function Whoami({
+  main,
+  cvLink = true,
+}: {
+  main: boolean;
+  /** /cv leaves out its own link. */
+  cvLink?: boolean;
+}) {
   const Name = main ? "h1" : "p";
   const current = experience[0];
   return (
@@ -185,6 +211,7 @@ function Whoami({ main }: { main: boolean }) {
           { label: "linkedin", href: contact.linkedin.href },
           { label: "github", href: contact.github.href },
           { label: "email", href: contact.email.href },
+          ...(cvLink ? [{ label: "cv", href: "/cv" }] : []),
         ].map((link) => (
           <li key={link.label}>
             <a href={link.href} download={link.download} className={linkClass}>
@@ -406,7 +433,7 @@ function ProjectList({ onRun }: { onRun?: RunCommand }) {
   );
 }
 
-function Project({ slug }: { slug: string }) {
+export function Project({ slug }: { slug: string }) {
   const project = projects.find((p) => p.slug === slug);
   if (!project) return null;
   return (

@@ -1,6 +1,6 @@
 // Makes the site's icons and link-preview card. Requires `npm run build` first.
 //   app/icon.png, app/apple-icon.png: Sudo's head, from assets/sudo-source.webp
-//   app/opengraph-image.png: the real first screen at 1200x630, so the card
+//   app/opengraph-image.png: the real first screen, scaled to 1200x630, so the card
 //     always matches the site's content and fonts
 // Rerun after changing the opening or the cat, and commit the results.
 import { spawn } from "node:child_process";
@@ -80,8 +80,11 @@ try {
   );
 
   await waitForServer();
+  // A laptop-sized viewport in the card's shape, scaled down to 1200x630, so
+  // the whole first screen (whoami and highlights) fits in the card.
   const card = await browser.newPage({
-    viewport: { width: 1200, height: 630 },
+    viewport: { width: 1520, height: 798 },
+    deviceScaleFactor: 1200 / 1520,
     reducedMotion: "reduce",
   });
   await card.goto(url);

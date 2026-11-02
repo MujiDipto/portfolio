@@ -84,6 +84,45 @@ body {
   outline-offset: 2px;
 }
 
+/* /cv shows the section titles the terminal keeps for screen readers. */
+.cv [data-title] {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0 0 1rem;
+  padding: 0 0 0.375rem;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-strong);
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+/* Printing /cv (or the terminal) gives dark text on white, whatever the theme. */
+@media print {
+  :root,
+  :root[data-theme] {
+    --page: #ffffff;
+    --window: #ffffff;
+    --titlebar: #ffffff;
+    --border: #dcdfe3;
+    --fg: #3d4146;
+    --fg-strong: #1a1d20;
+    --muted: #5c5e62;
+    --accent: #965800;
+    --prompt-user: #5e7d00;
+    --prompt-path: #1877bb;
+    --number: #8d5bc0;
+  }
+
+  .cv section {
+    break-inside: avoid-page;
+  }
+}
+
 /* Opening animation (components/terminal/useBoot.ts). Content waiting to be
    typed or printed is hidden only once JavaScript runs (data-js), so visitors
    without it see everything. Opacity, not display or visibility, keeps the
