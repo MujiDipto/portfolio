@@ -7,6 +7,8 @@ import {
   useSyncExternalStore,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
+import { Cat, commandEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
@@ -61,6 +63,7 @@ export function Terminal() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [options, setOptions] = useState<string[]>([]);
+  const [catBubble, setCatBubble] = useState(false);
   const nextId = useRef(opening.length);
   const inputRef = useRef<HTMLInputElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
@@ -84,6 +87,7 @@ export function Terminal() {
 
   function runCommand(command: string) {
     const result = run(command);
+    if (command.trim()) window.dispatchEvent(new Event(commandEvent));
     if (result.effect?.type === "clear") {
       setEntries([]);
     } else {
@@ -197,7 +201,10 @@ export function Terminal() {
               ))}
             </p>
           )}
-          <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+          {/* On wider screens the cat's bubble offers these while it is open. */}
+          <p
+            className={`text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm ${catBubble ? "sm:hidden" : ""}`}
+          >
             <span>try one of these:</span>
             {suggestions.map((command) => (
               <CommandButton
@@ -209,6 +216,18 @@ export function Terminal() {
           </p>
         </div>
       )}
+      {interactive && (
+        <CatPortal onRun={runCommand} onBubbleChange={setCatBubble} />
+      )}
     </div>
   );
+}
+
+/**
+ * Renders the cat into the layer over the window (see TerminalWindow). It
+ * mounts with the opening so its entrance runs alongside the typing.
+ */
+function CatPortal(props: Parameters<typeof Cat>[0]) {
+  const layer = document.getElementById("cat-layer");
+  return layer ? createPortal(<Cat {...props} />, layer) : null;
 }

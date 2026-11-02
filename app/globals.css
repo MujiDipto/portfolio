@@ -126,6 +126,86 @@ html[data-js] .boot-hidden {
   }
 }
 
+/* The cat's speech bubble: pixel-style, to match the art. Square corners,
+   a hard border, a hard offset shadow, and a tail pointing at the cat. The
+   tail is a rotated square whose two bordered sides form the point; it sits
+   over the bubble's right border, hiding it where the tail joins. */
+.cat-bubble {
+  background: var(--window);
+  border: 2px solid var(--fg-strong);
+  box-shadow: 4px 4px 0 var(--accent);
+}
+
+.cat-bubble-tail {
+  position: absolute;
+  right: -8px;
+  bottom: 12px;
+  width: 14px;
+  height: 14px;
+  background: var(--window);
+  border-top: 2px solid var(--fg-strong);
+  border-right: 2px solid var(--fg-strong);
+  transform: rotate(45deg);
+}
+
+/* The cat's motion (components/cat/Cat.tsx). It waddles while walking. When
+   it stops it bobs twice, under five seconds, so nothing moves on its own for
+   long (WCAG 2.2.2). Hovering shakes it once. */
+.cat-body {
+  transform-origin: 50% 100%;
+  animation: cat-bob 2.2s ease-in-out 2;
+}
+
+[data-cat][data-moving="true"] .cat-body {
+  animation: cat-waddle 0.36s ease-in-out infinite alternate;
+}
+
+[data-cat][data-mood="angry"] .cat-body {
+  animation: cat-shake 0.32s steps(1) 1;
+}
+
+@keyframes cat-bob {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes cat-waddle {
+  from {
+    transform: rotate(-4deg) translateY(0);
+  }
+  to {
+    transform: rotate(4deg) translateY(-2px);
+  }
+}
+
+@keyframes cat-shake {
+  0%,
+  50% {
+    transform: translateX(-2px);
+  }
+  25%,
+  75% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-body,
+  [data-cat][data-moving="true"] .cat-body,
+  [data-cat][data-mood="angry"] .cat-body {
+    animation: none;
+  }
+}
+
 /* The command prompt shows focus the way a terminal does, with its blinking
    accent caret, not an outline box (WCAG accepts the text caret as a text
    field's focus indicator). A selector, not a utility class, so it wins over

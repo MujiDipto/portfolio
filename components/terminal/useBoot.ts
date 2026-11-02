@@ -10,6 +10,20 @@ const perLetter = 55;
 const pauseBeforeOutput = 150;
 const perLine = 90;
 
+/** When typing starts; the cat starts walking in at the same moment. */
+export const bootStartMs = startDelay;
+
+/** When the opening finishes and the prompt appears. */
+export function bootDurationMs(lineCount: number): number {
+  return (
+    startDelay +
+    bootCommand.length * perLetter +
+    pauseBeforeOutput +
+    lineCount * perLine +
+    pauseBeforeOutput
+  );
+}
+
 export type Boot = {
   phase: "pending" | "typing" | "done";
   /** Letters of the command shown so far. */
@@ -60,7 +74,7 @@ export function useBoot(lineCount: number): Boot {
       for (let line = 1; line <= lineCount; line++) {
         at(outputStart + (line - 1) * perLine, (b) => ({ ...b, lines: line }));
       }
-      at(outputStart + lineCount * perLine + pauseBeforeOutput, () => done);
+      at(bootDurationMs(lineCount), () => done);
     }
 
     window.addEventListener("keydown", finish);
