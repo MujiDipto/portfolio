@@ -10,8 +10,10 @@ import {
 import { createPortal } from "react-dom";
 import { Cat, commandEvent, typingEvent } from "@/components/cat/Cat";
 import { Prompt, PromptPrefix } from "@/components/Prompt";
+import { AuditContext } from "@/components/terminal/AuditOutput";
 import { CommandButton, OutputView } from "@/components/terminal/Outputs";
 import { bootCommand, useBoot, type Boot } from "@/components/terminal/useBoot";
+import type { Audit } from "@/lib/audit";
 import { highlightLines } from "@/lib/content";
 import {
   commandForHash,
@@ -52,7 +54,7 @@ function BootCommand({ boot }: { boot: Boot }) {
   );
 }
 
-export function Terminal() {
+export function Terminal({ audit = null }: { audit?: Audit | null }) {
   // The prompt only renders once JavaScript runs; without it, the static
   // session (rendered by the page) shows everything instead.
   const interactive = useSyncExternalStore(
@@ -192,106 +194,108 @@ export function Terminal() {
   }
 
   return (
-    <div className="space-y-6">
-      <div role="log" aria-label="Terminal output" className="space-y-6">
-        {entries.map((entry, i) => {
-          const booting = entry.id === bootEntryId && boot.phase !== "done";
-          return (
-            <div
-              key={entry.id}
-              ref={i === entries.length - 1 ? latestRef : undefined}
-              // The no-JS target for /#highlights; with JavaScript the link runs the command.
-              id={
-                !interactive && entry.id === bootEntryId
-                  ? linkFor(entry.command)
-                  : undefined
-              }
-              className="scroll-mt-4"
-            >
-              {booting ? (
-                <Prompt>
-                  <BootCommand boot={boot} />
-                </Prompt>
-              ) : (
-                <Prompt command={entry.command} />
-              )}
-              {entry.output && (
-                <div className="mt-3">
-                  <OutputView
-                    output={entry.output}
-                    main={entry.id === 0}
-                    onRun={runCommand}
-                    revealed={booting ? boot.lines : undefined}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {ready && (
-        <div>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              runCommand(input);
-            }}
-            className="flex items-baseline gap-2"
-          >
-            <label htmlFor="command" className="text-base">
-              <PromptPrefix />
-              <span className="sr-only">Command</span>
-            </label>
-            <div className="relative min-w-0 flex-1">
-              {/* The hint sits under the input in the same font, after an
-                  invisible copy of what was typed, so the letters line up. */}
+    <AuditContext value={audit}>
+      <div className="space-y-6">
+        <div role="log" aria-label="Terminal output" className="space-y-6">
+          {entries.map((entry, i) => {
+            const booting = entry.id === bootEntryId && boot.phase !== "done";
+            return (
               <div
-                aria-hidden="true"
-                data-hint
-                className="text-muted pointer-events-none absolute inset-0 overflow-hidden text-[16px] whitespace-pre"
+                key={entry.id}
+                ref={i === entries.length - 1 ? latestRef : undefined}
+                // The no-JS target for /#highlights; with JavaScript the link runs the command.
+                id={
+                  !interactive && entry.id === bootEntryId
+                    ? linkFor(entry.command)
+                    : undefined
+                }
+                className="scroll-mt-4"
               >
-                <span className="invisible">{input}</span>
-                {ghost}
+                {booting ? (
+                  <Prompt>
+                    <BootCommand boot={boot} />
+                  </Prompt>
+                ) : (
+                  <Prompt command={entry.command} />
+                )}
+                {entry.output && (
+                  <div className="mt-3">
+                    <OutputView
+                      output={entry.output}
+                      main={entry.id === 0}
+                      onRun={runCommand}
+                      revealed={booting ? boot.lines : undefined}
+                    />
+                  </div>
+                )}
               </div>
-              <input
-                ref={inputRef}
-                id="command"
-                value={input}
-                onChange={(event) => {
-                  setInput(event.target.value);
-                  if (event.target.value) {
-                    window.dispatchEvent(new Event(typingEvent));
-                  }
-                }}
-                onKeyDown={onKeyDown}
-                autoComplete="off"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                enterKeyHint="go"
-                // 16px stops iOS zooming into the field.
-                className="text-fg-strong caret-accent relative w-full bg-transparent text-[16px]"
-              />
-            </div>
-          </form>
-          {/* Touch screens have no Tab key, so matches are buttons too. */}
-          {(!input.trim() || hints.length > 0) && (
-            <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
-              <span>{input.trim() ? "matching:" : "try one of these:"}</span>
-              {(input.trim() ? hints : suggestions).map((command) => (
-                <CommandButton
-                  key={command}
-                  command={command}
-                  onRun={runCommand}
-                />
-              ))}
-            </p>
-          )}
+            );
+          })}
         </div>
-      )}
-      {interactive && <CatPortal onRun={runCommand} />}
-    </div>
+
+        {ready && (
+          <div>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                runCommand(input);
+              }}
+              className="flex items-baseline gap-2"
+            >
+              <label htmlFor="command" className="text-base">
+                <PromptPrefix />
+                <span className="sr-only">Command</span>
+              </label>
+              <div className="relative min-w-0 flex-1">
+                {/* The hint sits under the input in the same font, after an
+                  invisible copy of what was typed, so the letters line up. */}
+                <div
+                  aria-hidden="true"
+                  data-hint
+                  className="text-muted pointer-events-none absolute inset-0 overflow-hidden text-[16px] whitespace-pre"
+                >
+                  <span className="invisible">{input}</span>
+                  {ghost}
+                </div>
+                <input
+                  ref={inputRef}
+                  id="command"
+                  value={input}
+                  onChange={(event) => {
+                    setInput(event.target.value);
+                    if (event.target.value) {
+                      window.dispatchEvent(new Event(typingEvent));
+                    }
+                  }}
+                  onKeyDown={onKeyDown}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="go"
+                  // 16px stops iOS zooming into the field.
+                  className="text-fg-strong caret-accent relative w-full bg-transparent text-[16px]"
+                />
+              </div>
+            </form>
+            {/* Touch screens have no Tab key, so matches are buttons too. */}
+            {(!input.trim() || hints.length > 0) && (
+              <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+                <span>{input.trim() ? "matching:" : "try one of these:"}</span>
+                {(input.trim() ? hints : suggestions).map((command) => (
+                  <CommandButton
+                    key={command}
+                    command={command}
+                    onRun={runCommand}
+                  />
+                ))}
+              </p>
+            )}
+          </div>
+        )}
+        {interactive && <CatPortal onRun={runCommand} />}
+      </div>
+    </AuditContext>
   );
 }
 

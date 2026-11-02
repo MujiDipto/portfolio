@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { TerminalWindow } from "@/components/TerminalWindow";
 import { StaticSession } from "@/components/terminal/StaticSession";
 import { Terminal } from "@/components/terminal/Terminal";
+import { runAudit } from "@/lib/audit";
 
 // One address for search engines, whichever domain served the page (the
 // Vercel URL serves the site too). Resolved against lib/site.ts.
@@ -23,7 +24,8 @@ export default function Home() {
           // relative: keeps sr-only headings inside the scroll area, or they stretch the page.
           className="relative min-h-0 flex-1 overflow-y-auto px-5 py-8 focus:outline-none sm:px-8"
         >
-          <Terminal />
+          {/* The audit runs once, at build time; the page stays static. */}
+          <Terminal audit={runAudit()} />
           <noscript>
             <StaticSession />
           </noscript>

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { CatImage } from "@/components/cat/CatImage";
+import { AuditOutput } from "@/components/terminal/AuditOutput";
 import { CountUp } from "@/components/terminal/CountUp";
 import { Numbers } from "@/components/Numbers";
 import {
@@ -845,6 +846,8 @@ export function OutputView({
       return <Files onRun={onRun} hidden={output.hidden} />;
     case "neofetch":
       return <Neofetch />;
+    case "audit":
+      return <AuditOutput animate={Boolean(onRun)} />;
     case "secrets":
       return <Secrets />;
     case "help":

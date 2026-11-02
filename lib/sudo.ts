@@ -29,6 +29,10 @@ const replies: Record<string, Line> = {
   contact: { text: "Email is fastest. I'll keep watch here." },
   help: { text: "Tip: Tab or → accepts the grey hint." },
   neofetch: { text: "That's me on the left. Handsome, right?" },
+  audit: {
+    text: "Supply chains are Muji's thing. See one he scored:",
+    command: "open sca-scoring",
+  },
   secrets: { text: "Shh. Don't tell Muji I told you." },
   error: { text: "Hmm, that's not a command. Try", command: "help" },
 };

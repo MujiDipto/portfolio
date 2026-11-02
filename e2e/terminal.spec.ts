@@ -64,6 +64,16 @@ test("git log --graph shows the career as a branch history", async ({
   ).toBeVisible();
 });
 
+test("npm audit scans the site's real dependencies", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByRole("textbox", { name: "Command" });
+  await input.fill("npm audit");
+  await input.press("Enter");
+  const log = page.getByRole("log");
+  await expect(log).toContainText(/auditing \d+ production packages/);
+  await expect(log.getByText(/^found \d+ vulnerabilit/)).toBeVisible();
+});
+
 test("neofetch shows Sudo and the career as system info", async ({ page }) => {
   await page.goto("/");
   const input = page.getByRole("textbox", { name: "Command" });
@@ -161,6 +171,7 @@ for (const theme of ["light", "dark"] as const) {
       "help",
       "git log",
       "git log --graph",
+      "npm audit",
       "ls projects/",
       ...projects.map((p) => `open ${p.slug}`),
       "cat skills.txt",

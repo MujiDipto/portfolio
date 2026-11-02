@@ -15,6 +15,7 @@ export type Output =
   | { type: "contact"; note?: string }
   | { type: "files"; hidden?: boolean }
   | { type: "neofetch" }
+  | { type: "audit" }
   | { type: "secrets" }
   | { type: "help" }
   | { type: "message"; text: string }
@@ -37,6 +38,7 @@ export const helpEntries = [
   { command: "cat education.md", description: "education" },
   { command: "cat contact", description: "how to reach me" },
   { command: "neofetch", description: "system info, Sudo included" },
+  { command: "npm audit", description: "scan this site's dependencies" },
   { command: "theme dark|light", description: "switch colours" },
   { command: "clear", description: "clear the screen" },
 ];
@@ -120,6 +122,9 @@ export function run(input: string): Result {
       return error("theme: choose light or dark");
     case "neofetch":
       return { output: { type: "neofetch" } };
+    case "npm":
+      if (arg === "audit") return { output: { type: "audit" } };
+      return error("npm: this terminal is read-only. Try npm audit");
     // Easter eggs: real terminal habits, answered in the site's voice. They
     // stay out of help and the hints.
     case "exit":
@@ -154,6 +159,7 @@ const completions = [
   "theme light",
   "theme dark",
   "neofetch",
+  "npm audit",
   "help",
   "clear",
 ];
