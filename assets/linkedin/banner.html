@@ -82,10 +82,10 @@
       /* Right: the terminal, as on the site. */
       .stage {
         position: absolute;
-        left: 580px;
-        right: 48px;
-        top: 96px;
-        bottom: 18px;
+        left: 556px;
+        right: 40px;
+        top: 86px;
+        bottom: 12px;
       }
       .window {
         position: absolute;
@@ -116,9 +116,9 @@
         border-radius: 50%;
       }
       .body {
-        padding: 16px 24px;
-        font-size: 15px;
-        line-height: 1.4;
+        padding: 10px 22px;
+        font-size: 14px;
+        line-height: 1.25;
       }
       .user {
         color: var(--prompt-user);
@@ -130,7 +130,7 @@
         color: var(--fg-strong);
       }
       .graph {
-        margin-top: 6px;
+        margin-top: 2px;
         color: var(--fg-strong);
       }
       /* Layout comes from fixed columns, not spaces, so reformatting the
@@ -140,10 +140,14 @@
         gap: 14px;
         white-space: nowrap;
       }
+      /* One fixed cell per graph character, coloured by branch. */
       .lanes {
+        display: flex;
         width: 3ch;
         flex: none;
-        color: var(--prompt-user);
+      }
+      .lanes > span {
+        width: 1ch;
         white-space: pre;
       }
       .hash {
@@ -154,9 +158,18 @@
         flex: none;
         color: var(--number);
       }
-      .ref {
-        color: var(--prompt-path);
+      /* Like git's decorations: HEAD blue, branches green, tags yellow. */
+      .refs {
         font-weight: 600;
+      }
+      .head {
+        color: var(--prompt-path);
+      }
+      .branch {
+        color: var(--prompt-user);
+      }
+      .tag {
+        color: var(--accent);
       }
       /* Sudo on the window's top edge, with its pixel bubble. */
       .sudo {
@@ -224,50 +237,134 @@
           </p>
           <div class="graph">
             <p>
-              <span class="lanes">* </span><span class="hash">a5973c5</span
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">*</span
+                ><span style="color: var(--prompt-user)"> </span
+                ><span style="color: var(--prompt-user)"> </span></span
+              ><span class="hash">a5973c5</span
               ><span class="date">Nov 2026</span
               ><span
-                ><span class="ref">(HEAD -> main)</span> joined OnEarly as
-                Senior Software Engineer</span
+                ><span class="refs"
+                  >(<span class="head">HEAD -&gt; </span
+                  ><span class="branch">onearly</span>)</span
+                >
+                joined OnEarly as Senior Software Engineer</span
               >
             </p>
             <p>
-              <span class="lanes">* </span><span class="hash">a085a69</span
-              ><span class="date">Oct 2025</span
-              ><span>promoted to Senior Software Engineer, Oracle</span>
-            </p>
-            <p>
-              <span class="lanes">* </span><span class="hash">bf9bd8b</span
-              ><span class="date">Aug 2022</span
-              ><span>became Software Engineer, Oracle</span>
-            </p>
-            <p>
-              <span class="lanes">* </span><span class="hash">fc3ed5e</span
-              ><span class="date">Jan 2022</span
-              ><span>merge: joined Oracle as Security Analyst</span>
-            </p>
-            <p class="lanes">|\</p>
-            <p>
-              <span class="lanes">| *</span><span class="hash">d0356d6</span
-              ><span class="date">Feb 2020</span
-              ><span>tutor: Web Design and Development, UQ</span>
-            </p>
-            <p>
-              <span class="lanes">* |</span><span class="hash">2587946</span
-              ><span class="date">2021</span
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">*</span
+                ><span style="color: var(--prompt-user)"> </span
+                ><span style="color: var(--prompt-user)"> </span></span
+              ><span class="hash">1f0ccd5</span
+              ><span class="date">Oct 2026</span
               ><span
-                >graduated: Bachelor of Engineering (Honours), Software
+                ><span class="refs">(<span class="branch">main</span>)</span>
+                Merge branch '<span style="color: var(--number)">oracle</span>':
+                4 yrs 10 mos, Security Analyst to Senior Software Engineer</span
+              >
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--number)">\</span
+                ><span style="color: var(--number)"> </span
+              ></span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--number)"> </span
+                ><span style="color: var(--number)">*</span></span
+              ><span class="hash">276aaf8</span
+              ><span class="date">Oct 2025</span
+              ><span
+                ><span class="refs"
+                  >(<span class="tag">tag: senior</span>)</span
+                >
+                promoted to Senior Software Engineer</span
+              >
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--number)"> </span
+                ><span style="color: var(--number)">*</span></span
+              ><span class="hash">6c6501a</span
+              ><span class="date">Aug 2022</span
+              ><span>became Software Engineer</span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--number)"> </span
+                ><span style="color: var(--number)">*</span></span
+              ><span class="hash">89c8af8</span
+              ><span class="date">Jan 2022</span
+              ><span>joined Oracle as Security Analyst</span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--number)">/</span
+                ><span style="color: var(--number)"> </span
+              ></span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">*</span
+                ><span style="color: var(--prompt-user)"> </span
+                ><span style="color: var(--prompt-user)"> </span></span
+              ><span class="hash">56d40ca</span
+              ><span class="date">Nov 2021</span
+              ><span
+                >Merge branch '<span style="color: var(--prompt-path)">uq</span
+                >': Bachelor of Engineering (Honours), Software
                 Engineering</span
               >
             </p>
-            <p class="lanes">|/</p>
             <p>
-              <span class="lanes">* </span><span class="hash">76fb397</span
-              ><span class="date">2018</span
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--prompt-path)">\</span
+                ><span style="color: var(--prompt-path)"> </span
+              ></span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--prompt-path)"> </span
+                ><span style="color: var(--prompt-path)">*</span></span
+              ><span class="hash">f350470</span><span class="date"></span
               ><span
-                >started: Bachelor of Engineering (Honours), Software
-                Engineering, UQ</span
+                >honours thesis with Oracle: IoT firmware vulnerability
+                detection</span
               >
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--prompt-path)"> </span
+                ><span style="color: var(--prompt-path)">*</span></span
+              ><span class="hash">4122e01</span
+              ><span class="date">Feb 2020</span
+              ><span>started tutoring Web Design and Development</span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">|</span
+                ><span style="color: var(--prompt-path)">/</span
+                ><span style="color: var(--prompt-path)"> </span
+              ></span>
+            </p>
+            <p>
+              <span class="lanes"
+                ><span style="color: var(--prompt-user)">*</span
+                ><span style="color: var(--prompt-user)"> </span
+                ><span style="color: var(--prompt-user)"> </span></span
+              ><span class="hash">7a16228</span
+              ><span class="date">Feb 2018</span
+              ><span>started at The University of Queensland</span>
             </p>
           </div>
         </div>
