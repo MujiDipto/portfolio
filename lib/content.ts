@@ -204,6 +204,20 @@ export const projects: Project[] = [
     name: "CocoaPods vulnerability curation",
     context: "Oracle, Senior Software Engineer",
     outcome: "960+ analyst-hours saved; a 4,500-report backlog cut by 73%",
+    // From Muji's account; wording approved by Muji, 2026-11-03.
+    story: {
+      problem:
+        "Security analysts curated raw vulnerability reports for the CocoaPods ecosystem by hand, one at a time, and a backlog of 4,500 reports had built up.",
+      constraints: [
+        "Each report took an analyst a long time to curate by hand.",
+        "Little ground truth: only a small set of reports had been curated, too few to build a proper solution on directly.",
+      ],
+      approach: [
+        "Studied the small curated set to find the patterns the analysts followed.",
+        "Built a rule-based curation system from those patterns, using public vulnerability metadata such as CVE and CPE records.",
+        "Ran the rules over the raw backlog to curate reports and filter out false positives.",
+      ],
+    },
     highlights: [
       "Built a rule-based CocoaPods vulnerability-report curation system from scratch in Python, reducing a 4,500-report backlog by 73% and saving 960+ analyst-hours.",
     ],
