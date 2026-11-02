@@ -211,7 +211,7 @@ export function Whoami({
           { label: "linkedin", href: contact.linkedin.href },
           { label: "github", href: contact.github.href },
           { label: "email", href: contact.email.href },
-          ...(cvLink ? [{ label: "cv", href: "/cv" }] : []),
+          ...(cvLink ? [{ label: "non-interactive mode", href: "/cv" }] : []),
         ].map((link) => (
           <li key={link.label}>
             <a href={link.href} download={link.download} className={linkClass}>

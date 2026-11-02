@@ -22,7 +22,7 @@ test("the terminal links to /cv, and /cv links back", async ({ page }) => {
   await page.goto("/");
   await page
     .getByRole("list", { name: "Links" })
-    .getByRole("link", { name: "cv", exact: true })
+    .getByRole("link", { name: "non-interactive mode" })
     .click();
   await expect(page).toHaveURL(/\/cv$/);
   await page
