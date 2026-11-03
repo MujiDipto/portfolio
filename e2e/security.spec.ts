@@ -78,3 +78,54 @@ test("nothing the site does is blocked by its CSP", async ({ page }) => {
   expect(await page.evaluate(() => document.fonts.status)).toBe("loaded");
   expect(problems).toEqual([]);
 });
+
+test.describe("hardening", () => {
+  test("a huge paste is cut to the limit, in the prompt and the palette", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const prompt = page.getByRole("textbox", { name: "Command" });
+    await prompt.click();
+    await page.keyboard.insertText("x".repeat(20_000));
+    expect((await prompt.inputValue()).length).toBe(500);
+
+    await page.keyboard.press("Control+K");
+    const search = page.getByRole("combobox", { name: "Search commands" });
+    await page.keyboard.insertText("y".repeat(20_000));
+    expect((await search.inputValue()).length).toBe(500);
+  });
+
+  test("a flood of commands keeps the page light and working", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const prompt = page.getByRole("textbox", { name: "Command" });
+    await expect(prompt).toBeVisible();
+    for (let i = 0; i < 150; i++) {
+      await prompt.fill("pwd");
+      await prompt.press("Enter");
+    }
+    const outputs = page.getByRole("log").locator(":scope > div");
+    expect(await outputs.count()).toBeLessThanOrEqual(100);
+    await prompt.fill("whoami");
+    await prompt.press("Enter");
+    await expect(outputs.last()).toContainText("whoami");
+  });
+
+  test("a crafted history entry cannot break the page", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("/");
+    await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
+    await page.evaluate(() => {
+      window.dispatchEvent(
+        new PopStateEvent("popstate", {
+          state: { terminal: true, entry: '"]]]][[[(' },
+        }),
+      );
+    });
+    await page.waitForTimeout(200);
+    expect(errors).toEqual([]);
+    await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
+  });
+});

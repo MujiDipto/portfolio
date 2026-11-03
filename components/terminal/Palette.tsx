@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import type { RunCommand } from "@/components/terminal/Outputs";
-import { filterPalette } from "@/lib/terminal";
+import { filterPalette, maxCommandLength } from "@/lib/terminal";
 
 /** Dispatched on window to open the palette, as the suggestion row does. */
 export const paletteEvent = "terminal:palette";
@@ -119,6 +119,7 @@ export function Palette({ onRun }: { onRun: RunCommand }) {
                 results[active] ? `palette-${active}` : undefined
               }
               autoComplete="off"
+              maxLength={maxCommandLength}
               spellCheck={false}
               placeholder="search commands"
               value={query}

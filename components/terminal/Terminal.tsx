@@ -25,6 +25,8 @@ import {
   historyStep,
   linkFor,
   matches,
+  maxCommandLength,
+  maxEntries,
   run,
   suggestions,
   type Output,
@@ -144,8 +146,11 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
         follow();
         return;
       }
+      // Only a whole number goes into the selector.
+      const entry = Number(state.entry);
+      if (!Number.isInteger(entry)) return;
       document
-        .querySelector(`[data-entry="${state.entry}"]`)
+        .querySelector(`[data-entry="${entry}"]`)
         ?.scrollIntoView?.({ block: "start" });
     };
     // A tick later, so Sudo has arrived and replies to it.
@@ -185,10 +190,12 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
     } else {
       if (result.effect?.type === "theme") setTheme(result.effect.theme);
       shouldScroll.current = true;
-      setEntries((current) => [
-        ...current,
-        { id: nextId.current++, command, output: result.output },
-      ]);
+      setEntries((current) =>
+        [
+          ...current,
+          { id: nextId.current++, command, output: result.output },
+        ].slice(-maxEntries),
+      );
     }
     const trimmed = command.trim();
     const nextHistory = trimmed ? [...history, trimmed] : history;
@@ -312,6 +319,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
                   }}
                   onKeyDown={onKeyDown}
                   autoComplete="off"
+                  maxLength={maxCommandLength}
                   autoCapitalize="none"
                   autoCorrect="off"
                   spellCheck={false}

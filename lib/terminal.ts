@@ -29,6 +29,12 @@ export type Effect = { type: "clear" } | { type: "theme"; theme: Theme };
 
 export type Result = { output?: Output; effect?: Effect };
 
+/** The longest command the prompt and the palette accept, so a paste cannot flood the page. */
+export const maxCommandLength = 500;
+
+/** Outputs the terminal keeps; older ones scroll away, so the page stays light. */
+export const maxEntries = 100;
+
 export const helpEntries = [
   { command: "whoami", description: "who I am" },
   { command: "cat highlights.md", description: "outcomes" },
