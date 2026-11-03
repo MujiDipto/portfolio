@@ -167,3 +167,27 @@ for (const width of [375, 412]) {
     });
   });
 }
+
+test.describe("on a 1366x768 laptop", () => {
+  test.use({ viewport: { width: 1366, height: 768 } });
+
+  test("the whole first screen fits in the window, with nothing to scroll", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.getByRole("textbox", { name: "Command" })).toBeVisible();
+    const { scrollHeight, clientHeight } = await page
+      .locator("main")
+      .evaluate((el) => ({
+        scrollHeight: el.scrollHeight,
+        clientHeight: el.clientHeight,
+      }));
+    expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+  });
+});
+
+test("the pull quote's name opens the recommendations", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("[data-pull-quote]").getByRole("button").click();
+  await expect(page.getByRole("log")).toContainText("cat recommendations.md");
+});

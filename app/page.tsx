@@ -22,7 +22,7 @@ export default function Home() {
           id="content"
           tabIndex={-1}
           // relative: keeps sr-only headings inside the scroll area, or they stretch the page.
-          className="relative min-h-0 flex-1 overflow-y-auto px-5 py-8 focus:outline-none sm:px-8"
+          className="relative min-h-0 flex-1 overflow-y-auto px-5 py-6 focus:outline-none sm:px-8"
         >
           {/* The audit runs once, at build time; the page stays static. */}
           <Terminal audit={runAudit()} />

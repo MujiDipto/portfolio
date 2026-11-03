@@ -291,6 +291,7 @@ export const projects: Project[] = [
         "A written, gated working agreement: plan first, wait for approval, work in small steps, run real checks, then commit.",
         "Tests that guard the content itself: a facts test fails on any number that is not on the résumé, and every output passes axe in both themes.",
         "Version-matched framework docs instead of the model's memory, which caught several breaking changes in Next.js.",
+        "Security as part of the build: security headers on every response, a CI test that fails on any Content Security Policy violation, and a real npm audit of its own dependencies each time it is built.",
         "Each AI tool judged on evidence, with the dead ends written down alongside the wins.",
         "Progressive enhancement: without JavaScript the whole site is plain HTML, and the same content is a printable page at /cv.",
       ],
@@ -411,6 +412,12 @@ export const recommendations = [
     ],
   },
 ];
+
+/** One line from a recommendation, shown under the highlights. */
+export const pullQuote = {
+  text: "a product mindset that is surprisingly rare in backend-focused engineers",
+  by: recommendations[0],
+};
 
 export const education = {
   institution: "The University of Queensland",

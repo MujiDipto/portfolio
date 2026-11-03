@@ -296,7 +296,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
             </form>
             {/* Touch screens have no Tab key, so matches are buttons too. */}
             {(!input.trim() || hints.length > 0) && (
-              <p className="text-muted mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
+              <p className="text-muted mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
                 <span>{input.trim() ? "matching:" : "try one of these:"}</span>
                 {(input.trim() ? hints : suggestions).map((command) => (
                   <CommandButton

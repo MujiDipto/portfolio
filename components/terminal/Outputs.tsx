@@ -15,6 +15,7 @@ import {
   skills,
   type Organisation,
   type Project,
+  pullQuote,
   recommendations,
   usedIn,
 } from "@/lib/content";
@@ -273,7 +274,7 @@ function Outcomes({
   return (
     <div>
       <Title>Highlights</Title>
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {profile.outcomes.map((outcome, i) => {
           const waiting = revealed !== undefined && i >= revealed;
           return (
@@ -300,6 +301,33 @@ function Outcomes({
           );
         })}
       </ul>
+      {/* A colleague's words under the numbers, lined up with the sentences;
+          in the opening it appears with the last highlight. */}
+      <figure
+        data-pull-quote
+        className={`mt-0.5 flex gap-x-4 text-sm ${
+          revealed !== undefined && revealed < profile.outcomes.length
+            ? "boot-hidden"
+            : ""
+        }`}
+      >
+        <span
+          aria-hidden="true"
+          className="hidden w-[6ch] flex-none text-2xl leading-none sm:block"
+        />
+        <span className="min-w-0 leading-normal">
+          <blockquote className="text-fg inline">“{pullQuote.text}”</blockquote>{" "}
+          <figcaption className="text-muted inline">
+            <span aria-hidden="true">— </span>
+            <CommandButton
+              command="cat recommendations.md"
+              label={pullQuote.by.name}
+              onRun={onRun}
+            />
+            , {pullQuote.by.title}
+          </figcaption>
+        </span>
+      </figure>
     </div>
   );
 }

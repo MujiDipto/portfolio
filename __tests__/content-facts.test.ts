@@ -70,3 +70,9 @@ describe("site content", () => {
     expect(links.filter((l) => !allowedLinks.has(l))).toEqual([]);
   });
 });
+
+test("the pull quote is word for word from its recommendation", () => {
+  expect(content.pullQuote.by.paragraphs.join(" ")).toContain(
+    content.pullQuote.text,
+  );
+});
