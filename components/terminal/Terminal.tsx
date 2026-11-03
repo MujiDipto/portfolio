@@ -101,7 +101,8 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
     const onClick = (event: Event) => {
       const target = event.target as Element;
       if (!window.matchMedia?.("(pointer: fine)").matches) return;
-      if (target.closest("a, button, input, label")) return;
+      // A game keeps the keyboard while it is clicked.
+      if (target.closest("a, button, input, label, [data-game]")) return;
       if (!window.getSelection()?.isCollapsed) return;
       inputRef.current?.focus({ preventScroll: true });
     };
@@ -273,6 +274,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
                     <OutputView
                       output={entry.output}
                       main={entry.id === 0}
+                      live={i === entries.length - 1}
                       onRun={runCommand}
                       revealed={booting ? boot.lines : undefined}
                     />

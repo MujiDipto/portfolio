@@ -22,8 +22,18 @@ export type Output =
   | { type: "tree" }
   | { type: "secrets" }
   | { type: "help" }
+  | { type: "games" }
+  | { type: "game"; name: Game }
   | { type: "message"; text: string }
   | { type: "error"; text: string };
+
+/** The mini games (components/games), listed by `games`. */
+export const games = [
+  { name: "snake", description: "the classic, arrow keys or WASD" },
+  { name: "triage", description: "is this package safe to install?" },
+] as const;
+
+export type Game = (typeof games)[number]["name"];
 
 export type Effect = { type: "clear" } | { type: "theme"; theme: Theme };
 
@@ -53,6 +63,7 @@ export const helpEntries = [
   { command: "cat contact", description: "how to reach me" },
   { command: "neofetch", description: "system info, Sudo included" },
   { command: "npm audit", description: "scan this site's dependencies" },
+  { command: "games", description: "two mini games" },
   { command: "theme dark|light", description: "switch colours" },
   { command: "clear", description: "clear the screen" },
 ];
@@ -257,6 +268,11 @@ export function run(input: string, context: Context = {}): Result {
       return error("theme: choose light or dark");
     case "neofetch":
       return { output: { type: "neofetch" } };
+    case "games":
+      return { output: { type: "games" } };
+    case "snake":
+    case "triage":
+      return { output: { type: "game", name: command } };
     case "npm":
       if (arg === "audit") return { output: { type: "audit" } };
       return error("npm: this terminal is read-only. Try npm audit");
@@ -296,6 +312,7 @@ const completions = [
   "theme dark",
   "neofetch",
   "npm audit",
+  "games",
   "help",
   "clear",
 ];

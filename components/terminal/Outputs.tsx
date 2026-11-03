@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { CatImage } from "@/components/cat/CatImage";
+import { Game } from "@/components/games/Game";
 import { AuditOutput } from "@/components/terminal/AuditOutput";
 import { CountUp } from "@/components/terminal/CountUp";
 import { Numbers } from "@/components/Numbers";
@@ -19,7 +20,7 @@ import {
   recommendations,
   usedIn,
 } from "@/lib/content";
-import { helpEntries, linkFor, type Output } from "@/lib/terminal";
+import { games, helpEntries, linkFor, type Output } from "@/lib/terminal";
 
 /** Runs a command when a visitor clicks it; absent in the no-JS session. */
 export type RunCommand = (command: string) => void;
@@ -1095,14 +1096,35 @@ function Help({ onRun }: { onRun?: RunCommand }) {
   );
 }
 
+function GameList({ onRun }: { onRun?: RunCommand }) {
+  return (
+    <div>
+      <Title>Games</Title>
+      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-[13rem_1fr]">
+        {games.map((game) => (
+          <div key={game.name} className="contents">
+            <dt>
+              <CommandButton command={game.name} onRun={onRun} />
+            </dt>
+            <dd className="text-muted mb-1 sm:mb-0">{game.description}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 export function OutputView({
   output,
   main = false,
+  live = false,
   onRun,
   revealed,
 }: {
   output: Output;
   main?: boolean;
+  /** Whether this is the newest output, the only one a game runs in. */
+  live?: boolean;
   onRun?: RunCommand;
   revealed?: number;
 }) {
@@ -1141,6 +1163,10 @@ export function OutputView({
       return <Secrets />;
     case "help":
       return <Help onRun={onRun} />;
+    case "games":
+      return <GameList onRun={onRun} />;
+    case "game":
+      return <Game name={output.name} live={live} onRun={onRun} />;
     case "message":
       return <p className="whitespace-pre-wrap">{output.text}</p>;
     case "error":

@@ -19,5 +19,8 @@ export default defineConfig({
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // Never the real high-score board, whatever .env.local holds: tests that
+    // need scores stand in for the API.
+    env: { KV_REST_API_URL: "", KV_REST_API_TOKEN: "" },
   },
 });

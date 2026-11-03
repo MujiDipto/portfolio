@@ -23,6 +23,9 @@ export const commandEvent = "terminal:command";
 /** Dispatched on window while the visitor types, so the bubble steps aside. */
 export const typingEvent = "terminal:typing";
 
+/** Something else gives Sudo a line to say, such as a game's verdict. */
+export const sayEvent = "terminal:say";
+
 // public/sudo.webp is drawn at twice this size, so it stays sharp on
 // high-density screens.
 export const catSize = { width: 49, height: 52 };
@@ -151,7 +154,11 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       say(reply(command));
     };
     const onTyping = () => setLine(null);
+    const onSay = (event: Event) => {
+      if (!entering.current) say((event as CustomEvent<Line>).detail);
+    };
     window.addEventListener(commandEvent, onCommand);
+    window.addEventListener(sayEvent, onSay);
     window.addEventListener(typingEvent, onTyping);
 
     return () => {
@@ -160,6 +167,7 @@ export function Cat({ onRun }: { onRun: RunCommand }) {
       window.removeEventListener("pointerdown", skip);
       window.removeEventListener(commandEvent, onCommand);
       window.removeEventListener(typingEvent, onTyping);
+      window.removeEventListener(sayEvent, onSay);
       zoomTimerList.forEach(window.clearTimeout);
     };
   }, []);

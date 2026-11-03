@@ -40,6 +40,8 @@ const replies: Record<string, Line> = {
     command: "open sca-scoring",
   },
   secrets: { text: "Shh. Don't tell Muji I told you." },
+  games: { text: "Pick one. Esc always gets you out." },
+  game: { text: "Good luck. Esc quits any time." },
   error: { text: "Hmm, that's not a command. Try", command: "help" },
 };
 
@@ -167,3 +169,19 @@ export const tips: Line[] = [
   { text: "Tip: prefer light? Try", command: "theme light" },
   { text: `Tip: in your own terminal, try curl ${siteUrl.host}` },
 ];
+
+/** Sudo's verdict when a run of triage ends (components/games/Triage.tsx). */
+export function triageVerdict(points: number): Line {
+  if (points >= 30) return { text: "You'd fit right in on a security team." };
+  if (points >= 12) {
+    return { text: "Sharp eyes. Can you beat it?", command: "triage" };
+  }
+  return { text: "Supply chains are tricky. Again?", command: "triage" };
+}
+
+/** Sudo's verdict when a game of snake ends (components/games/Snake.tsx). */
+export function snakeVerdict(score: number): Line {
+  if (score >= 15) return { text: "Impressive. I only chase my tail." };
+  if (score >= 5) return { text: "Nice run. One more?", command: "snake" };
+  return { text: "Walls are hard. One more?", command: "snake" };
+}

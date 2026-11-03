@@ -32,3 +32,7 @@ npm-debug.log*
 
 # Lighthouse reports
 /.lighthouse/
+.vercel
+
+# High scores saved by `npm run dev` (lib/score-store.ts)
+.scores.dev.json

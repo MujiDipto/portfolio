@@ -422,3 +422,13 @@ describe("git commands", () => {
     expect(run("git yolo").output?.type).toBe("error");
   });
 });
+
+test("games lists the mini games, which run by name", () => {
+  expect(run("games").output).toEqual({ type: "games" });
+  expect(run("snake").output).toEqual({ type: "game", name: "snake" });
+  expect(run("TRIAGE").output).toEqual({ type: "game", name: "triage" });
+  // games is offered; the games themselves stay out of help and the hints.
+  expect(matches("gam")).toContain("games");
+  expect(matches("sna")).toEqual([]);
+  expect(helpEntries.map((e) => e.command)).not.toContain("snake");
+});

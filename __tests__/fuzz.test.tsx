@@ -95,6 +95,8 @@ test("the command engine never throws and always answers in a known shape", () =
     "audit",
     "secrets",
     "help",
+    "games",
+    "game",
     "message",
     "error",
   ]);
