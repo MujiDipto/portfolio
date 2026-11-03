@@ -113,43 +113,69 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
     latestRef.current?.scrollIntoView?.({ block: "start" });
   }, [entries]);
 
-  // Deep links: /#career runs `git log` once the prompt is ready, and so does
-  // changing the hash later. The ref keeps the listener on the latest
-  // runCommand, which reads the current history.
+  // Deep links: /#career runs `git log` once the prompt is ready. After that
+  // the browser's history follows the session: each command that changes what
+  // is shown adds an entry, so Back and Forward move between outputs (they
+  // scroll; nothing runs again) and only leave the site from the start of the
+  // visit. A hash the visitor types or follows from elsewhere still runs its
+  // command. The ref keeps the listener on the latest runCommand, which reads
+  // the current history.
   const runLatest = useRef(runCommand);
   useEffect(() => {
     runLatest.current = runCommand;
   });
   useEffect(() => {
     if (!ready) return;
+    // The start of the visit: Back to here shows the opening again.
+    if (!window.history.state?.terminal) {
+      window.history.replaceState({ terminal: true, entry: opening[0].id }, "");
+    }
     const follow = () => {
       const command = commandForHash(window.location.hash);
-      if (command) runLatest.current(command);
+      if (command) runLatest.current(command, { fromAddress: true });
+    };
+    const onPopState = (event: PopStateEvent) => {
+      const state = event.state as {
+        terminal?: boolean;
+        entry?: number;
+      } | null;
+      if (!state?.terminal) {
+        // A new hash (typed in the address bar or followed from a link).
+        follow();
+        return;
+      }
+      document
+        .querySelector(`[data-entry="${state.entry}"]`)
+        ?.scrollIntoView?.({ block: "start" });
     };
     // A tick later, so Sudo has arrived and replies to it.
     const timer = window.setTimeout(follow, 0);
-    window.addEventListener("hashchange", follow);
+    window.addEventListener("popstate", onPopState);
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener("hashchange", follow);
+      window.removeEventListener("popstate", onPopState);
     };
   }, [ready]);
 
-  function runCommand(command: string) {
+  function runCommand(
+    command: string,
+    { fromAddress = false }: { fromAddress?: boolean } = {},
+  ) {
     const result = run(command, {
       history: [...history, command.trim()],
       now: new Date(),
     });
-    // Keep the address shareable: it links to what is on screen. Replacing,
-    // not pushing, so Back still leaves the site.
+    // Keep the address shareable: it links to what is on screen. A command
+    // adds a history entry pointing at its output; one the address itself
+    // asked for replaces the current entry instead, so Back does not land on
+    // the same view twice.
     const link = linkFor(command);
     if (link || result.effect?.type === "clear") {
       const { pathname, search } = window.location;
-      window.history.replaceState(
-        null,
-        "",
-        link ? `#${link}` : pathname + search,
-      );
+      const state = { terminal: true, entry: nextId.current };
+      const url = link ? `#${link}` : pathname + search;
+      if (fromAddress || !link) window.history.replaceState(state, "", url);
+      else window.history.pushState(state, "", url);
     }
     if (command.trim()) {
       window.dispatchEvent(new CustomEvent(commandEvent, { detail: command }));
@@ -218,6 +244,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
             return (
               <div
                 key={entry.id}
+                data-entry={entry.id}
                 ref={i === entries.length - 1 ? latestRef : undefined}
                 // The no-JS target for /#highlights; with JavaScript the link runs the command.
                 id={

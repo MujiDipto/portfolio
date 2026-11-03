@@ -30,11 +30,8 @@ test("changing the hash on the page runs its command", async ({ page }) => {
   ).toBeInViewport();
 });
 
-test("the address follows what is on screen, without adding history", async ({
-  page,
-}) => {
+test("the address follows what is on screen", async ({ page }) => {
   await page.goto("/");
-  const before = await page.evaluate(() => history.length);
   const input = prompt(page);
   await input.fill("git log --graph");
   await input.press("Enter");
@@ -45,7 +42,49 @@ test("the address follows what is on screen, without adding history", async ({
   await input.fill("clear");
   await input.press("Enter");
   await expect(page).toHaveURL(/\/$/);
-  expect(await page.evaluate(() => history.length)).toBe(before);
+});
+
+/** How many outputs the session holds; Back and Forward must not add any. */
+const outputs = (page: Page) =>
+  page.getByRole("log").locator(":scope > div").count();
+
+test("Back after a link returns to where you were, without leaving or re-running", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(prompt(page)).toBeVisible();
+  await page.locator("[data-pull-quote]").getByRole("button").click();
+  await expect(page).toHaveURL(/\/#recommendations$/);
+  const count = await outputs(page);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(prompt(page)).toBeVisible();
+  await expect(page.locator('[data-entry="0"]')).toBeInViewport();
+  expect(await outputs(page)).toBe(count);
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\/#recommendations$/);
+  await expect(
+    page.getByRole("log").locator(":scope > div").last(),
+  ).toBeInViewport();
+  expect(await outputs(page)).toBe(count);
+});
+
+test("Back from the start of the visit leaves the site", async ({ page }) => {
+  await page.goto("/");
+  await expect(prompt(page)).toBeVisible();
+  await page.locator("[data-pull-quote]").getByRole("button").click();
+  await page.goBack();
+  await page.goBack();
+  await expect(page).toHaveURL("about:blank");
+});
+
+test("a deep link adds no extra Back step", async ({ page }) => {
+  await page.goto("/#career");
+  await expect(page.getByRole("log")).toContainText("git log");
+  await page.goBack();
+  await expect(page).toHaveURL("about:blank");
 });
 
 test("an unknown hash is ignored and the opening plays", async ({ page }) => {
