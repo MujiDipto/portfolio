@@ -130,10 +130,10 @@ describe("triage", () => {
 });
 
 describe("high scores", () => {
-  test("initials are three letters, upper-cased, with a few words blocked", () => {
+  test("initials are three letters, upper-cased", () => {
     expect(cleanInitials("abc")).toBe("ABC");
     expect(cleanInitials(" Mud ")).toBe("MUD");
-    for (const bad of ["ab", "abcd", "a1c", "<b>", "", 123, null, "ass"]) {
+    for (const bad of ["ab", "abcd", "a1c", "<b>", "", 123, null]) {
       expect(cleanInitials(bad)).toBeNull();
     }
   });

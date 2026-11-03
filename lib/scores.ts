@@ -10,32 +10,14 @@ export type HighScore = { initials: string; score: number };
 export const shown = 5;
 export const kept = 50;
 
-// Three letters, arcade style: no free text, so no names, links or insults,
-// short of a few three-letter words.
-const blocked = new Set([
-  "ASS",
-  "CUM",
-  "DIC",
-  "DIK",
-  "FAG",
-  "FCK",
-  "FUC",
-  "FUK",
-  "KKK",
-  "KYS",
-  "NAZ",
-  "NIG",
-  "SEX",
-  "SHT",
-  "TIT",
-  "XXX",
-]);
-
-/** The initials as stored (upper case), or null if they are not allowed. */
+/**
+ * The initials as stored (upper case), or null if they are not three letters.
+ * Arcade style: no free text, so no names or links, and no blocklist.
+ */
 export function cleanInitials(input: unknown): string | null {
   if (typeof input !== "string") return null;
   const initials = input.trim().toUpperCase();
-  if (!/^[A-Z]{3}$/.test(initials) || blocked.has(initials)) return null;
+  if (!/^[A-Z]{3}$/.test(initials)) return null;
   return initials;
 }
 

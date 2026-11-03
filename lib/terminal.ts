@@ -29,11 +29,22 @@ export type Output =
 
 /** The mini games (components/games), listed by `games`. */
 export const games = [
-  { name: "snake", description: "the classic, arrow keys or WASD" },
   { name: "triage", description: "is this package safe to install?" },
+  { name: "snake", description: "the classic, arrow keys or WASD" },
 ] as const;
 
 export type Game = (typeof games)[number]["name"];
+
+/**
+ * What a typed line means given the command before it: right after `games`,
+ * a number picks from its list, like a shell menu. Anything else is itself.
+ */
+export function resolve(input: string, history: string[] = []): string {
+  const previous = history.at(-1)?.trim().toLowerCase();
+  const pick = /^\s*(\d+)\s*$/.exec(input)?.[1];
+  if (previous !== "games" || !pick) return input;
+  return games[Number(pick) - 1]?.name ?? input;
+}
 
 export type Effect = { type: "clear" } | { type: "theme"; theme: Theme };
 

@@ -40,7 +40,7 @@ const replies: Record<string, Line> = {
     command: "open sca-scoring",
   },
   secrets: { text: "Shh. Don't tell Muji I told you." },
-  games: { text: "Pick one. Esc always gets you out." },
+  games: { text: "Type 1 or 2 to play. Esc always gets you out." },
   game: { text: "Good luck. Esc quits any time." },
   error: { text: "Hmm, that's not a command. Try", command: "help" },
 };

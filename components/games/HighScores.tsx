@@ -80,7 +80,7 @@ export function HighScores({
         setState("idle");
         setProblem(
           response.status === 400
-            ? "Those initials or that score can't be saved."
+            ? "That score can't be saved."
             : (data.error ?? "Couldn't save. Try again later."),
         );
         return;

@@ -8,6 +8,7 @@ import {
   filterPalette,
   paletteEntries,
   linkFor,
+  resolve,
   run,
   suggestions,
 } from "@/lib/terminal";
@@ -431,4 +432,16 @@ test("games lists the mini games, which run by name", () => {
   expect(matches("gam")).toContain("games");
   expect(matches("sna")).toEqual([]);
   expect(helpEntries.map((e) => e.command)).not.toContain("snake");
+});
+
+test("right after games, a number picks a game, like a shell menu", () => {
+  expect(resolve("1", ["games"])).toBe("triage");
+  expect(resolve(" 2 ", ["whoami", "GAMES "])).toBe("snake");
+  // Out of range, or anywhere else, a number is just what was typed.
+  expect(resolve("3", ["games"])).toBe("3");
+  expect(resolve("0", ["games"])).toBe("0");
+  expect(resolve("1", ["whoami"])).toBe("1");
+  expect(resolve("1")).toBe("1");
+  expect(resolve("1 2", ["games"])).toBe("1 2");
+  expect(resolve("triage", ["games"])).toBe("triage");
 });

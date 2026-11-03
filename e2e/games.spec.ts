@@ -63,8 +63,17 @@ test("games lists both, and each loads only when played", async ({ page }) => {
   await expect(page.getByRole("button", { name: "snake" })).toBeVisible();
   await expect(page.getByRole("button", { name: "triage" })).toBeVisible();
   expect(scripts).toEqual([]);
-  await page.getByRole("button", { name: "snake" }).click();
-  await expect(game(page, "snake")).toBeFocused();
+  // The list is numbered, and the number picks.
+  await expect(page.locator("[data-games] li").first()).toHaveText(
+    /^1\.\s*triage/,
+  );
+  const input = await command(page, "1");
+  await expect(game(page, "triage")).toBeFocused();
+  await page.keyboard.press("Escape");
+  // ↑ brings back the game's name, not the number.
+  await expect(input).toBeFocused();
+  await input.press("ArrowUp");
+  await expect(input).toHaveValue("triage");
   expect(scripts.length).toBeGreaterThan(0);
 });
 

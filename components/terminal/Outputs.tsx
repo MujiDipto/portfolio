@@ -1100,16 +1100,18 @@ function GameList({ onRun }: { onRun?: RunCommand }) {
   return (
     <div>
       <Title>Games</Title>
-      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-[13rem_1fr]">
-        {games.map((game) => (
-          <div key={game.name} className="contents">
-            <dt>
+      <ol data-games className="grid gap-x-6 gap-y-1 sm:grid-cols-[13rem_1fr]">
+        {games.map((game, i) => (
+          <li key={game.name} className="contents">
+            <span className="flex items-baseline gap-2">
+              <span className="text-muted">{i + 1}.</span>
               <CommandButton command={game.name} onRun={onRun} />
-            </dt>
-            <dd className="text-muted mb-1 sm:mb-0">{game.description}</dd>
-          </div>
+            </span>
+            <span className="text-muted mb-1 sm:mb-0">{game.description}</span>
+          </li>
         ))}
-      </dl>
+      </ol>
+      <p className="text-muted mt-2">Type a number or a name to play.</p>
     </div>
   );
 }

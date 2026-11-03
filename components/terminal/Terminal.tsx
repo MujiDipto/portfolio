@@ -27,6 +27,7 @@ import {
   matches,
   maxCommandLength,
   maxEntries,
+  resolve,
   run,
   suggestions,
   type Output,
@@ -164,9 +165,12 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
   }, [ready]);
 
   function runCommand(
-    command: string,
+    typed: string,
     { fromAddress = false }: { fromAddress?: boolean } = {},
   ) {
+    // The line shows what was typed; everything else uses what it means
+    // (`1` after `games` is triage), so Sudo, links and ↑ see the game.
+    const command = resolve(typed, history);
     const result = run(command, {
       history: [...history, command.trim()],
       now: new Date(),
@@ -194,7 +198,7 @@ export function Terminal({ audit = null }: { audit?: Audit | null }) {
       setEntries((current) =>
         [
           ...current,
-          { id: nextId.current++, command, output: result.output },
+          { id: nextId.current++, command: typed, output: result.output },
         ].slice(-maxEntries),
       );
     }
