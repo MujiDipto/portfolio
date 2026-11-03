@@ -260,9 +260,21 @@ export function Whoami({
   );
 }
 
+/** A highlight row's theme word: beside its figure on wide screens. */
+function RowLabel({ children }: { children: ReactNode }) {
+  return (
+    <span className="text-muted text-sm sm:w-[8ch] sm:flex-none">
+      {children}
+    </span>
+  );
+}
+
 /**
- * `revealed` is how many lines the opening animation has printed; hidden lines
- * stay in the DOM so screen readers and search engines get them at once.
+ * `cat highlights.md`: four rows of one shape, a theme word, a figure and a
+ * sentence. Three are outcomes, number first; the fourth is a colleague's
+ * words, with a purple quote mark as its figure.
+ * `revealed` is how many lines the opening animation has printed; hidden
+ * lines stay in the DOM so screen readers and search engines get them at once.
  */
 function Outcomes({
   revealed,
@@ -271,22 +283,30 @@ function Outcomes({
   revealed?: number;
   onRun?: RunCommand;
 }) {
+  // On phones the label sits beside the figure, above the sentence.
+  const row = "flex flex-col gap-x-4 sm:flex-row sm:items-baseline";
+  const head = "flex items-baseline gap-3 sm:contents";
+  const figure =
+    "flex-none text-2xl leading-tight font-bold tabular-nums sm:w-[6ch] sm:text-right sm:leading-none";
   return (
     <div>
       <Title>Highlights</Title>
-      <ul className="space-y-2">
+      <ul className="space-y-1">
         {profile.outcomes.map((outcome, i) => {
           const waiting = revealed !== undefined && i >= revealed;
           return (
             <li
               key={outcome.value}
               data-boot-line
-              className={`flex flex-col gap-x-4 sm:flex-row sm:items-baseline ${waiting ? "boot-hidden" : ""}`}
+              className={`${row} ${waiting ? "boot-hidden" : ""}`}
             >
-              <span className="text-number flex-none text-2xl leading-tight font-bold tabular-nums sm:w-[6ch] sm:text-right sm:leading-none">
-                <CountUp value={outcome.value} waiting={waiting} />
+              <span className={head}>
+                <RowLabel>{outcome.label}</RowLabel>
+                <span className={`text-number ${figure}`}>
+                  <CountUp value={outcome.value} waiting={waiting} />
+                </span>
               </span>{" "}
-              <span className="min-w-0 leading-relaxed">
+              <span className="min-w-0 leading-normal">
                 <span className="text-fg-strong">{outcome.text}</span>{" "}
                 {/* An arrow to the proof, the project; wraps as one piece. */}
                 <span className="text-muted ml-2 text-sm whitespace-nowrap">
@@ -300,34 +320,49 @@ function Outcomes({
             </li>
           );
         })}
+        {/* In the opening it appears with the last highlight. */}
+        <li
+          data-pull-quote
+          className={`${row} ${
+            revealed !== undefined && revealed < profile.outcomes.length
+              ? "boot-hidden"
+              : ""
+          }`}
+        >
+          <span className={head}>
+            <RowLabel>{pullQuote.label}</RowLabel>
+            {/* Purple like the numbers: Muji's choice for the quote marks. */}
+            <span aria-hidden="true" className={`text-number ${figure}`}>
+              “
+            </span>
+          </span>
+          <figure className="min-w-0 leading-normal">
+            <blockquote className="text-fg-strong inline">
+              {pullQuote.text}
+              {/* Drawn over a small box, so the large mark cannot make the
+                  line taller and push the first screen past the window. */}
+              <span
+                aria-hidden="true"
+                className="relative ml-1 inline-block w-[1ch]"
+              >
+                <span className="text-number absolute -top-5 left-0 text-2xl leading-none font-bold">
+                  ”
+                </span>
+              </span>
+            </blockquote>{" "}
+            <figcaption className="text-muted ml-2 inline text-sm whitespace-nowrap">
+              <span aria-hidden="true">↳ </span>
+              {/* Name only, so the row stays one line; the full title is in
+                  cat recommendations.md, which the name opens. */}
+              <CommandButton
+                command="cat recommendations.md"
+                label={pullQuote.by.name}
+                onRun={onRun}
+              />
+            </figcaption>
+          </figure>
+        </li>
       </ul>
-      {/* A colleague's words under the numbers, lined up with the sentences;
-          in the opening it appears with the last highlight. */}
-      <figure
-        data-pull-quote
-        className={`mt-0.5 flex gap-x-4 text-sm ${
-          revealed !== undefined && revealed < profile.outcomes.length
-            ? "boot-hidden"
-            : ""
-        }`}
-      >
-        <span
-          aria-hidden="true"
-          className="hidden w-[6ch] flex-none text-2xl leading-none sm:block"
-        />
-        <span className="min-w-0 leading-normal">
-          <blockquote className="text-fg inline">“{pullQuote.text}”</blockquote>{" "}
-          <figcaption className="text-muted inline">
-            <span aria-hidden="true">— </span>
-            <CommandButton
-              command="cat recommendations.md"
-              label={pullQuote.by.name}
-              onRun={onRun}
-            />
-            , {pullQuote.by.title}
-          </figcaption>
-        </span>
-      </figure>
     </div>
   );
 }

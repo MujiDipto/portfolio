@@ -43,21 +43,25 @@ export const profile = {
   location: "Brisbane, QLD",
   // Approved by Muji, 2026-11-02.
   status: "Not looking, happy to connect",
-  // Number first, so a skimmer reads the scale before the sentence. Each
-  // names the project (a slug in `projects`) where the number comes from.
+  // Number first, so a skimmer reads the scale before the sentence. Each has
+  // a theme word (labels approved by Muji, 2026-11-03) and names the project
+  // (a slug in `projects`) where the number comes from.
   outcomes: [
     {
       value: "15,000",
+      label: "scale",
       text: "software packages risk-scored daily, on a platform I owned end to end",
       project: "sca-scoring",
     },
     {
       value: "77%",
+      label: "speed",
       text: "cut in security data refresh pipeline runtime, from 2 hours to 28 minutes",
       project: "sca-scoring",
     },
     {
       value: "960+",
+      label: "impact",
       text: "analyst-hours saved by a curation system I built from scratch",
       project: "vuln-curation",
     },
@@ -415,6 +419,7 @@ export const recommendations = [
 
 /** One line from a recommendation, shown under the highlights. */
 export const pullQuote = {
+  label: "endorsed",
   text: "a product mindset that is surprisingly rare in backend-focused engineers",
   by: recommendations[0],
 };
