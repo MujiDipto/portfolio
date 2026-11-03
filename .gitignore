@@ -36,3 +36,6 @@ npm-debug.log*
 
 # High scores saved by `npm run dev` (lib/score-store.ts)
 .scores.dev.json
+
+# Private notes for Claude Code, never committed (the repo is public)
+CLAUDE.local.md

@@ -6,8 +6,7 @@ import * as content from "@/lib/content";
 // site's content from drifting away from it.
 const resume = readFileSync("content/resume.md", "utf8").replaceAll("**", "");
 // Facts Muji confirmed beyond the resume (CLAUDE.md, Site rules).
-const confirmed =
-  "Oracle until Oct 2026. OnEarly from Nov 2026.";
+const confirmed = "Oracle until Oct 2026. OnEarly from Nov 2026.";
 const sources = `${resume}\n${confirmed}`;
 
 const allowedLinks = new Set([

@@ -32,6 +32,7 @@ Keep this list short and in order. Update it whenever a tool earns a permanent p
 | Claude Code desktop app (Code tab) | Official (Anthropic) | Useful | 2026-11-01 to 03 | Where all project work happened; its built-in browser caught layout and motion bugs the tests missed |
 | GitHub CLI | Official (GitHub) | Useful | 2026-11-01 to 03 | Pinned actions to SHAs, watched every CI run in the background; broad token scope |
 | mise (Node 26 pin) | Community (open source) | Useful | 2026-11-01 to 03 | Every local build, test and Lighthouse run used the pinned Node 26, matching Vercel |
+| git-filter-repo | Community (open source; recommended by git's docs) | Useful | 2026-11-03 | Scrubbed private details from 79 commits' files and messages in under a second, in a throwaway clone |
 | frontend-design skill | Official (Anthropic) | Mixed | 2026-11-01 | Changed one early colour decision; little effect once Muji steered the design directly |
 | Claude Code terminal | Official (Anthropic) | Not tried | 2026-11-01 | Installed and verified; no project work done in it |
 | Ghostty | Community (open source) | Not tried | 2026-11-01 | Configured and validated; not used for project work |
@@ -231,6 +232,17 @@ Copy this block for each tool.
 - **Evidence:** pinned both actions to exact commits in two commands; spotted the existing `terminal-portfolio` repo and the public `fifa-wc-newsletter` repo before creating anything.
 - **Risks and permissions:** the `repo` scope gives full read and write to every repo on the account, private ones included, and Claude can use it whenever it runs `gh`. For work: use a fine-grained token limited to one repository and read-only where possible, and keep pushes behind an `ask` rule as here.
 - **Remove it:** `gh auth logout`, then `brew uninstall gh`.
+
+### git-filter-repo
+
+- **What it is and who makes it:** a single Python script for rewriting git history, maintained by a git contributor (Elijah Newren) and recommended by git's own documentation over `git filter-branch`. Community, open source, MIT licence.
+- **Why we tried it:** to make the repo public without its history. Old commits and commit messages still held CocoaPods details taken off the site in the confidentiality pass (a per-report time and the exact curation method), wording that named the kind of data Muji handles at work, and a university email address on every commit.
+- **Install and configure (2026-11-03):** `brew install git-filter-repo` (2.47.0, from a Homebrew bottle). Nothing to configure.
+- **How we used it here:** only in a throwaway clone in the scratchpad, never in the working repo. One run with `--replace-text` (a list of exact sentences and one regex, each replaced by the wording Muji had already approved), a `--message-callback` for four commit messages and an `--email-callback` mapping the author email to GitHub's no-reply address. Then the audit searches again across every version of every file and every message, and a byte-for-byte comparison of the final tree with the working copy.
+- **Verdict:** Useful.
+- **Evidence:** the rewrite of 79 commits took 0.12 seconds. Afterwards every audit search came back empty, the final tree matched the working copy in all 108 files, and old versions of `lib/content.ts` kept their structure with the general wording. One miss on the first pass: an exact-match message replacement did not match its commit's bytes; replacing the whole paragraph by its opening words fixed it, and the second search caught it, which is why the searches run after every rewrite.
+- **Risks and permissions:** reads and rewrites the repository it runs in, with no network access. Run in the wrong folder, it rewrites that history; it refuses to run in a repo that is not a fresh clone unless forced, which is a useful guard. A rewrite gives every commit a new ID, so publish the result as a new repository (or force-push) rather than mixing it with the old history.
+- **Remove it:** `brew uninstall git-filter-repo`.
 
 ### Next.js telemetry (setting)
 - Next.js collects anonymous usage data by default. Disabled for this project only by adding `NEXT_TELEMETRY_DISABLED = "1"` under `[env]` in `mise.toml` (re-ran `mise trust` after the edit; `mise exec -- printenv NEXT_TELEMETRY_DISABLED` prints `1`). For work, set it in CI and on build machines too.
