@@ -33,6 +33,8 @@ export type Project = {
   highlights: string[];
   stack: string[];
   link?: { label: string; href: string };
+  /** A write-up about the project, shown under its repo. */
+  notes?: { label: string; href: string };
 };
 
 export const profile = {
@@ -317,6 +319,14 @@ export const projects: Project[] = [
       "Vercel",
       "Claude Code",
     ],
+    link: {
+      label: "github.com/MujiDipto/portfolio",
+      href: "https://github.com/MujiDipto/portfolio",
+    },
+    notes: {
+      label: "SETUP.md, every AI tool tried and its verdict",
+      href: "https://github.com/MujiDipto/portfolio/blob/main/SETUP.md",
+    },
   },
 ];
 

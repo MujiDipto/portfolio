@@ -233,3 +233,23 @@ for (const theme of ["light", "dark"] as const) {
     expect(results.violations).toEqual([]);
   });
 }
+
+test("this site's project links its public repo and tool notes", async ({
+  page,
+}) => {
+  await page.goto("/#this-site");
+  const repo = page.getByRole("link", {
+    name: "github.com/MujiDipto/portfolio (opens in a new tab)",
+  });
+  await expect(repo).toHaveAttribute(
+    "href",
+    "https://github.com/MujiDipto/portfolio",
+  );
+  await expect(repo).toHaveAttribute("target", "_blank");
+  await expect(
+    page.getByRole("link", { name: /^SETUP\.md, every AI tool tried/ }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/MujiDipto/portfolio/blob/main/SETUP.md",
+  );
+});

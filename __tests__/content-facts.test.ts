@@ -14,6 +14,8 @@ const allowedLinks = new Set([
   "https://www.linkedin.com/in/mujidipto",
   "https://github.com/MujiDipto",
   "https://github.com/MujiDipto/fifa-wc-newsletter",
+  "https://github.com/MujiDipto/portfolio",
+  "https://github.com/MujiDipto/portfolio/blob/main/SETUP.md",
 ]);
 
 function strings(value: unknown): string[] {

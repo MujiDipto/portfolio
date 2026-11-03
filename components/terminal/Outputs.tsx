@@ -644,6 +644,12 @@ export function Project({ slug }: { slug: string }) {
           <TextLink href={project.link.href}>{project.link.label}</TextLink>
         </p>
       )}
+      {project.notes && (
+        <p className="mt-1 text-sm">
+          <span className="text-muted">notes:</span>{" "}
+          <TextLink href={project.notes.href}>{project.notes.label}</TextLink>
+        </p>
+      )}
     </article>
   );
 }
