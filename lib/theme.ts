@@ -16,3 +16,8 @@ export function setTheme(theme: Theme) {
     // The choice still applies for this visit.
   }
 }
+
+/** The theme showing now (browser only). */
+export function currentTheme(): Theme {
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}

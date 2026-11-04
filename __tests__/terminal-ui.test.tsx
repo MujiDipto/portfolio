@@ -138,6 +138,20 @@ describe("Terminal", () => {
     expect(document.documentElement.dataset.theme).toBeUndefined();
   });
 
+  test("help's theme button switches to whichever theme is not showing", async () => {
+    const { user, input, log } = await setup();
+    await user.type(input, "help{Enter}");
+    const button = within(log).getByRole("button", {
+      name: "theme dark|light",
+    });
+    await user.click(button);
+    expect(document.documentElement.dataset.theme).toBe("light");
+    await user.click(button);
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    expect(log.textContent).toContain("theme: light");
+    expect(log.textContent).toContain("theme: dark");
+  });
+
   test("the prompt has no underline; the caret shows where you type", async () => {
     const { input } = await setup();
     expect(input.closest("form")?.className).not.toMatch(/border/);

@@ -21,6 +21,7 @@ import {
   usedIn,
 } from "@/lib/content";
 import { games, helpEntries, linkFor, type Output } from "@/lib/terminal";
+import { currentTheme } from "@/lib/theme";
 
 /** Runs a command when a visitor clicks it; absent in the no-JS session. */
 export type RunCommand = (command: string) => void;
@@ -1099,11 +1100,26 @@ function Help({ onRun }: { onRun?: RunCommand }) {
         {helpEntries.map((entry) => (
           <div key={entry.command} className="contents">
             <dt>
-              <CommandButton
-                command={entry.command.replace("dark|light", "dark")}
-                label={entry.command}
-                onRun={onRun}
-              />
+              {entry.command === "theme dark|light" ? (
+                // Switches to whichever theme is not showing, decided on click.
+                <CommandButton
+                  command="theme dark"
+                  label={entry.command}
+                  onRun={
+                    onRun &&
+                    (() =>
+                      onRun(
+                        `theme ${currentTheme() === "dark" ? "light" : "dark"}`,
+                      ))
+                  }
+                />
+              ) : (
+                <CommandButton
+                  command={entry.command}
+                  label={entry.command}
+                  onRun={onRun}
+                />
+              )}
             </dt>
             <dd className="text-muted mb-1 sm:mb-0">{entry.description}</dd>
           </div>

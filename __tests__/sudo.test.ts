@@ -33,9 +33,11 @@ describe("Sudo", () => {
     expect(reply("xyz").command).toBe("help");
   });
 
-  test("offers the way back after a theme change", () => {
+  test("prefers dark mode, and offers the way back to it", () => {
+    expect(reply("theme light").text).toMatch(/My eyes!/);
     expect(reply("theme light").command).toBe("theme dark");
-    expect(reply("theme dark").command).toBe("theme light");
+    expect(reply("theme dark").text).toMatch(/comfier/);
+    expect(reply("theme dark").command).toBeUndefined();
   });
 
   test("answers to its own name instead of calling it a mistake", () => {

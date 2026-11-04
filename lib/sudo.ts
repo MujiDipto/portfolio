@@ -61,12 +61,14 @@ export function reply(command: string): Line {
   if (effect?.type === "clear") {
     return { text: "All clean. Lost? Try", command: "help" };
   }
+  // Sudo is a night cat.
   if (effect?.type === "theme") {
-    const other = effect.theme === "light" ? "dark" : "light";
-    return {
-      text: "Looking good. Switch back with",
-      command: `theme ${other}`,
-    };
+    return effect.theme === "light"
+      ? {
+          text: "My eyes! Knights belong in dungeons. Back to",
+          command: "theme dark",
+        }
+      : { text: "Back in the shadows. Much comfier." };
   }
   // Everyday shell commands print a line, or nothing (cd); Sudo answers
   // them rather than treating them as mistakes.
@@ -166,7 +168,11 @@ export const tips: Line[] = [
   { text: "Tip: ↑ and ↓ bring back earlier commands." },
   { text: "Tip: Esc clears the line." },
   { text: "Tip: Page Up and Page Down scroll the output." },
-  { text: "Tip: prefer light? Try", command: "theme light" },
+  {
+    text: "Tip: prefer light? Try",
+    command: "theme light",
+    after: "(I'll look away)",
+  },
   { text: `Tip: in your own terminal, try curl ${siteUrl.host}` },
 ];
 
