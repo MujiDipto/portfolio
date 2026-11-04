@@ -277,6 +277,11 @@ function RowLabel({ children }: { children: ReactNode }) {
  * `revealed` is how many lines the opening animation has printed; hidden
  * lines stay in the DOM so screen readers and search engines get them at once.
  */
+// The quote split before its last word, which keeps the closing mark company.
+const quoteBreak = pullQuote.text.lastIndexOf(" ") + 1;
+const quoteStart = pullQuote.text.slice(0, quoteBreak);
+const quoteEnd = pullQuote.text.slice(quoteBreak);
+
 function Outcomes({
   revealed,
   onRun,
@@ -339,15 +344,21 @@ function Outcomes({
           </span>
           <figure className="min-w-0 leading-normal">
             <blockquote className="text-fg-strong inline">
-              {pullQuote.text}
-              {/* Drawn over a small box, so the large mark cannot make the
-                  line taller and push the first screen past the window. */}
-              <span
-                aria-hidden="true"
-                className="relative ml-1 inline-block w-[1ch]"
-              >
-                <span className="text-number absolute -top-5 left-0 text-2xl leading-none font-bold">
-                  ”
+              {quoteStart}
+              {/* The last word and the closing mark wrap together, so the
+                  mark never sits alone on a line. */}
+              <span className="whitespace-nowrap">
+                {quoteEnd}
+                {/* Drawn over a small box, so the large mark cannot make the
+                    line taller and push the first screen past the window.
+                    ml-4 matches the gap after the opening mark. */}
+                <span
+                  aria-hidden="true"
+                  className="relative ml-4 inline-block w-[1ch]"
+                >
+                  <span className="text-number absolute -top-5 left-0 text-2xl leading-none font-bold">
+                    ”
+                  </span>
                 </span>
               </span>
             </blockquote>{" "}
